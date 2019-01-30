@@ -1,0 +1,8 @@
+Use either chrono: https://github.com/wanasit/chrono
+or sugar-js: https://sugarjs.com/dates/#/Parsing
+
+Set default forward/future dates, and check specificity to set a default time of day.
+
+Sugar-js: https://github.com/andrewplummer/Sugar/issues/589 to get specificity, maybe need to use a newer version than last release https://github.com/andrewplummer/Sugar/issues/594
+
+Date formatting: either sugar-js or momentjs https://momentjs.com/

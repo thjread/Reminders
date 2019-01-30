@@ -1,0 +1,48 @@
+STORIES
+=======
+
+User makes a reminder, with no deadline. They wish to be reminded of this, but not urgently.
+
+User makes a reminder with a deadline in the future. They wish to be reminded of this prominently near the deadline, and notified at the deadline if the reminder is not comleted.
+
+User wants to be notified to hand in work two days before the work is due, and to have the deadline also marked. Deadline repeats three times at two week intervals.
+
+User get a reminder notification to send an email at 8am. User decides to delay sending the email until 12pm, and wants to be notified again then.
+
+User wants a reminder to do laundry every three days. When the reminder is marked as done, a new reminder should appear three days later, and user should be notified.
+
+DESIRED FEATURES
+================
+
+Snooze - put a reminder out of your mind until a later date (and be notified at that time)
+Deadlines - see work that's due in the future at a glance
+
+UX
+==
+
+Simplify by only having a notification time. 
+
+Reminders with optional notification time. Tick box to make notification time a deadline time (things with a deadline vs instantaneous todos), ticked by default?
+
+Separate deadline view with all deadline type reminders, sorted by deadline.
+"DO NOW || DO LATER"
+Swipe to remove from NOW, with a new deadline to reappear.
+
+Reminders without a notification time appear in NOW. Non-deadline reminders are hidden in a separate tab until notification time.
+
+TRIGGERS
+========
+
+Custom chicken scheme code for different reminder templates (e.g. one off, repeating).
+Code is given a number of optional inputs (e.g. time periods, dates) and compulsory (?) inputs (title, description).
+Code runs immediately, or after a trigger e.g. previous such reminder marked as done, or every ten minutes.
+Code can create new reminders (e.g. repeated reminders).
+Code can respond with DONE to ask not to be run again.
+
+NICE TO HAVE
+============
+
+Tags, so that user can temporarily only display certain subsets of reminders.
+Search.
+Descriptions as well as titles.
+Cool scheme APIs, like create an umbrella reminder if rain is forecast the next day.
