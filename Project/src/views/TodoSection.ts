@@ -1,6 +1,10 @@
-var m = require("mithril");
+import m from "mithril";
 
-module.exports = {
+interface Attrs {
+    title: string;
+}
+
+const TodoSection: m.Component<Attrs> = {
     view: function(vnode) {
         return m("section.todos-section", [
             m("h1.section-title", vnode.attrs.title),
@@ -8,3 +12,5 @@ module.exports = {
         ]);
     }
 }
+
+export default TodoSection;
