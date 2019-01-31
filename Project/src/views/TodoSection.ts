@@ -11,6 +11,6 @@ const TodoSection: m.Component<Attrs> = {
             vnode.children
         ]);
     }
-}
+};
 
 export default TodoSection;

@@ -12,7 +12,9 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
-    "mithril": "^2.0.0-rc.3"
+    "mithril": "^2.0.0-rc.3",
+    "moment": "^2.24.0",
+    "redux": "^4.0.1"
   },
   "devDependencies": {
     "@types/mithril": "^1.1.14",

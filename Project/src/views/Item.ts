@@ -1,5 +1,8 @@
 import m from "mithril";
-import State from "../models/State";
+import moment from "moment";
+import {getTodo, getCurrentDate} from "../models/Store";
+
+// TODO optimise moment with webpack
 
 interface Attrs {
     id: string;
@@ -7,12 +10,12 @@ interface Attrs {
 
 const Item: m.Component<Attrs> = {
     view: function(vnode) {
-        const item = State.todos[vnode.attrs.id];
+        const item = getTodo(vnode.attrs.id);
 
         return m("li.item", [
             m("input", {type: "checkbox", checked: item.done}),
             m("h2.item-title", item.title),
-            item.deadline ? m("h3.item-deadline", item.deadline.toString()) : undefined
+            item.deadline ? m("h3.item-deadline", moment(item.deadline).calendar(getCurrentDate())) : undefined
         ]);
     }
 };
