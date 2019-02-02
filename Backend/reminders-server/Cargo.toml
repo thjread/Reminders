@@ -1,0 +1,18 @@
+[package]
+name = "reminders-server"
+version = "0.1.0"
+authors = ["Thomas Read <thjread@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+actix-web = "0.7"
+listenfd = "0.3"
+serde_derive = "1.0.85"
+serde = "1.0.85"
+env_logger = "0.6.0"
+diesel = { version = "1.4.1", features = ["postgres", "chrono", "uuid"] }
+uuid = { version = ">=0.2.0, <0.7.0", features = ["serde", "use_std"] }
+chrono = { version = "0.4", features = ["serde"] }
+actix = "0.7.9"
+dotenv = "0.13.0"
+futures = "0.1.25"

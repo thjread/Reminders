@@ -1,0 +1,6 @@
+CREATE TABLE todos (
+  id UUID PRIMARY KEY,
+  title VARCHAR NOT NULL,
+  deadline DATE,
+  done BOOLEAN NOT NULL DEFAULT 'f'
+)

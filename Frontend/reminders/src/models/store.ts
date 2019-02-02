@@ -1,5 +1,6 @@
 import { createStore } from "redux";
-import reducer from "./Reducer";
+import Immutable from "seamless-immutable";
+import reducer from "./reducer";
 
 interface Item {
     title: string,
@@ -8,65 +9,70 @@ interface Item {
 }
 
 function itemCompare(a: Item, b: Item) {
-    if (!b.deadline) {
-        if (!a.deadline) {
-            return 0;
+    if (a.deadline) {
+        if (b.deadline) {
+            if (a.deadline < b.deadline) {
+                return -1;
+            } else if (b.deadline < a.deadline) {
+                return 1;
+            } else {
+                return 0;
+            }
         } else {
             return -1;
         }
-    } else if (!a.deadline) {
-        return 1;
-    } else if (a < b) {
-        return -1;
-    } else if (a > b) {
-        return 1;
     } else {
-        return 0;
+        if (b.deadline) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 }
 
-export interface State {
+interface StateI {
     todos: { [id: string]: Item };
     currentDate: Date;
 }
+export type State = Immutable.Immutable<StateI>;
 
-var testState: State = {
+var testState: State = Immutable({
     todos: {
-        "0134": {
+        "268a2ce1-0e1c-4379-a3c5-1f908c1f713d": {
             title: "Hand in Linear Algebra",
             deadline: new Date("2019-01-28T12:00:00.000Z"),
             done: false
-        },
-        "2011": {
+        }, 
+        "602f4612-3f0a-4a8e-b93c-a6a8f54e12f6": {
             title: "Hand in Methods",
             deadline: new Date("2019-01-29T12:00:00.000Z"),
             done: false
         },
-        "0008": {
+        "0018ed61-3687-4301-b763-00c0c5d775e5": {
             title: "Do laundry",
             done: false
         },
-        "1000": {
+        "ebfb1ab2-72d9-41f0-a047-e9aeacca8caa": {
             title: "Hand in Analysis",
             deadline: new Date("2019-01-30T12:00:00.000Z"),
             done: false
         },
-        "0500": {
+        "7b8b9fd6-ddef-4ede-a925-c3201d46bc8e": {
             title: "Be born",
             done: true
         }
     },
     currentDate: new Date("2019-01-29T13:00:00.000Z")
-}
+})
 
-const store = createStore(reducer, testState);
+export const store = createStore(reducer, testState);
 
 export function getTodo(id: string) {
-    return store.getState().todos[id];
+    return store.getState().todos[id].asMutable();
 }
 
 export function getCurrentDate() {
-    return store.getState().currentDate;
+    return store.getState().currentDate.asMutable();
 }
 
 export function todoDue(id: string) {
@@ -85,5 +91,3 @@ export function dueTodos() {
 export function laterTodos() {
     return Object.keys(store.getState().todos).filter(id => !todoDue(id)).sort((a, b) => itemCompare(getTodo(a), getTodo(b)));
 }
-
-export default store;

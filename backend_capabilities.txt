@@ -1,0 +1,9 @@
+Database access - query for TODOs under a specific user
+  - respond with JSON
+
+Notifications - webpush protocol
+  - query for TODOs which are about to trigger
+
+Run chicken scheme code periodically to generate new reminders
+
+Authentication (OAuth?)

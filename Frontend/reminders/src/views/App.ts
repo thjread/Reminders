@@ -2,7 +2,7 @@ import m from "mithril";
 import TodoSection from "./TodoSection";
 import TodoList from "./TodoList";
 
-import {dueTodos, laterTodos} from "../models/Store";
+import {dueTodos, laterTodos} from "../models/store";
 
 export default {
     view: function() {
