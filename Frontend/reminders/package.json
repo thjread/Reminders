@@ -13,11 +13,14 @@
   "private": true,
   "dependencies": {
     "@types/seamless-immutable": "^7.1.6",
+    "@types/service_worker_api": "0.0.9",
+    "@types/uuid": "^3.4.4",
     "mithril": "^2.0.0-rc.3",
     "moment": "^2.24.0",
     "redux": "^4.0.1",
     "seamless-immutable": "^7.1.4",
-    "typesafe-actions": "^3.0.0"
+    "typesafe-actions": "^3.0.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/mithril": "^1.1.14",

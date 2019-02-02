@@ -2,13 +2,14 @@ import { createStore } from "redux";
 import Immutable from "seamless-immutable";
 import reducer from "./reducer";
 
-interface Item {
+export interface Todo {
     title: string,
     deadline?: Date,
     done: boolean
 }
+export type TodoMap = { [id: string]: Todo };
 
-function itemCompare(a: Item, b: Item) {
+function itemCompare(a: Todo, b: Todo) {
     if (a.deadline) {
         if (b.deadline) {
             if (a.deadline < b.deadline) {
@@ -31,8 +32,9 @@ function itemCompare(a: Item, b: Item) {
 }
 
 interface StateI {
-    todos: { [id: string]: Item };
+    todos: TodoMap;
     currentDate: Date;
+    offlineActions: any[];
 }
 export type State = Immutable.Immutable<StateI>;
 
@@ -42,7 +44,7 @@ var testState: State = Immutable({
             title: "Hand in Linear Algebra",
             deadline: new Date("2019-01-28T12:00:00.000Z"),
             done: false
-        }, 
+        },
         "602f4612-3f0a-4a8e-b93c-a6a8f54e12f6": {
             title: "Hand in Methods",
             deadline: new Date("2019-01-29T12:00:00.000Z"),
@@ -62,10 +64,11 @@ var testState: State = Immutable({
             done: true
         }
     },
-    currentDate: new Date("2019-01-29T13:00:00.000Z")
+    currentDate: new Date("2019-01-29T13:00:00.000Z"),
+    offlineActions: []
 })
 
-export const store = createStore(reducer, testState);
+export const store = createStore(reducer, testState, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
 
 export function getTodo(id: string) {
     return store.getState().todos[id].asMutable();

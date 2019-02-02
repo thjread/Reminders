@@ -1,2 +1,2 @@
 #!/bin/sh
-python2 -m SimpleHTTPServer
+python -m http.server
