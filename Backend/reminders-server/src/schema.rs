@@ -2,7 +2,7 @@ table! {
     todos (id) {
         id -> Uuid,
         title -> Varchar,
-        deadline -> Nullable<Date>,
+        deadline -> Nullable<Timestamp>,
         done -> Bool,
     }
 }
