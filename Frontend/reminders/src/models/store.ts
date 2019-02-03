@@ -34,11 +34,11 @@ function itemCompare(a: Todo, b: Todo) {
 interface StateI {
     todos: TodoMap;
     currentDate: Date;
-    offlineActions: any[];
+    syncActions: any[];
 }
 export type State = Immutable.Immutable<StateI>;
 
-var testState: State = Immutable({
+/*var testState: State = Immutable({
     todos: {
         "268a2ce1-0e1c-4379-a3c5-1f908c1f713d": {
             title: "Hand in Linear Algebra",
@@ -65,10 +65,16 @@ var testState: State = Immutable({
         }
     },
     currentDate: new Date("2019-01-29T13:00:00.000Z"),
-    offlineActions: []
-})
+    syncActions: []
+})*/
 
-export const store = createStore(reducer, testState, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
+const initState: State = Immutable({
+  todos: {},
+  currentDate: new Date("2019-01-29T13:00:00.000Z"),
+  syncActions: []
+});
+
+export const store = createStore(reducer, initState, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
 
 export function getTodo(id: string) {
     return store.getState().todos[id].asMutable();

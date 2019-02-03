@@ -4,38 +4,35 @@ import uuidv4 from "uuid/v4";
 
 import { store, Todo, TodoMap } from "./store";
 
-// action must have an action_id field with a uuidv4 in it
-function serverUpdate(method: string, path: string, action: any, data: any) {
-    const action_id = action.payload.action_id;
-    store.dispatch(offlineAction(action));
-
-    m.request({
-        method,
-        url: "http://localhost:3000/api/" + path,
-        data
-    }).then(function (todos) {
-        store.dispatch(offlineActionCompleted(action_id));
-        updateWithServerTodos(todos as ServerTodoRow[]);
-    }).catch(function (e) {
-        if (e.code !== 0) {// got a response from server
-            console.log("Server error " + e.message);
-            store.dispatch(offlineActionCompleted(action_id));// give up on action
-            askServerForTodos();// try to reset to server state
-        }
-    });
+interface ActionDummy {
+    type: string,
+    payload: any
 }
 
-function askServerForTodos() {
-    m.request({
-        method: "GET",
-        url: "http://localhost:3000/api/todos",
-    }).then(function (todos) {
-        updateWithServerTodos(todos as ServerTodoRow[]);
-    }).catch(function(e) {
-        if (e.code !== 0) {// got a response from server
-            console.log("Server error " + e.message);
-        }
-    })
+// action must have an action_id field with a uuidv4 in it
+export function serverUpdate(actions: ActionDummy[]
+                             = store.getState().syncActions.asMutable()) {
+    if (navigator.onLine !== false) {
+        m.request({
+            method: "PUT",
+            url: "http://localhost:3000/api/update",
+            data: actions
+        }).then(function (todos) {
+            actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+            updateWithServerTodos(todos as ServerTodoRow[]);
+        }).catch(function (e) {
+            if (e.code !== 0) {// got a response from server
+                console.log("Server error " + e.message);
+                // give up on actions
+                actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+                askServerForTodos();// try to reset to server state
+            }
+        });
+    }
+}
+
+export function askServerForTodos() {
+    serverUpdate([]);
 }
 
 interface ServerTodoRow {
@@ -53,11 +50,12 @@ function serverRowToTodo(t: ServerTodoRow) {
     if (t.deadline) {
         todo.deadline = new Date(t.deadline);
     }
+    return todo;
 }
 
 function updateWithServerTodos(todos: ServerTodoRow[]) {
     store.dispatch(setServerTodos(todos));
-    store.getState().offlineActions.forEach(a => store.dispatch(a));
+    store.getState().syncActions.forEach(a => store.dispatch(a));
 }
 
 export const setServerTodos = createAction("SET_SERVER_TODOS", resolve => {
@@ -74,18 +72,19 @@ export const setServerTodos = createAction("SET_SERVER_TODOS", resolve => {
 export const toggleDone = createAction("TOGGLE_DONE", resolve => {
     return (id: string, done: boolean) => {
         const action = resolve({id, done, action_id: uuidv4()});
-        serverUpdate("PUT", "toggle_done", action, {id, done});
+        store.dispatch(syncAction(action));
+        serverUpdate();
         return action;
     }
 })
 
-export const offlineAction = createAction("OFFLINE_ACTION", resolve => {
-    return (action: any) => {
+export const syncAction = createAction("SYNC_ACTION", resolve => {
+    return (action: ActionDummy) => {
         return resolve({action});
     }
 })
 
-export const offlineActionCompleted = createAction("OFFLINE_ACTION_COMPLETED", resolve => {
+export const syncActionSynced = createAction("SYNC_ACTION_SYNCED", resolve => {
     return (action_id: string) => {
         return resolve({action_id});
     }

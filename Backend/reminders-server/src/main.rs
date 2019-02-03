@@ -19,15 +19,27 @@ mod schema;
 mod models;
 mod database;
 
-use database::{DbExecutor, ToggleDone};
+use database::{DbExecutor, UpdateBatch, AskForTodos};
 
 struct AppState {
     db: Addr<DbExecutor>,
 }
 
-fn toggle_done((req, data): (HttpRequest<AppState>, Json<ToggleDone>)) -> Box<Future<Item=HttpResponse, Error=Error>> {
-    let action = data.0;
-    req.state().db.send(dbg!(action))
+fn update((req, data): (HttpRequest<AppState>, Json<UpdateBatch>)) -> Box<Future<Item=HttpResponse, Error=Error>> {
+    let actions = data.0;
+    req.state().db.send(actions)
+        .from_err()
+        .and_then(|res| {
+            match res {
+                Ok(todo) => Ok(HttpResponse::Ok().json(todo)),
+                Err(e) => { dbg!(e); Ok(HttpResponse::InternalServerError().into()) }
+            }
+        })
+        .responder()
+}
+
+fn ask_for_todos(req: &HttpRequest<AppState>) -> Box<Future<Item=HttpResponse, Error=Error>> {
+    req.state().db.send(AskForTodos())
         .from_err()
         .and_then(|res| {
             match res {
@@ -57,8 +69,10 @@ fn main() {
                 .configure(|app| {
                     Cors::for_app(app)
                         .allowed_origin("http://localhost:8000")
-                        .resource("/toggle_done",
-                                  |r| r.method(http::Method::PUT).with_async(toggle_done))
+                        .resource("/update",
+                                  |r| r.method(http::Method::PUT).with_async(update))
+                        .resource("/todos",
+                                  |r| r.method(http::Method::GET).a(ask_for_todos))
                         .register()
                 })
         });

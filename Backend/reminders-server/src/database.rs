@@ -7,7 +7,7 @@ use serde_derive::{Serialize, Deserialize};
 use dotenv::dotenv;
 use std::env;
 
-use crate::schema::todos::dsl::*;
+use crate::schema::todos::dsl;
 use crate::models::*;
 
 pub struct DbExecutor(pub PgConnection);
@@ -26,34 +26,46 @@ pub fn establish_connection() -> PgConnection {
 }
 
 fn get_todos(connection: &PgConnection) -> Result<Vec<Todo>, Error> {
-    todos.load::<Todo>(connection)//TODO limit total number?
+    dsl::todos.load::<Todo>(connection)//TODO limit total number?
 }
-
-/* TOGGLE DONE */
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ToggleDone {
-    id: Uuid,
-    done: bool,
+#[serde(tag = "type", content="payload")]
+#[allow(non_camel_case_types)]
+pub enum UpdateAction {
+    TOGGLE_DONE {
+        id: Uuid,
+        done: bool,
+        action_id: Uuid,
+    },
 }
 
-impl Message for ToggleDone {
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateBatch(Vec<UpdateAction>);
+
+impl Message for UpdateBatch {
     type Result = Result<Vec<Todo>, Error>;
 }
 
-impl Handler<ToggleDone> for DbExecutor {
+impl Handler<UpdateBatch> for DbExecutor {
     type Result = Result<Vec<Todo>, Error>;
 
-    fn handle(&mut self, msg: ToggleDone, _: &mut Self::Context) -> Self::Result {
-        diesel::update(todos.find(msg.id))
-            .set(done.eq(msg.done))
-            .get_result::<Todo>(&self.0)?;
-
+    fn handle(&mut self, UpdateBatch(actions): UpdateBatch, _: &mut Self::Context) -> Self::Result {
+        for action in actions {
+            let result = match action {
+                UpdateAction::TOGGLE_DONE { id, done, .. } => {
+                    diesel::update(dsl::todos.find(id))
+                        .set(dsl::done.eq(done))
+                        .get_result::<Todo>(&self.0)
+                }
+            };
+            if let Err(e) = result {
+                println!("Database error: {}", e);
+            }
+        }
         return get_todos(&self.0);
     }
 }
-
-/* ASK FOR TODOS */
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AskForTodos();

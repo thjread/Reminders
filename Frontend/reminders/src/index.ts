@@ -1,6 +1,13 @@
 import m from "mithril";
 import App from "./views/App";
+import { askServerForTodos, serverUpdate } from "./models/actions";
+//import {tryOfflineActions} from "./models/actions"
 m.mount(document.body, App);
+
+askServerForTodos();
+
+const syncInterval = setInterval(serverUpdate, 5000);
+window.addEventListener("online", _ => serverUpdate());
 
 /*if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("/sw.js", {scope: "/"}).then(function (reg) {

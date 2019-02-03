@@ -1,3 +1,5 @@
 Remove CORS headers
 
 Auth: https://www.jamestease.co.uk/blether/creating-authentication-middleware-actix-rust-react
+
+Batched API via serde internally tagged enum to send redux `action`s directly.
