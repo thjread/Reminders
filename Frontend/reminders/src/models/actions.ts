@@ -9,9 +9,15 @@ interface ActionDummy {
     payload: any
 }
 
+export function storeTodos() {
+    localStorage.setItem("todos", JSON.stringify(store.getState().todos));
+    localStorage.setItem("syncActions", JSON.stringify(store.getState().syncActions));
+}
+
 // action must have an action_id field with a uuidv4 in it
 export function serverUpdate(actions: ActionDummy[]
                              = store.getState().syncActions.asMutable()) {
+    storeTodos();
     if (navigator.onLine !== false) {
         m.request({
             method: "PUT",
@@ -20,6 +26,7 @@ export function serverUpdate(actions: ActionDummy[]
         }).then(function (todos) {
             actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
             updateWithServerTodos(todos as ServerTodoRow[]);
+            storeTodos();
         }).catch(function (e) {
             if (e.code !== 0) {// got a response from server
                 console.log("Server error " + e.message);

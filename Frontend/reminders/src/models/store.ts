@@ -68,13 +68,38 @@ export type State = Immutable.Immutable<StateI>;
     syncActions: []
 })*/
 
-const initState: State = Immutable({
-  todos: {},
-  currentDate: new Date("2019-01-29T13:00:00.000Z"),
-  syncActions: []
-});
+function dateTimeReviver(_: any, value: any) {
+    var a;
+    if (typeof value === 'string') {
+        const reISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
+        if (reISO.exec(value)) {
+            return new Date(value);
+        }
+    }
+    return value;
+}
 
-export const store = createStore(reducer, initState, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
+function getInitState() {
+    let initState: State = Immutable({
+        todos: {},
+        currentDate: new Date("2019-01-29T13:00:00.000Z"),
+        syncActions: []
+    });
+
+    const todosJSON = localStorage.getItem("todos");
+    const syncActionsJSON = localStorage.getItem("syncActions");
+    if (todosJSON) {
+        let todos = JSON.parse(todosJSON, dateTimeReviver);
+        initState = initState.set("todos", todos);
+    }
+    if (syncActionsJSON) {
+        let syncActions = JSON.parse(syncActionsJSON, dateTimeReviver);
+        initState = initState.set("syncActions", syncActions);
+    }
+    return initState;
+}
+
+export const store = createStore(reducer, getInitState(), (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
 
 export function getTodo(id: string) {
     return store.getState().todos[id].asMutable();

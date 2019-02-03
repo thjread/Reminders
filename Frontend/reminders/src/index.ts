@@ -1,7 +1,8 @@
 import m from "mithril";
 import App from "./views/App";
 import { askServerForTodos, serverUpdate } from "./models/actions";
-//import {tryOfflineActions} from "./models/actions"
+import "./models/store"; // initialise store
+
 m.mount(document.body, App);
 
 askServerForTodos();
