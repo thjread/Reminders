@@ -57,8 +57,9 @@ fn main() {
     let mut listenfd = ListenFd::from_env();
     let sys = actix::System::new("reminders-server");
 
-    let addr = SyncArbiter::start(1, || {
-        DbExecutor(database::establish_connection())
+    let pool = database::establish_connection();
+    let addr = SyncArbiter::start(2, move || {
+        DbExecutor(pool.clone())
     });
 
     let mut server = server::new(
