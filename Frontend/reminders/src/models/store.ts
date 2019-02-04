@@ -86,15 +86,11 @@ function getInitState() {
         syncActions: []
     });
 
-    const todosJSON = localStorage.getItem("todos");
-    const syncActionsJSON = localStorage.getItem("syncActions");
-    if (todosJSON) {
-        let todos = JSON.parse(todosJSON, dateTimeReviver);
-        initState = initState.set("todos", todos);
-    }
-    if (syncActionsJSON) {
-        let syncActions = JSON.parse(syncActionsJSON, dateTimeReviver);
-        initState = initState.set("syncActions", syncActions);
+    const stateJSON = localStorage.getItem("state");
+    if (stateJSON) {
+        let state = JSON.parse(stateJSON, dateTimeReviver);
+        initState = initState.set("todos", state.todos);
+        initState = initState.set("syncActions", state.syncActions);
     }
     return initState;
 }

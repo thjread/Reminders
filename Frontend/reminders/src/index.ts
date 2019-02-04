@@ -1,9 +1,19 @@
 import m from "mithril";
+import { loggedIn } from "./models/auth";
+import { store } from "./models/store"; // initialise store
+import { storeState, askServerForTodos, serverUpdate } from "./models/actions";
 import App from "./views/App";
-import { askServerForTodos, serverUpdate } from "./models/actions";
-import "./models/store"; // initialise store
+import Login from "./views/Login";
+store.subscribe(storeState)
 
-m.mount(document.body, App);
+m.route(document.body, "/",
+        {
+    "/": App,
+    "/login": Login
+});
+if (!loggedIn) {
+    m.route.set("/login");
+}
 
 askServerForTodos();
 

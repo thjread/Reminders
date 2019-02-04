@@ -3,7 +3,7 @@ import moment from "moment";
 import {store, getTodo, getCurrentDate} from "../models/store";
 import {toggleDone} from "../models/actions";
 
-// TODO optimise moment with webpack
+// TODO optimise moment with webpack or replace with own code
 
 interface Attrs {
     id: string;

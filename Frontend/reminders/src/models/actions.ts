@@ -3,21 +3,28 @@ import m from "mithril";
 import uuidv4 from "uuid/v4";
 
 import { store, Todo, TodoMap } from "./store";
+import { loggedIn } from "./auth";
 
 interface ActionDummy {
     type: string,
     payload: any
 }
 
-export function storeTodos() {
-    localStorage.setItem("todos", JSON.stringify(store.getState().todos));
-    localStorage.setItem("syncActions", JSON.stringify(store.getState().syncActions));
+export function storeState() {
+    const state = store.getState();
+    localStorage.setItem("state", JSON.stringify({
+        todos: state.todos,
+        syncActions: state.syncActions
+    }));
+    console.log("Saved to localStorage");
 }
 
 // action must have an action_id field with a uuidv4 in it
 export function serverUpdate(actions: ActionDummy[]
                              = store.getState().syncActions.asMutable()) {
-    storeTodos();
+    if (!loggedIn) return;
+
+    storeState();
     if (navigator.onLine !== false) {
         m.request({
             method: "PUT",
@@ -26,7 +33,7 @@ export function serverUpdate(actions: ActionDummy[]
         }).then(function (todos) {
             actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
             updateWithServerTodos(todos as ServerTodoRow[]);
-            storeTodos();
+            storeState();
         }).catch(function (e) {
             if (e.code !== 0) {// got a response from server
                 console.log("Server error " + e.message);

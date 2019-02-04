@@ -1,0 +1,7 @@
+CREATE TABLE users (
+  userid UUID PRIMARY KEY,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  salt CHAR(32) NOT NULL,
+  hash CHAR(128) NOT NULL,
+  signup TIMESTAMP NOT NULL
+)

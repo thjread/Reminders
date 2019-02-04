@@ -8,6 +8,10 @@ extern crate chrono;
 extern crate serde_derive;
 extern crate dotenv;
 extern crate futures;
+extern crate base64;
+extern crate oauth2;
+extern crate rand;
+extern crate url;
 
 use listenfd::ListenFd;
 use actix_web::{server, http, App, Json, Error, HttpResponse, HttpRequest,
@@ -18,6 +22,7 @@ use futures::Future;
 mod schema;
 mod models;
 mod database;
+mod auth;
 
 use database::{DbExecutor, UpdateBatch, AskForTodos};
 
@@ -50,6 +55,15 @@ fn ask_for_todos(req: &HttpRequest<AppState>) -> Box<Future<Item=HttpResponse, E
         .responder()
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+struct LoginDetails {
+    username: String,
+    password: String
+}
+
+fn login((req, details): (HttpRequest<AppState>, Json<LoginDetails>)) -> Box<Future<Item=HttpResponse, Error=Error>> {
+}
+
 fn main() {
     std::env::set_var("RUST_LOG", "actix_web=INFO");
     env_logger::init();
@@ -74,6 +88,8 @@ fn main() {
                                   |r| r.method(http::Method::PUT).with_async(update))
                         .resource("/todos",
                                   |r| r.method(http::Method::GET).a(ask_for_todos))
+                        .resource("/login",
+                                  |r| r.method(http::Method::POST).f(login))
                         .register()
                 })
         });

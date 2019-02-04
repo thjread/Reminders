@@ -231,8 +231,7 @@ select[multiple]
     font-size: 2rem;
 }
 
-input[type=text],
-input[type=password] {
+input[type="text"] {
     display: block;
     margin: 1rem 0;
     font-size: 1.2rem;
@@ -261,7 +260,7 @@ input[type=password] {
 
 /* Main styles */
 
-.todos-container {
+body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding: 0 6rem;
@@ -287,6 +286,10 @@ input[type=password] {
     display: flex;
     justify-content: flex-start;
     margin: 1rem 0;
+}
+
+input[type="checkbox"] {
+    margin: 0.2rem;
 }
 
 .item-title {

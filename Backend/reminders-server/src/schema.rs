@@ -6,3 +6,18 @@ table! {
         done -> Bool,
     }
 }
+
+table! {
+    users (userid) {
+        userid -> Uuid,
+        username -> Varchar,
+        salt -> Bpchar,
+        hash -> Bpchar,
+        signup -> Timestamp,
+    }
+}
+
+allow_tables_to_appear_in_same_query!(
+    todos,
+    users,
+);
