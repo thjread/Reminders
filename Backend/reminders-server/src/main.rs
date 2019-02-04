@@ -8,10 +8,6 @@ extern crate chrono;
 extern crate serde_derive;
 extern crate dotenv;
 extern crate futures;
-extern crate base64;
-extern crate oauth2;
-extern crate rand;
-extern crate url;
 
 use listenfd::ListenFd;
 use actix_web::{server, http, App, Json, Error, HttpResponse, HttpRequest,
@@ -24,7 +20,8 @@ mod models;
 mod database;
 mod auth;
 
-use database::{DbExecutor, UpdateBatch, AskForTodos};
+use database::{DbExecutor, UpdateBatch, AskForTodos, LoginDetails, Login,
+               Signup};
 
 struct AppState {
     db: Addr<DbExecutor>,
@@ -55,13 +52,28 @@ fn ask_for_todos(req: &HttpRequest<AppState>) -> Box<Future<Item=HttpResponse, E
         .responder()
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-struct LoginDetails {
-    username: String,
-    password: String
+fn login((req, details): (HttpRequest<AppState>, Json<LoginDetails>)) -> Box<Future<Item=HttpResponse, Error=Error>> {
+    req.state().db.send(Login(details.0))
+        .from_err()
+        .and_then(|res| {
+            match res {
+                Ok(todo) => Ok(HttpResponse::Ok().json(todo)),
+                Err(e) => { dbg!(e); Ok(HttpResponse::InternalServerError().into()) }
+            }
+        })
+        .responder()
 }
 
-fn login((req, details): (HttpRequest<AppState>, Json<LoginDetails>)) -> Box<Future<Item=HttpResponse, Error=Error>> {
+fn signup((req, details): (HttpRequest<AppState>, Json<LoginDetails>)) -> Box<Future<Item=HttpResponse, Error=Error>> {
+    req.state().db.send(Signup(details.0))
+        .from_err()
+        .and_then(|res| {
+            match res {
+                Ok(todo) => Ok(HttpResponse::Ok().json(todo)),
+                Err(e) => { dbg!(e); Ok(HttpResponse::InternalServerError().into()) }
+            }
+        })
+        .responder()
 }
 
 fn main() {
@@ -89,7 +101,9 @@ fn main() {
                         .resource("/todos",
                                   |r| r.method(http::Method::GET).a(ask_for_todos))
                         .resource("/login",
-                                  |r| r.method(http::Method::POST).f(login))
+                                  |r| r.method(http::Method::POST).with_async(login))
+                        .resource("/signup",
+                                  |r| r.method(http::Method::POST).with_async(signup))
                         .register()
                 })
         });

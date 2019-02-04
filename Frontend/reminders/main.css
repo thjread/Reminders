@@ -241,6 +241,12 @@ input[type=password] {
     border-radius: 0.2em;
 }
 
+.login-signup {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .login-button {
     border: 1.5px solid black;
     border-radius: 999rem;
@@ -253,6 +259,14 @@ input[type=password] {
 
 .login-button:active {
     background-color: #eee;
+}
+
+.signup-button {
+    text-decoration: underline;
+}
+
+.signup-button:active {
+    color: #888;
 }
 
 .button-text {

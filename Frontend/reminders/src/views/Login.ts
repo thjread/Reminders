@@ -1,7 +1,7 @@
 import m from "mithril";
 import * as auth from "../models/auth";
 
-export default function () {
+export default function (isLogin: boolean = true) {
     let username = "";
     let password = "";
 
@@ -10,12 +10,21 @@ export default function () {
         console.log("Log in " + username);
     }
 
+    const signup = function() {
+        auth.signup(username, password)
+        console.log("Sign up " + username);
+    }
+
     return {
         view: function() {
             return m("main.login-container", m("form.login-form", {
                 onsubmit: function (e: any) {
                     e.preventDefault();
-                    login();
+                    if (isLogin) {
+                        login();
+                    } else {
+                        signup();
+                    }
                 }
             }, [
                 m("input[type=text]",
@@ -28,7 +37,17 @@ export default function () {
                    oninput: function (e: any) {password = e.currentTarget.value;},
                    value: password
                   }),
-                m("button[type=submit].login-button", m("div.button-text", "Log in"))
+                m("div.login-signup", [
+                    m("button[type=submit].login-button",
+                      m("div.button-text", isLogin ? "Log in" : "Sign up")),
+                    m("button[type=button].signup-button",
+                      { onclick: function() { if (isLogin) {
+                          m.route.set("/signup");
+                      } else {
+                          m.route.set("/login");
+                      }}},
+                      isLogin ? "Sign up" : "Log in")
+                ])
             ]))
         }
     }

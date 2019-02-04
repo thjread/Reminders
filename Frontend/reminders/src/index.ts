@@ -9,7 +9,8 @@ store.subscribe(storeState)
 m.route(document.body, "/",
         {
     "/": App,
-    "/login": Login
+    "/login": Login(),
+    "/signup": Login(false)
 });
 if (!loggedIn) {
     m.route.set("/login");

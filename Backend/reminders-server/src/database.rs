@@ -70,7 +70,6 @@ impl Handler<UpdateBatch> for DbExecutor {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
 pub struct AskForTodos();
 
 impl Message for AskForTodos {
@@ -83,5 +82,43 @@ impl Handler<AskForTodos> for DbExecutor {
     fn handle(&mut self, _msg: AskForTodos, _: &mut Self::Context) -> Self::Result {
         let conn = self.0.get().unwrap();
         return get_todos(&conn);
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct LoginDetails {
+    username: String,
+    password: String
+}
+
+pub struct Login(pub LoginDetails);
+
+impl Message for Login {
+    type Result = Result<(), Error>;
+}
+
+impl Handler<Login> for DbExecutor {
+    type Result = Result<(), Error>;
+
+    fn handle(&mut self, Login(details): Login, _: &mut Self::Context) -> Self::Result {
+        println!("{} log in request", details.username);
+        let conn = self.0.get().unwrap();
+        return Ok(());
+    }
+}
+
+pub struct Signup(pub LoginDetails);
+
+impl Message for Signup {
+    type Result = Result<(), Error>;
+}
+
+impl Handler<Signup> for DbExecutor {
+    type Result = Result<(), Error>;
+
+    fn handle(&mut self, Signup(details): Signup, _: &mut Self::Context) -> Self::Result {
+        println!("{} sign up request", details.username);
+        let conn = self.0.get().unwrap();
+        return Ok(());
     }
 }
