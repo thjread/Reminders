@@ -11,9 +11,13 @@ serde_derive = "1.0.85"
 serde = "1.0.85"
 env_logger = "0.6.0"
 diesel = { version = "1.4.1", features = ["postgres", "chrono", "uuid", "r2d2"] }
-uuid = { version = ">=0.2.0, <0.7.0", features = ["serde", "use_std"] }
+uuid = { version = ">=0.2.0, <0.7.0", features = ["serde", "use_std", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 r2d2 = { version = ">= 0.8, < 0.9"}
 actix = "0.7.9"
 dotenv = "0.13.0"
 futures = "0.1.25"
+frank_jwt = "3.1.0"
+rand = "0.6.5"
+bcrypt = "0.3.0"
+base64 = "0.10.1"

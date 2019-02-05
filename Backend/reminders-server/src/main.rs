@@ -8,6 +8,10 @@ extern crate chrono;
 extern crate serde_derive;
 extern crate dotenv;
 extern crate futures;
+extern crate frank_jwt;
+extern crate rand;
+extern crate bcrypt;
+extern crate base64;
 
 use listenfd::ListenFd;
 use actix_web::{server, http, App, Json, Error, HttpResponse, HttpRequest,
