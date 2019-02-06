@@ -13,6 +13,8 @@ extern crate bcrypt;
 extern crate dotenv;
 extern crate frank_jwt;
 extern crate futures;
+#[macro_use]
+extern crate failure;
 
 use actix::prelude::*;
 use actix_web::{
@@ -31,45 +33,55 @@ mod database;
 mod models;
 mod schema;
 
-use auth::{CheckHash, Hash, HashExecutor};
-use database::{AskForTodos, DbExecutor, GetUser, Signup, UpdateBatch};
+use auth::{CheckHash, Hash, HashExecutor, JWTVerifyError};
+use database::{DbExecutor, GetUser, Signup, UpdateAction, UpdateBatch};
 
 struct AppState {
     db: Addr<DbExecutor>,
     hash: Addr<HashExecutor>,
 }
 
-fn update(
-    (req, data): (HttpRequest<AppState>, Json<UpdateBatch>),
-) -> Box<Future<Item = HttpResponse, Error = Error>> {
-    let actions = data.0;
-    req.state()
-        .db
-        .send(actions)
-        .from_err()
-        .and_then(|res| match res {
-            Ok(todo) => Ok(HttpResponse::Ok().json(todo)),
-            Err(e) => {
-                dbg!(e);
-                Ok(HttpResponse::InternalServerError().into())
-            }
-        })
-        .responder()
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UpdateRequest {
+    jwt: String,
+    batch: Vec<UpdateAction>,
 }
 
-fn ask_for_todos(req: &HttpRequest<AppState>) -> Box<Future<Item = HttpResponse, Error = Error>> {
-    req.state()
-        .db
-        .send(AskForTodos())
-        .from_err()
-        .and_then(|res| match res {
-            Ok(todo) => Ok(HttpResponse::Ok().json(todo)),
-            Err(e) => {
-                dbg!(e);
-                Ok(HttpResponse::InternalServerError().into())
-            }
-        })
-        .responder()
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum UpdateResult {
+    InvalidToken,
+    ExpiredToken,
+    Success,
+}
+
+fn update(
+    (req, data): (HttpRequest<AppState>, Json<UpdateRequest>),
+) -> Box<Future<Item = HttpResponse, Error = Error>> {
+    let jwt_result = auth::verify_jwt(&data.0.jwt);
+    match jwt_result {
+        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
+            futures::future::ok(HttpResponse::Ok().json(UpdateResult::InvalidToken)).responder()
+        },
+        Err(JWTVerifyError::Expired{time: _}) => {
+            futures::future::ok(HttpResponse::Ok().json(UpdateResult::ExpiredToken)).responder()
+        },
+        Ok(userid) => {
+            let actions = data.0.batch;
+            req.state()
+                .db
+                .send(UpdateBatch(userid, actions))
+                .from_err()
+                .and_then(|res| match res {
+                    Ok(todos) => Ok(HttpResponse::Ok().json(todos)),
+                    Err(e) => {
+                        dbg!(e);
+                        Ok(HttpResponse::InternalServerError().into())
+                    }
+                })
+                .responder()
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -83,7 +95,7 @@ pub struct LoginDetails {
 pub enum LoginResult {
     UsernameNotFound,
     IncorrectPassword,
-    Success { jwt: String },
+    Success { userid: Uuid, jwt: String },
 }
 
 fn login(
@@ -119,8 +131,11 @@ fn login(
                             }
                             Ok(valid) => {
                                 if valid {
-                                    let jwt = auth::gen_jwt(user.userid);
-                                    Ok(HttpResponse::Ok().json(LoginResult::Success { jwt: jwt }))
+                                    let jwt = auth::gen_jwt(user.userid.clone())?;
+                                    Ok(HttpResponse::Ok().json(LoginResult::Success {
+                                        userid: user.userid,
+                                        jwt: jwt,
+                                    }))
                                 } else {
                                     Ok(HttpResponse::Ok().json(LoginResult::IncorrectPassword))
                                 }
@@ -137,7 +152,7 @@ fn login(
 pub enum SignupResult {
     UsernameTooLong,
     UsernameTaken,
-    Success { jwt: String },
+    Success { userid: Uuid, jwt: String },
 }
 
 fn signup(
@@ -191,10 +206,12 @@ fn signup(
                                                 dbg!(e);
                                                 Ok(HttpResponse::InternalServerError().into())
                                             }
-                                            Ok(()) => {
-                                                let jwt = auth::gen_jwt(userid);
-                                                Ok(HttpResponse::Ok()
-                                                    .json(SignupResult::Success { jwt: jwt }))
+                                            Ok(_) => {
+                                                let jwt = auth::gen_jwt(userid)?;
+                                                Ok(HttpResponse::Ok().json(SignupResult::Success {
+                                                    jwt: jwt,
+                                                    userid: userid,
+                                                }))
                                             }
                                         }),
                                 )
@@ -215,7 +232,7 @@ fn main() {
 
     let pool = database::establish_connection();
     let db_addr = SyncArbiter::start(2, move || DbExecutor(pool.clone()));
-    let hash_addr = HashExecutor().start();
+    let hash_addr = SyncArbiter::start(2, move || HashExecutor());
 
     let mut server = server::new(move || {
         App::with_state(AppState {
@@ -230,7 +247,6 @@ fn main() {
                 .resource("/update", |r| {
                     r.method(http::Method::PUT).with_async(update)
                 })
-                .resource("/todos", |r| r.method(http::Method::GET).a(ask_for_todos))
                 .resource("/login", |r| r.method(http::Method::POST).with_async(login))
                 .resource("/signup", |r| {
                     r.method(http::Method::POST).with_async(signup)

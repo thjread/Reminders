@@ -9,6 +9,7 @@ use super::schema::users;
 #[table_name="todos"]
 pub struct Todo {
     pub id: Uuid,
+    pub userid: Uuid,
     pub title: String,
     pub deadline: Option<NaiveDateTime>,
     pub done: bool,

@@ -1,23 +1,13 @@
 import m from "mithril";
-import { loggedIn } from "./models/auth";
 import { store } from "./models/store"; // initialise store
-import { storeState, askServerForTodos, serverUpdate } from "./models/actions";
+import { storeState, askServerForTodos, serverUpdate } from "./models/update";
 import App from "./views/App";
-import Login from "./views/Login";
-store.subscribe(storeState)
 
-m.route(document.body, "/",
-        {
-    "/": App,
-    "/login": Login(),
-    "/signup": Login(false)
-});
-if (!loggedIn) {
-    m.route.set("/login");
-}
+store.subscribe(storeState);
+
+m.mount(document.body, App());
 
 askServerForTodos();
-
 const syncInterval = setInterval(serverUpdate, 5000);
 window.addEventListener("online", _ => serverUpdate());
 

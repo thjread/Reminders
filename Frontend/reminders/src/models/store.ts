@@ -1,5 +1,6 @@
 import { createStore } from "redux";
 import Immutable from "seamless-immutable";
+import { LoginDetails } from "./auth";
 import reducer from "./reducer";
 
 export interface Todo {
@@ -35,41 +36,11 @@ interface StateI {
     todos: TodoMap;
     currentDate: Date;
     syncActions: any[];
+    loginDetails?: LoginDetails;
 }
 export type State = Immutable.Immutable<StateI>;
 
-/*var testState: State = Immutable({
-    todos: {
-        "268a2ce1-0e1c-4379-a3c5-1f908c1f713d": {
-            title: "Hand in Linear Algebra",
-            deadline: new Date("2019-01-28T12:00:00.000Z"),
-            done: false
-        },
-        "602f4612-3f0a-4a8e-b93c-a6a8f54e12f6": {
-            title: "Hand in Methods",
-            deadline: new Date("2019-01-29T12:00:00.000Z"),
-            done: false
-        },
-        "0018ed61-3687-4301-b763-00c0c5d775e5": {
-            title: "Do laundry",
-            done: false
-        },
-        "ebfb1ab2-72d9-41f0-a047-e9aeacca8caa": {
-            title: "Hand in Analysis",
-            deadline: new Date("2019-01-30T12:00:00.000Z"),
-            done: false
-        },
-        "7b8b9fd6-ddef-4ede-a925-c3201d46bc8e": {
-            title: "Be born",
-            done: true
-        }
-    },
-    currentDate: new Date("2019-01-29T13:00:00.000Z"),
-    syncActions: []
-})*/
-
 function dateTimeReviver(_: any, value: any) {
-    var a;
     if (typeof value === 'string') {
         const reISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
         if (reISO.exec(value)) {
@@ -79,23 +50,30 @@ function dateTimeReviver(_: any, value: any) {
     return value;
 }
 
-function getInitState() {
-    let initState: State = Immutable({
-        todos: {},
-        currentDate: new Date("2019-01-29T13:00:00.000Z"),
-        syncActions: []
-    });
+const s: StateI = {
+    todos: {},
+    currentDate: new Date("2019-01-29T13:00:00.000Z"),
+    syncActions: [],
+}
+export const initState: State = Immutable(s);
 
-    const stateJSON = localStorage.getItem("state");
-    if (stateJSON) {
-        let state = JSON.parse(stateJSON, dateTimeReviver);
-        initState = initState.set("todos", state.todos);
-        initState = initState.set("syncActions", state.syncActions);
+export function loadFromStorage() {
+    let is = initState;
+    const loginJSON = localStorage.getItem("loginDetails");
+    if (loginJSON) {
+        const loginDetails = JSON.parse(loginJSON);
+        is = is.set("loginDetails", loginDetails);
+        const stateJSON = localStorage.getItem(loginDetails.userid);
+        if (stateJSON) {
+            const state = JSON.parse(stateJSON, dateTimeReviver);
+            is = is.set("todos", state.todos);
+            is = is.set("syncActions", state.syncActions);
+        }
     }
-    return initState;
+    return is;
 }
 
-export const store = createStore(reducer, getInitState(), (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
+export const store = createStore(reducer, loadFromStorage(), (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
 
 export function getTodo(id: string) {
     return store.getState().todos[id].asMutable();

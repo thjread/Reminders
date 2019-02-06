@@ -1,9 +1,11 @@
 import m from "mithril";
 import * as auth from "../models/auth";
 
-export default function (isLogin: boolean = true) {
+export default function (isL: boolean = true) {
     let username = "";
     let password = "";
+
+    var isLogin = isL;
 
     const login = function() {
         auth.login(username, password)
@@ -41,11 +43,7 @@ export default function (isLogin: boolean = true) {
                     m("button[type=submit].login-button",
                       m("div.button-text", isLogin ? "Log in" : "Sign up")),
                     m("button[type=button].signup-button",
-                      { onclick: function() { if (isLogin) {
-                          m.route.set("/signup");
-                      } else {
-                          m.route.set("/login");
-                      }}},
+                      { onclick: function() { isLogin = !isLogin } },
                       isLogin ? "Sign up" : "Log in")
                 ])
             ]))

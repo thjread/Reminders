@@ -1,11 +1,15 @@
 import { ActionType, getType } from "typesafe-actions";
 
-import { State } from "./store";
+import { State, initState } from "./store";
 import * as actions from "./actions";
 export type Action = ActionType<typeof actions>;
 
 export default (state: State, action: Action) => {
     switch (action.type) {
+        case getType(actions.setLoginDetails):
+            return state.set("loginDetails", action.payload);
+        case getType(actions.logoutResetStore):
+            return initState;
         case getType(actions.toggleDone):
             const id = action.payload.id;
             const done = action.payload.done;

@@ -4,6 +4,7 @@ use frank_jwt::Algorithm::HS256;
 use uuid::Uuid;
 use serde_derive::{Serialize, Deserialize};
 use actix::prelude::*;
+use failure::Error;
 
 const COST: u32 = 11;
 const JWT_VALID_TIME: i64 = 7*24*60*60;// 7 weeks
@@ -11,7 +12,7 @@ const JWT_VALID_TIME: i64 = 7*24*60*60;// 7 weeks
 pub struct HashExecutor();
 
 impl Actor for HashExecutor {
-    type Context = Context<Self>;
+    type Context = SyncContext<Self>;
 }
 
 pub struct Hash(pub String);
@@ -51,33 +52,37 @@ pub struct JWTPayload {
     iat: i64,
 }
 
-pub fn gen_jwt(userid: Uuid) -> String {
+pub fn gen_jwt(userid: Uuid) -> Result<String, Error> {
     let payload = serde_json::to_value(JWTPayload {
         userid: userid,
         iat: chrono::Utc::now().timestamp(),
     }).expect("Failed to convert JWT payload to JSON");
     let header = json!({});
     let secret = "secret";// TODO
-    frank_jwt::encode(header, &secret.to_string(), &payload, HS256).expect("Failed to create JWT")
+    frank_jwt::encode(header, &secret.to_string(), &payload, HS256).map_err(|e| e.into())
 }
 
-pub enum JWTError  {
+#[derive(Debug, Fail)]
+pub enum JWTVerifyError  {
+    #[fail(display = "invalid signature")]
     SignatureInvalid,
+    #[fail(display = "invalid payload")]
     PayloadInvalid,
-    Expired,
+    #[fail(display = "token issued at {} has expired", time)]
+    Expired{time: i64},
 }
 
-pub fn verify_jwt(jwt: &String) -> Result<Uuid, JWTError> {
+pub fn verify_jwt(jwt: &String) -> Result<Uuid, JWTVerifyError> {
     match frank_jwt::decode(jwt, &"secret".to_string(), HS256) {
-        Err(_) => Err(JWTError::SignatureInvalid),
+        Err(_) => Err(JWTVerifyError::SignatureInvalid),
         Ok((_, p)) => {
             match serde_json::from_value::<JWTPayload>(p) {
-                Err(_) => Err(JWTError::PayloadInvalid),
+                Err(_) => Err(JWTVerifyError::PayloadInvalid),
                 Ok(payload) => {
                     if chrono::Utc::now().timestamp() - payload.iat < JWT_VALID_TIME {
                         Ok(payload.userid)
                     } else {
-                        Err(JWTError::Expired)
+                        Err(JWTVerifyError::Expired{time: payload.iat})
                     }
                 }
             }

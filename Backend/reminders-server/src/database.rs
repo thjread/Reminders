@@ -7,13 +7,11 @@ use actix::prelude::*;
 use serde_derive::{Serialize, Deserialize};
 use dotenv::dotenv;
 use std::env;
-use chrono::prelude::*;
 
 use crate::schema;
 use crate::schema::todos::dsl as todo_dsl;
 use crate::schema::users::dsl as users_dsl;
 use crate::models::*;
-use crate::auth;
 
 pub struct DbExecutor(pub Pool<ConnectionManager<PgConnection>>);
 
@@ -30,8 +28,14 @@ pub fn establish_connection() -> r2d2::Pool<ConnectionManager<PgConnection>> {
     r2d2::Pool::builder().build(manager).expect("Failed to create pool.")
 }
 
-fn get_todos(connection: &PgConnection) -> Result<Vec<Todo>, Error> {
-    todo_dsl::todos.load::<Todo>(connection)//TODO limit total number?
+fn get_todos(connection: &PgConnection, userid: Uuid) -> Result<Vec<Todo>, Error> {
+    todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).load::<Todo>(connection)//TODO limit total number?
+}
+
+fn toggle_done(connection: &PgConnection, userid: Uuid, id: Uuid, done: bool) -> Result<usize, Error> {
+    diesel::update(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id))
+        .set(todo_dsl::done.eq(done))
+        .execute(connection)
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -46,7 +50,7 @@ pub enum UpdateAction {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateBatch(Vec<UpdateAction>);
+pub struct UpdateBatch(pub Uuid, pub Vec<UpdateAction>);
 
 impl Message for UpdateBatch {
     type Result = Result<Vec<Todo>, Error>;
@@ -55,37 +59,20 @@ impl Message for UpdateBatch {
 impl Handler<UpdateBatch> for DbExecutor {
     type Result = Result<Vec<Todo>, Error>;
 
-    fn handle(&mut self, UpdateBatch(actions): UpdateBatch, _: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, UpdateBatch(userid, actions): UpdateBatch, _: &mut Self::Context) -> Self::Result {
         let conn = self.0.get().unwrap();
 
         for action in actions {
             let result = match action {
                 UpdateAction::TOGGLE_DONE { id, done, .. } => {
-                    diesel::update(todo_dsl::todos.find(id))
-                        .set(todo_dsl::done.eq(done))
-                        .get_result::<Todo>(&conn)
+                    toggle_done(&conn, userid, id, done)
                 }
             };
             if let Err(e) = result {
                 println!("Database error: {}", e);
             }
         }
-        return get_todos(&conn);
-    }
-}
-
-pub struct AskForTodos();
-
-impl Message for AskForTodos {
-    type Result = Result<Vec<Todo>, Error>;
-}
-
-impl Handler<AskForTodos> for DbExecutor {
-    type Result = Result<Vec<Todo>, Error>;
-
-    fn handle(&mut self, _msg: AskForTodos, _: &mut Self::Context) -> Self::Result {
-        let conn = self.0.get().unwrap();
-        return get_todos(&conn);
+        return get_todos(&conn, userid);
     }
 }
 

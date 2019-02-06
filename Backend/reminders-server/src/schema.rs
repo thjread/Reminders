@@ -1,6 +1,7 @@
 table! {
     todos (id) {
         id -> Uuid,
+        userid -> Uuid,
         title -> Varchar,
         deadline -> Nullable<Timestamp>,
         done -> Bool,
