@@ -97,26 +97,48 @@ pub struct LoginDetails {
 
 pub struct Login(pub LoginDetails);
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
+pub enum LoginResult {
+    UsernameNotFound,
+    IncorrectPassword,
+    Success{jwt: String},
+}
+
 impl Message for Login {
-    type Result = Result<(), Error>;
+    type Result = Result<LoginResult, Error>;
 }
 
 impl Handler<Login> for DbExecutor {
-    type Result = Result<(), Error>;
+    type Result = Result<LoginResult, Error>;
 
     fn handle(&mut self, Login(details): Login, _: &mut Self::Context) -> Self::Result {
-        println!("{} log in request", details.username);
+        println!("{} login request", &details.username);
         let conn = self.0.get().unwrap();
-        return Ok(());
+        let user_res = users_dsl::users.filter(users_dsl::username.eq(&details.username))
+            .first::<User>(&conn).optional()?;
+        match user_res {
+            None => Ok(LoginResult::UsernameNotFound),// TODO rate limit this
+            Some(user) => {
+                if auth::check_password(&details.password, &user.hash) {
+                    let jwt = auth::gen_jwt(user.userid);
+                    Ok(LoginResult::Success{ jwt: jwt })
+                } else {
+                    Ok(LoginResult::IncorrectPassword)
+                }
+            }
+        }
     }
 }
 
 pub struct Signup(pub LoginDetails);
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
 pub enum SignupResult {
+    UsernameTooLong,
     UsernameTaken,
-    Success{userid: Uuid},
+    Success{jwt: String},
 }
 
 impl Message for Signup {
@@ -130,7 +152,9 @@ impl Handler<Signup> for DbExecutor {
         use diesel::select;
         use diesel::expression::dsl::exists;
 
-        // TODO max username length
+        if details.username.len() > 100 {
+            return Ok(SignupResult::UsernameTooLong);
+        }
 
         println!("{} sign up request", &details.username);
         let conn = self.0.get().unwrap();
@@ -138,23 +162,21 @@ impl Handler<Signup> for DbExecutor {
             .get_result::<bool>(&conn)?;
         if username_exists {
             println!("Username {} already taken", &details.username);
-            Ok(SignupResult::UsernameTaken)
+            Ok(SignupResult::UsernameTaken)// TODO rate limit this
         } else {
-            let id = Uuid::new_v4();
-            let hash = auth::hash_password(details.password);
+            let userid = Uuid::new_v4();
+            let hash = auth::hash_password(&details.password);
             let new_user = User {
-                userid: id,
+                userid: userid,
                 username: details.username,
-                salt: hash.salt,
-                hash: hash.hash,
+                hash: hash,
                 signup: Utc::now().naive_utc(),
             };
             diesel::insert_into(schema::users::table)
                 .values(&new_user)
                 .execute(&conn)?;
-            Ok(SignupResult::Success {
-                userid: id
-            })
+            let jwt = auth::gen_jwt(userid);
+            Ok(SignupResult::Success{ jwt: jwt })
         }
     }
 }

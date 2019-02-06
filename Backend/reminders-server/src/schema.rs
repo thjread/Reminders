@@ -11,7 +11,6 @@ table! {
     users (userid) {
         userid -> Uuid,
         username -> Varchar,
-        salt -> Bpchar,
         hash -> Bpchar,
         signup -> Timestamp,
     }

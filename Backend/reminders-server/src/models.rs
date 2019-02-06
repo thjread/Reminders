@@ -19,7 +19,6 @@ pub struct Todo {
 pub struct User {
     pub userid: Uuid,
     pub username: String,
-    pub salt: String,
     pub hash: String,
     pub signup: NaiveDateTime,
 }

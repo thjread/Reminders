@@ -6,12 +6,11 @@ extern crate env_logger;
 extern crate uuid;
 extern crate chrono;
 extern crate serde_derive;
+#[macro_use] extern crate serde_json;
 extern crate dotenv;
 extern crate futures;
 extern crate frank_jwt;
-extern crate rand;
 extern crate bcrypt;
-extern crate base64;
 
 use listenfd::ListenFd;
 use actix_web::{server, http, App, Json, Error, HttpResponse, HttpRequest,
@@ -26,9 +25,11 @@ mod auth;
 
 use database::{DbExecutor, UpdateBatch, AskForTodos, LoginDetails, Login,
                Signup};
+use auth::{HashExecutor, Hash, CheckHash};
 
 struct AppState {
     db: Addr<DbExecutor>,
+    hash: Addr<HashExecutor>
 }
 
 fn update((req, data): (HttpRequest<AppState>, Json<UpdateBatch>)) -> Box<Future<Item=HttpResponse, Error=Error>> {
@@ -88,13 +89,14 @@ fn main() {
     let sys = actix::System::new("reminders-server");
 
     let pool = database::establish_connection();
-    let addr = SyncArbiter::start(2, move || {
+    let db_addr = SyncArbiter::start(2, move || {
         DbExecutor(pool.clone())
     });
+    let hash_addr = HashExecutor.start();
 
     let mut server = server::new(
         move || {
-            App::with_state(AppState {db: addr.clone()})
+            App::with_state(AppState {db: db_addr.clone(), hash: hash_addr.clone()})
                 .prefix("/api")
                 .middleware(Logger::new("%r %b %D"))
                 .configure(|app| {
