@@ -14,7 +14,7 @@ impl Actor for HashExecutor {
     type Context = Context<Self>;
 }
 
-pub struct Hash(String);
+pub struct Hash(pub String);
 
 impl Message for Hash {
     type Result = Result<String, BcryptError>;
@@ -29,8 +29,8 @@ impl Handler<Hash> for HashExecutor {
 }
 
 pub struct CheckHash{
-    password: String,
-    hash: String,
+    pub password: String,
+    pub hash: String,
 }
 
 impl Message for CheckHash {
@@ -41,7 +41,7 @@ impl Handler<CheckHash> for HashExecutor {
     type Result = Result<bool, BcryptError>;
 
     fn handle(&mut self, msg: CheckHash, _: &mut Self::Context) -> Self::Result {
-        bcrypt::verify(msg.password, msg.hash)
+        bcrypt::verify(msg.password, &msg.hash)
     }
 }
 

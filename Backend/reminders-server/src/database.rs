@@ -89,94 +89,37 @@ impl Handler<AskForTodos> for DbExecutor {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct LoginDetails {
-    username: String,
-    password: String
+pub struct GetUser(pub String);
+
+impl Message for GetUser {
+    type Result = Result<Option<User>, Error>;
 }
 
-pub struct Login(pub LoginDetails);
+impl Handler<GetUser> for DbExecutor {
+    type Result = Result<Option<User>, Error>;
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "type")]
-pub enum LoginResult {
-    UsernameNotFound,
-    IncorrectPassword,
-    Success{jwt: String},
-}
-
-impl Message for Login {
-    type Result = Result<LoginResult, Error>;
-}
-
-impl Handler<Login> for DbExecutor {
-    type Result = Result<LoginResult, Error>;
-
-    fn handle(&mut self, Login(details): Login, _: &mut Self::Context) -> Self::Result {
-        println!("{} login request", &details.username);
+    fn handle(&mut self, GetUser(username): GetUser, _: &mut Self::Context) -> Self::Result {
+        println!("{} login request", &username);
         let conn = self.0.get().unwrap();
-        let user_res = users_dsl::users.filter(users_dsl::username.eq(&details.username))
-            .first::<User>(&conn).optional()?;
-        match user_res {
-            None => Ok(LoginResult::UsernameNotFound),// TODO rate limit this
-            Some(user) => {
-                if auth::check_password(&details.password, &user.hash) {
-                    let jwt = auth::gen_jwt(user.userid);
-                    Ok(LoginResult::Success{ jwt: jwt })
-                } else {
-                    Ok(LoginResult::IncorrectPassword)
-                }
-            }
-        }
+        Ok(users_dsl::users.filter(users_dsl::username.eq(&username))
+            .first::<User>(&conn).optional()?)
     }
 }
 
-pub struct Signup(pub LoginDetails);
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "type")]
-pub enum SignupResult {
-    UsernameTooLong,
-    UsernameTaken,
-    Success{jwt: String},
-}
+pub struct Signup(pub User);
 
 impl Message for Signup {
-    type Result = Result<SignupResult, Error>;
+    type Result = Result<(), Error>;
 }
 
 impl Handler<Signup> for DbExecutor {
-    type Result = Result<SignupResult, Error>;
+    type Result = Result<(), Error>;
 
-    fn handle(&mut self, Signup(details): Signup, _: &mut Self::Context) -> Self::Result {
-        use diesel::select;
-        use diesel::expression::dsl::exists;
-
-        if details.username.len() > 100 {
-            return Ok(SignupResult::UsernameTooLong);
-        }
-
-        println!("{} sign up request", &details.username);
+    fn handle(&mut self, Signup(user): Signup, _: &mut Self::Context) -> Self::Result {
         let conn = self.0.get().unwrap();
-        let username_exists = select(exists(users_dsl::users.filter(users_dsl::username.eq(&details.username))))
-            .get_result::<bool>(&conn)?;
-        if username_exists {
-            println!("Username {} already taken", &details.username);
-            Ok(SignupResult::UsernameTaken)// TODO rate limit this
-        } else {
-            let userid = Uuid::new_v4();
-            let hash = auth::hash_password(&details.password);
-            let new_user = User {
-                userid: userid,
-                username: details.username,
-                hash: hash,
-                signup: Utc::now().naive_utc(),
-            };
-            diesel::insert_into(schema::users::table)
-                .values(&new_user)
-                .execute(&conn)?;
-            let jwt = auth::gen_jwt(userid);
-            Ok(SignupResult::Success{ jwt: jwt })
-        }
+        diesel::insert_into(schema::users::table)
+            .values(&user)
+            .execute(&conn)?;
+        Ok(())
     }
 }
