@@ -259,6 +259,17 @@ input[type=password] {
     font-size: 1.5rem;
 }
 
+/* Header */
+
+.header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0 1rem;
+}
+
+/* Edit modal */
+
+
 /* Main styles */
 
 .todos-container {
@@ -275,7 +286,7 @@ input[type=password] {
 .section-title {
     font-weight: bold;
     font-size: 3rem;
-    margin: 3rem 0;
+    margin-bottom: 3rem;
 }
 
 .todo-list {

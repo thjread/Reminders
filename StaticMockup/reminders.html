@@ -9,51 +9,32 @@
         <link rel="stylesheet" href="reminders.css" >
         <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
     </head>
-    <body class="todos-container">
-        <section class="todos-section">
-            <h1 class="section-title">Todo</h1>
-            <ul class="todo-list">
-                <li class="item" ><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Linear Algebra</div><div class="item-deadline" >Yesterday</div></li>
-                <li class="item"><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Methods</div><div class="item-deadline" >Today</div></li>
-                <li class="item"><input type="checkbox" class="item-check" ><div class="item-title" >Do laundry</div></li>
-            </ul>
-        </section>
-        <section class="deadline-section">
-            <h1 class="section-title">Deadlines</h1>
-            <ul class="todo-list">
-                <li class="item" ><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Analysis</div><div class="item-deadline" >Tomorrow</div></li>
-            </ul>
-        </section>
+    <body>
+        <header class="header">
+            <button class="login-button" >Log out</button>
+        </header>
+        <main class="todos-container">
+            <section class="todos-section">
+                <h1 class="section-title">Todo</h1>
+                <ul class="todo-list">
+                    <li class="item" ><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Linear Algebra</div><div class="item-deadline" >Yesterday</div></li>
+                    <li class="item"><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Methods</div><div class="item-deadline" >Today</div></li>
+                    <li class="item"><input type="checkbox" class="item-check" ><div class="item-title" >Do laundry</div></li>
+                </ul>
+            </section>
+            <section class="deadline-section">
+                <h1 class="section-title">Deadlines</h1>
+                <ul class="todo-list">
+                    <li class="item" ><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Analysis</div><div class="item-deadline" >Tomorrow</div></li>
+                </ul>
+            </section>
+        </main>
+        <div class="edit-modal" >
+            <form class="login-form">
+                <input type="text" name="title" placeholder="Title" >
+                <input type="text" name="deadline" placeholder="Deadline" >
+                <button type="submit" class="login-button" ><div class="button-text" >Submit</div></button>
+        </form>
+        </div>
     </body>
 </html>
-
-<script>
-
- //Corresonding JSON:
-
- const state = {
-     todos: {
-         "0134": {
-             title: "Hand in Linear Algebra",
-             deadline: "2019-01-28T12:00:00.000Z"
-             done: false;
-         },
-         "2011": {
-             title: "Hand in Methods",
-             deadline: "2019-01-29T12:00:00.000Z"
-             done: false;
-         },
-         "0008": {
-             title: "Do Laundry",
-             deadline: null;
-             done: false;
-         },
-         "1000": {
-             title: "Hand in Analysis",
-             deadline: "2019-01-30T12:00:00.000Z"
-             done: false;
-         }
-     }
- }
-
-</script>
