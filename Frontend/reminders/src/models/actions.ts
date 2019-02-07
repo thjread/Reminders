@@ -33,6 +33,15 @@ export const setServerTodos = createAction("SET_SERVER_TODOS", resolve => {
     }
 })
 
+export const createTodo = createAction("CREATE_TODO", resolve => {
+    return (title: string, deadline: Date | null) => {
+        const action = resolve({id: uuidv4(), title, deadline, done: true, action_id: uuidv4()});
+        store.dispatch(syncAction(action));
+        serverUpdate();
+        return action;
+    }
+})
+
 export const toggleDone = createAction("TOGGLE_DONE", resolve => {
     return (id: string, done: boolean) => {
         const action = resolve({id, done, action_id: uuidv4()});

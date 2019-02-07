@@ -259,6 +259,41 @@ input[type=password] {
     font-size: 1.5rem;
 }
 
+/* Edit form */
+
+.edit-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.edit-container input {
+    width: 100%;
+}
+
+.edit-form {
+    border: 1.5px solid black;
+    padding: 0 1.5rem;
+    border-radius: 0.5rem;
+}
+
+.date{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.date-input {
+    min-width: 0;
+    width: 50%;
+}
+
+.date-display {
+    margin-left: 1rem;
+    color: blue;
+}
+
 /* Header */
 
 .header {

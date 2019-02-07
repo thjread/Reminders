@@ -1,6 +1,6 @@
 import { ActionType, getType } from "typesafe-actions";
 
-import { State, initState } from "./store";
+import { State, initState, Todo } from "./store";
 import * as actions from "./actions";
 export type Action = ActionType<typeof actions>;
 
@@ -10,6 +10,22 @@ export default (state: State, action: Action) => {
             return state.set("loginDetails", action.payload);
         case getType(actions.logoutResetStore):
             return initState;
+        case getType(actions.createTodo): {
+            const id = action.payload.id;
+            const title = action.payload.title;
+            const done = action.payload.done;
+            const deadline = action.payload.deadline;
+            let new_todo: Todo = {
+                title: title,
+                done: done,
+            };
+            if (deadline) {
+                new_todo.deadline = deadline;
+            }
+            return state.set("todos", state.todos.merge({
+                [id]: new_todo
+            }))
+        }
         case getType(actions.toggleDone):
             const id = action.payload.id;
             const done = action.payload.done;

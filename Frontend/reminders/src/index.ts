@@ -5,10 +5,11 @@ import App from "./views/App";
 
 store.subscribe(storeState);
 
-m.mount(document.body, App());
+import Edit from "./views/Edit";
+m.mount(document.body, Edit());
 
 askServerForTodos();
-const syncInterval = setInterval(serverUpdate, 5000);
+//const syncInterval = setInterval(serverUpdate, 5000); TODO
 window.addEventListener("online", _ => serverUpdate());
 
 /*if ("serviceWorker" in navigator) {

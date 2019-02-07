@@ -24,6 +24,7 @@ export function storeState() {
 // action must have an action_id field with a uuidv4 in it
 export function serverUpdate(actions: ActionDummy[]
                              = store.getState().syncActions.asMutable()) {
+    console.log(JSON.stringify(actions));
     const state = store.getState();
     if (state.loginDetails) {
         storeState();
