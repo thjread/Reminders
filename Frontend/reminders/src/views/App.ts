@@ -9,8 +9,13 @@ export default function () {
 
     return {
         view: function() {
-            if (store.getState().loginDetails) {
-                return m(TodoPage);
+            const state = store.getState();
+            if (state.loginDetails) {
+                if (state.modal) {
+                    return m(state.modal);
+                } else {
+                    return m(TodoPage);
+                }
             } else {
                 return m(login);
             }

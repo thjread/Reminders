@@ -5,8 +5,7 @@ import App from "./views/App";
 
 store.subscribe(storeState);
 
-import Edit from "./views/Edit";
-m.mount(document.body, Edit());
+m.mount(document.body, App);
 
 askServerForTodos();
 //const syncInterval = setInterval(serverUpdate, 5000); TODO

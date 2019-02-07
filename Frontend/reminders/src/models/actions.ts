@@ -10,6 +10,12 @@ interface ActionDummy {
     payload: any
 }
 
+export const setModal = createAction("SET_MODAL", resolve => {
+    return (modal: any) => {
+        return resolve({modal});
+    }
+})
+
 export const setLoginDetails = createAction("SET_LOGIN_DETAILS", resolve => {
     return (username: string, userid: string, jwt: string) => {
         return resolve({username, userid, jwt});
@@ -35,7 +41,7 @@ export const setServerTodos = createAction("SET_SERVER_TODOS", resolve => {
 
 export const createTodo = createAction("CREATE_TODO", resolve => {
     return (title: string, deadline: Date | null) => {
-        const action = resolve({id: uuidv4(), title, deadline, done: true, action_id: uuidv4()});
+        const action = resolve({id: uuidv4(), title, deadline, done: false, action_id: uuidv4()});
         store.dispatch(syncAction(action));
         serverUpdate();
         return action;

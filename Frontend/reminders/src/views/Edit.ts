@@ -1,21 +1,32 @@
 import m from "mithril";
-import moment from "moment";
-import { createTodo } from "../models/actions";
-import {store, getCurrentDate} from "../models/store";
+import { setModal, createTodo } from "../models/actions";
+import {store, getTodo} from "../models/store";
 import { Date } from "sugar";
+import {formatDateTime} from "../utils";
 
-export default function (isE: boolean = true) {
+export default function (editId: string | null = null) {
     let title = "";
     let deadlineInputText = "";
     let deadline: Date | null = null;
+    let done = false;
 
-    var isEdit = isE;
+    if (editId) {
+        const todo = getTodo(editId);
+        title = todo.title;
+        if (todo.deadline) {
+            deadline = todo.deadline;
+            deadlineInputText = formatDateTime(deadline);
+        }
+    }
 
     function create() {
         store.dispatch(createTodo(title, deadline));
+        store.dispatch(setModal(null));
     }
 
     function edit() {
+        //store.dispatch(editTodo(title, deadline)); TODO
+        store.dispatch(setModal(null));
     }
 
     return {
@@ -23,9 +34,16 @@ export default function (isE: boolean = true) {
             return m("main.edit-container", m("form.edit-form", {
                 onsubmit: function (e: any) {
                     e.preventDefault();
-                    create();//TODO
+                    if (title == "") return;
+                    if (editId) {
+                        edit();
+                    } else {
+                        create();
+                    }
                 }
             }, [
+                m("button[type=button].signup-button", {
+                    onclick: function() { store.dispatch(setModal(null)); } }, "Back"),
                 m("input[type=text]",
                   {name: "title", placeholder: "Title",
                    oninput: function (e: any) {title = e.currentTarget.value;},
@@ -50,7 +68,7 @@ export default function (isE: boolean = true) {
                        },
                        value: deadlineInputText
                       }),
-                    m("h3.date-display", deadline ? deadline.toUTCString() : "Never")
+                    m("h3.date-display", deadline ? formatDateTime(deadline) : "Never")
                 ]),
                 m("button[type=submit].login-button",
                   m("div.button-text", "Submit"))

@@ -37,6 +37,7 @@ interface StateI {
     currentDate: Date;
     syncActions: any[];
     loginDetails?: LoginDetails;
+    modal: any;
 }
 export type State = Immutable.Immutable<StateI>;
 
@@ -54,6 +55,7 @@ const s: StateI = {
     todos: {},
     currentDate: new Date("2019-01-29T13:00:00.000Z"),
     syncActions: [],
+    modal: null,
 }
 export const initState: State = Immutable(s);
 
@@ -79,14 +81,10 @@ export function getTodo(id: string) {
     return store.getState().todos[id].asMutable();
 }
 
-export function getCurrentDate() {
-    return store.getState().currentDate.asMutable();
-}
-
 export function todoDue(id: string) {
     const deadline = getTodo(id).deadline;
     if (deadline) {
-        return getCurrentDate() > deadline;
+        return new Date() > deadline;
     } else {
         return true;
     }

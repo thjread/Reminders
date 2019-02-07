@@ -1,7 +1,7 @@
 import m from "mithril";
-import moment from "moment";
-import {store, getTodo, getCurrentDate} from "../models/store";
+import {store, getTodo} from "../models/store";
 import {toggleDone} from "../models/actions";
+import {formatDateTime} from "../utils";
 
 // TODO optimise moment with webpack or replace with own code
 
@@ -19,7 +19,7 @@ const Item: m.Component<Attrs> = {
               {checked: item.done,
                oninput: (e: any) => store.dispatch(toggleDone(id, e.target.checked))}),
             m("h2.item-title", item.title),
-            item.deadline ? m("h3.item-deadline", moment(item.deadline).calendar(getCurrentDate())) : undefined
+            item.deadline ? m("h3.item-deadline", formatDateTime(item.deadline)) : undefined
         ]);
     }
 };
