@@ -11,6 +11,13 @@ interface Attrs {
 }
 
 const Item: m.Component<Attrs> = {
+    onbeforeremove: function(vnode: any) {
+        vnode.dom.classList.add("item-exit");
+        return new Promise(function(resolve: any) {
+            vnode.dom.addEventListener("animationend", resolve);
+        })
+    },
+
     view: function(vnode) {
         const id = vnode.attrs.id;
         const item = getTodo(id);
@@ -19,20 +26,22 @@ const Item: m.Component<Attrs> = {
 
         return m("li.item", [
                      m("div.item-main", { onclick: () => toggleSelect(id) }, [
-                         m("input[type=checkbox]",
-                           {checked: item.done,
-                            id: id,
-                            oninput: (e: any) => store.dispatch(toggleDone(id, e.target.checked))}),
-                         m("label.css-check", {for: id}),
-                         m("h2.item-title", item.title),
-                         m("h2.item-deadline", item.deadline ? m("h3.item-deadline", formatDateTime(item.deadline)) : undefined)
+                         m("div.item-first", [
+                             m("input[type=checkbox]",
+                               {checked: item.done,
+                                id: id,
+                                oninput: (e: any) => store.dispatch(toggleDone(id, e.target.checked))}),
+                             m("label.css-check", {for: id}),
+                             m("h2.item-title", item.title),
+                         ]),
+                         item.deadline ? m("h3.item-deadline", formatDateTime(item.deadline)) : undefined
                      ]),
-                     selected ?
-                         m("div.item-options", [
-                             m("button.pill-button.on-primary.narrow-button", {onclick: () => edit(id)}, "Edit"),
-                             m("button.pill-button.on-primary.narrow-button", {onclick: () => store.dispatch(deleteTodo(id))}, "Delete")
-                         ]) : undefined
-                 ]);
+            m("div.item-options",
+              {class: selected ? "selected" : undefined}, [
+                m("button.pill-button.on-primary.narrow-button", {onclick: () => edit(id)}, "Edit"),
+                m("button.pill-button.on-primary.narrow-button", {onclick: () => store.dispatch(deleteTodo(id))}, "Delete")
+            ])
+        ]);
     }
 };
 

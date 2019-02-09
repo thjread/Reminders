@@ -106,9 +106,13 @@ export function todoDue(id: string) {
 export function dueTodos() {
     return Object.keys(store.getState().todos)
         .filter(todoDue)
+        .filter((id) => !getTodo(id).done)
         .sort((a, b) => itemCompare(a, b));
 }
 
 export function laterTodos() {
-    return Object.keys(store.getState().todos).filter(id => !todoDue(id)).sort((a, b) => itemCompare(a, b));
+    return Object.keys(store.getState().todos)
+        .filter(id => !todoDue(id))
+        .filter((id) => !getTodo(id).done)
+        .sort((a, b) => itemCompare(a, b));
 }

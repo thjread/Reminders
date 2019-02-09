@@ -385,27 +385,6 @@ input[type=password]:focus {
     background-color: #eee;
 }
 
-/* Edit form */
-
-.date{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.date-input {
-    min-width: 0;
-    width: 50%;
-}
-
-.date-display {
-    padding: 0.4rem;
-    margin-left: 0.5rem;
-    color: white;
-    background-color: blue;
-    border-radius: 0.5rem;
-}
-
 /* Main styles */
 
 .todo-container {
@@ -424,6 +403,7 @@ input[type=password]:focus {
     background: var(--background);
     color: var(--primary-dark);
     font-family: 'Lora', serif;
+    font-style: italic;
 }
 
 .todo-list {
@@ -446,10 +426,34 @@ input[type=password]:focus {
 
 .item-main {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     padding: 0.7rem 0.4rem;
 }
+
+.item-first {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.item-exit {
+    animation: slide-out 0.5s;
+    overflow: hidden;
+    position: relative;
+    border: 0px solid transparent;
+}
+@keyframes slide-out {
+    from {
+        left: 0;
+        max-height: 6rem;
+    }
+    to {
+        left: 100%;
+        max-height: 0;
+    }
+}
+
 
 .item-title {
     font-weight: bold;
@@ -498,6 +502,7 @@ input[type=checkbox]:checked + .css-check::after {
     font-style: italic;
     color: var(--secondary-dark);
     line-height: 1.2em;
+    margin-right: 0.5rem;
 }
 
 .item-options {
@@ -507,7 +512,13 @@ input[type=checkbox]:checked + .css-check::after {
     align-items: center;
     padding: 0 0.3rem;
     box-shadow: 0 0 2px 0 var(--shadow) inset;
+    height: 0;
+    overflow: hidden;
     transition: height 0.3s;
+}
+
+.item-options.selected {
+    height: 3rem;
 }
 
 .narrow-button {
@@ -541,4 +552,26 @@ input[type=checkbox]:checked + .css-check::after {
 .fab:active {
     border: 1.5px solid var(--outline-faint);
     background-color: var(--secondary-dark);
+}
+
+/* Edit form */
+
+/*.date{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1rem 0;
+}*/
+
+.item-deadline.on-edit-form {
+    background: var(--background);
+    margin: 0;
+    width: 100%;
+    margin: 1rem 0;
+    max-width: 20.65rem;
+    padding: 0 0.7rem;
+    border-radius: 0.3rem;
+    height: 2.15rem;
+    line-height: 2.15rem;
+    font-size: 1.3rem;
 }

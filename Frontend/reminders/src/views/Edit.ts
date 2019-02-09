@@ -45,27 +45,26 @@ export default function (editId: string | null = null) {
                    oninput: function (e: any) {title = e.currentTarget.value;},
                    value: title
                   }),
-                m("div.date", [
-                    m("input[type=text].date-input",
-                      {name: "deadline", placeholder: "Deadline",
-                       oninput: function (e: any) {
-                           deadlineInputText = e.currentTarget.value;
-                           const date = Date.create(deadlineInputText, {future: true});
-                           if (Date.isValid(date)) {
-                               deadline = date;
+                m("input[type=text].date-input",
+                  {name: "deadline", placeholder: "Deadline",
+                   oninput: function (e: any) {
+                       deadlineInputText = e.currentTarget.value;
+                       Date.setLocale('en-GB');
+                       const date = Date.create(deadlineInputText, {future: true});
+                       if (Date.isValid(date)) {
+                           deadline = date;
+                       } else {
+                           const inDate = Date.create("in " + deadlineInputText, {future: true});
+                           if (Date.isValid(inDate)) {
+                               deadline = inDate;
                            } else {
-                               const inDate = Date.create("in " + deadlineInputText, {future: true});
-                               if (Date.isValid(inDate)) {
-                                   deadline = inDate;
-                               } else {
-                                   deadline = null;
-                               }
+                               deadline = null;
                            }
-                       },
-                       value: deadlineInputText
-                      }),
-                    m("h3.date-display", deadline ? formatDateTime(deadline) : "Never")
-                ]),
+                       }
+                   },
+                   value: deadlineInputText
+                  }),
+                m("h3.item-deadline.on-edit-form", deadline ? formatDateTime(deadline) : "No deadline"),
                 m("button[type=submit].pill-button.on-secondary",
                   m("div.button-text", "Submit"))
             ]))

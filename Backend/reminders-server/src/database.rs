@@ -29,6 +29,7 @@ pub fn establish_connection() -> r2d2::Pool<ConnectionManager<PgConnection>> {
         .expect("Failed to create pool.")
 }
 
+// TODO don't send completed todos?
 fn get_todos(connection: &PgConnection, userid: Uuid) -> Result<Vec<Todo>, Error> {
     todo_dsl::todos
         .filter(todo_dsl::userid.eq(userid))
