@@ -46,9 +46,31 @@ fn toggle_done(
         .execute(connection)
 }
 
+fn delete(connection: &PgConnection, userid: Uuid, id: Uuid) -> Result<usize, Error> {
+    diesel::delete(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id)).execute(connection)
+}
+
 fn create_todo(connection: &PgConnection, todo: Todo) -> Result<usize, Error> {
+    // Note userid in Todo is set on server, so this is always safe
     diesel::insert_into(schema::todos::table)
         .values(&todo)
+        .execute(connection)
+}
+
+fn edit_todo(
+    connection: &PgConnection,
+    userid: Uuid,
+    id: Uuid,
+    title: String,
+    deadline: Option<chrono::NaiveDateTime>,
+    done: bool,
+) -> Result<usize, Error> {
+    diesel::update(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id))
+        .set((
+            todo_dsl::title.eq(title),
+            todo_dsl::deadline.eq(deadline),
+            todo_dsl::done.eq(done),
+        ))
         .execute(connection)
 }
 
@@ -66,6 +88,17 @@ pub enum UpdateAction {
         title: String,
         deadline: Option<chrono::DateTime<chrono::Utc>>,
         done: bool,
+        action_id: Uuid,
+    },
+    EDIT_TODO {
+        id: Uuid,
+        title: String,
+        deadline: Option<chrono::DateTime<chrono::Utc>>,
+        done: bool,
+        action_id: Uuid,
+    },
+    DELETE_TODO {
+        id: Uuid,
         action_id: Uuid,
     },
 }
@@ -105,7 +138,22 @@ impl Handler<UpdateBatch> for DbExecutor {
                     };
                     create_todo(&conn, todo)
                 }
+                UpdateAction::EDIT_TODO {
+                    id,
+                    title,
+                    deadline,
+                    done,
+                    ..
+                } => edit_todo(
+                    &conn,
+                    userid,
+                    id,
+                    title,
+                    deadline.map(|date| date.naive_utc()),
+                    done,
+                ),
                 UpdateAction::TOGGLE_DONE { id, done, .. } => toggle_done(&conn, userid, id, done),
+                UpdateAction::DELETE_TODO { id, .. } => delete(&conn, userid, id),
             };
             if let Err(e) = result {
                 println!("Database error: {}", e);

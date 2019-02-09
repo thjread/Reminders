@@ -2,7 +2,6 @@ import m from "mithril";
 import { store } from "./store";
 import { logoutResetStore, setLoginDetails } from "./actions";
 import { serverUpdate, storeState } from "./update";
-import { locale } from "moment";
 
 export interface LoginDetails {
     username: string;

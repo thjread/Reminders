@@ -1,6 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=Lora:400i');
+@import url('https://fonts.googleapis.com/css?family=Raleway');
+@import url('https://fonts.googleapis.com/css?family=Rasa');
+
 /* CSS resets */
 
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -67,8 +71,8 @@ textarea
 	line-height:1;
 
 	/* Browsers have different default form fonts */
-	font-size:13px;
-	font-family:Arial;
+	font-size:15px;
+	font-family: 'Raleway', sans-serif;
 }
 
 /* Remove the stupid outer glow in Webkit */
@@ -129,8 +133,10 @@ input[type=week]
 input[type=checkbox],
 input[type=radio]
 {
-	width:13px;
-	height:13px;
+    min-width: 13px;
+    min-height: 13px;
+	  width:13px;
+	  height:13px;
 }
 
 /* File Uploads
@@ -211,34 +217,79 @@ select[multiple]
     box-sizing: border-box;
 }
 
+/* Variables */
+/* https://material.io/tools/color/#!/?view.left=0&view.right=1&primary.color=9ed36a&secondary.color=8341c6&primary.text.color=332b2f */
+
+:root {
+    --primary: #9ed36a;
+    --primary-light: #d1ff9a;
+    --primary-dark: #6da13c;
+    --secondary: #8341c6;
+    --secondary-light: #b670fa;
+    --secondary-lighter: #c7aae5;
+    --secondary-lightest: #e1d1f1;
+    --secondary-dark: #500e94;
+    --secondary-darker: #371955;
+    --on-primary: #332b2f;
+    --on-secondary: #ffffff;
+
+    --background-light: #fafafa;
+    --background: #eeeeee;
+    --background-dark: #888888;
+    --shadow: #0007;
+    --shadow-dark: #000a;
+    --shadow-faint: #0003;
+    --outline: #aaa;
+    --outline-dark: #777;
+    --outline-faint: #0003;
+    --outline-focus-light: #fff8;
+    --outline-focus-dark: #000;
+}
+
+/* Body */
+
+body {
+    background-color: var(--background);
+}
+
 /* Login form */
 
-.login-container {
+.modal-container {
+    background-color: var(--primary-light);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
 }
 
-.login-form {
-    border: 1.5px solid black;
-    padding: 0 1.5rem;
+.modal-form {
+    border: 0.5px solid var(--outline-faint);
+    box-shadow: 0px 1px 5px 0px var(--shadow);
+    padding: 0.8rem; 1.5rem;
     border-radius: 0.5rem;
-}
-
-.login-heading {
-    font-weight: bold;
-    font-size: 2rem;
+    background-color: var(--secondary);
+    width: 90%;
+    max-width: 23rem;
 }
 
 input[type=text],
 input[type=password] {
     display: block;
     margin: 1rem 0;
-    font-size: 1.2rem;
-    border: 1px solid gray;
+    font-size: 1.5rem;
+    width: 95%;
+    max-width: 20rem;
+    border: 1px solid var(--outline);
     padding: 0.2em;
     border-radius: 0.2em;
+    color: var(--on-primary);
+    background-color: var(--secondary-lighter);
+    box-shadow: 0px 1px 2px 0px var(--shadow-faint) inset;
+}
+
+input[type=text]:focus,
+input[type=password]:focus {
+    background-color: var(--secondary-lightest);
 }
 
 .login-signup {
@@ -247,50 +298,94 @@ input[type=password] {
     justify-content: space-between;
 }
 
-.login-button {
+.pill-button {
+    border: 1.5px solid var(--outline-faint);
+    box-shadow: 0px 1px 3px 0px var(--shadow);
+    border-radius: 999rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5em 1em;
+    margin: 0.5em 0.3em;
+    transition: background-color 0.1s;
+    outline: none;
+}
+
+.pill-button.on-secondary {
+    color: var(--on-secondary);
+    background-color: var(--secondary-dark);
+}
+
+.pill-button.on-primary {
+    color: var(--on-secondary);
+    background-color: var(--secondary);
+}
+
+.pill-button:focus {
+    border: 1.5px solid var(--outline-focus-light);
+}
+
+.pill-button:active {
+    border: 1.5px solid var(--outline-faint);
+}
+
+.pill-button.on-secondary:active {
+    background-color: var(--secondary-darker);
+}
+
+.pill-button.on-primary:active {
+    background-color: var(--secondary-dark);
+}
+
+.text-button {
+    color: var(--on-secondary);
+    text-shadow: 1px 0px 3px var(--shadow);
+    text-decoration: underline;
+}
+
+.text-button:active {
+    text-shadow: 1px 0px 3px var(--shadow-dark);
+}
+
+.button-text {
+    font-size: 1.6rem;
+}
+
+/* Header */
+
+.header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--primary);
+    /*box-shadow: 0 1px 3px 0 var(--shadow-faint);*/
+    border-bottom: 1px solid var(--primary-dark);
+    z-index: 1000;
+}
+
+.logo {
+    font-family: 'Rasa', serif;
+    font-size: 2rem;
+    color: var(--secondary-dark);
+}
+
+.logout-button {
     border: 1.5px solid black;
     border-radius: 999rem;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0.5rem 1rem;
-    margin: 1rem 0;
+    margin-top: 1rem;
 }
 
-.login-button:active {
+.logout-button:active {
     background-color: #eee;
 }
 
-.signup-button {
-    text-decoration: underline;
-}
-
-.signup-button:active {
-    color: #888;
-}
-
-.button-text {
-    font-size: 1.5rem;
-}
-
 /* Edit form */
-
-.edit-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.edit-container input {
-    width: 100%;
-}
-
-.edit-form {
-    border: 1.5px solid black;
-    padding: 0 1.5rem;
-    border-radius: 0.5rem;
-}
 
 .date{
     display: flex;
@@ -314,10 +409,9 @@ input[type=password] {
 /* Main styles */
 
 .todo-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 6rem;
-    grid-gap: 0 6rem;
+    background: var(--background);
+    display: flex;
+    flex-direction: column;
 }
 
 .todo-section {
@@ -325,32 +419,126 @@ input[type=password] {
 }
 
 .section-title {
-    font-weight: bold;
-    font-size: 3rem;
-    margin: 3rem 0;
+    font-size: 2.5rem;
+    padding: 1.5rem 2rem 1rem 2rem;
+    background: var(--background);
+    color: var(--primary-dark);
+    font-family: 'Lora', serif;
 }
 
 .todo-list {
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
+    position: relative;
+    border-top: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--secondary);
+    z-index: 1000;
 }
 
 .item {
     display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin: 1rem 0;
+    flex-direction: column;
+    border-top: 0.5px solid #bbb;
+    border-bottom: 0.5px solid #bbb;
+    background: var(--background-light);
+    color: var(--on-primary);
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.1rem;
 }
 
-input[type=checkbox] {
-    margin: 0 3px;
+.item-main {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.7rem 0.4rem;
 }
 
 .item-title {
     font-weight: bold;
     margin: 0 1rem;
+    margin-left: 0rem;
+    line-height: 1.2em;
+}
+
+input[type=checkbox] {
+    width     : 2em;
+    margin    : 0;
+    padding   : 0;
+    opacity   : 0;
+}
+
+.css-check {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin: 0 0.5em;
+    margin-left: -1.5rem;
+    vertical-align: bottom;
+    border: 1.5px solid var(--outline);
+    border-radius: 0.2rem;
+}
+
+input[type=checkbox] + .css-check::after {
+    content: '✓';
+    text-align: center;
+    position: relative;
+    bottom: 0.1em;
+    opacity: 0;
+    color: var(--outline-dark);
+    transition: opacity 0.1s ease-out;
+}
+
+input[type=checkbox]:focus + .css-check {
+    box-shadow: 0 0 3px 0 var(--shadow);
+}
+
+input[type=checkbox]:checked + .css-check::after {
+    opacity: 1;
 }
 
 .item-deadline {
     font-style: italic;
+    color: var(--secondary-dark);
+    line-height: 1.2em;
+}
+
+.item-options {
+    background-color: var(--secondary-light);
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 0.3rem;
+    box-shadow: 0 0 2px 0 var(--shadow) inset;
+    transition: height 0.3s;
+}
+
+.narrow-button {
+    padding: 0.4em 0.8em;
+    margin-top: 0.6em;
+    margin-bottom: 0.6em;
+}
+
+/* FAB */
+
+.fab {
+    color: var(--on-secondary);
+    background-color: var(--secondary);
+    box-shadow: 0px 1px 5px 0px var(--shadow-dark);
+    font-size: 2.5rem;
+    border-radius: 50%;
+    width: 3.5rem;
+    height: 3.5rem;
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 10000;
+    transition: background-color 0.1s;
+}
+
+.fab:focus {
+    border: 1.5px solid var(--outline-focus-light);
+    outline: none;
+}
+
+.fab:active {
+    border: 1.5px solid var(--outline-faint);
+    background-color: var(--secondary-dark);
 }

@@ -5,12 +5,25 @@ interface Attrs {
     todoIds: string[];
 }
 
-const TodoList: m.Component<Attrs> = {
-    view: function(vnode) {
-        return m("ul.todo-list", vnode.attrs.todoIds.map(id => {
-            return m(Item, {id});
-        }));
-    }
-};
 
-export default TodoList;
+export default function () {
+    let selected: string | null = null;
+
+    function toggleSelect(id: string) {
+        if (selected === id) {
+            selected = null;
+        } else {
+            selected = id;
+        }
+    }
+
+    const TodoList: m.Component<Attrs> = {
+        view: function(vnode) {
+            return m("ul.todo-list", vnode.attrs.todoIds.map(id => {
+                return m(Item, {key: id, id: id, selectCallback: toggleSelect, selected: selected === id});
+            }));
+        }
+    };
+
+    return TodoList;
+};

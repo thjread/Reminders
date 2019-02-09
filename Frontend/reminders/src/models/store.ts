@@ -10,12 +10,25 @@ export interface Todo {
 }
 export type TodoMap = { [id: string]: Todo };
 
-function itemCompare(a: Todo, b: Todo) {
-    if (a.deadline) {
-        if (b.deadline) {
-            if (a.deadline < b.deadline) {
+function itemCompare(a: string, b: string) {
+    let compare = deadlineCompare(getTodo(a).deadline, getTodo(b).deadline);
+    if (compare === 0) {
+        if (a < b) {
+            return -1;
+        } else {
+            return 1;
+        }
+    } else {
+        return compare;
+    }
+}
+
+function deadlineCompare(a: Date | undefined, b: Date | undefined) {
+    if (a) {
+        if (b) {
+            if (a < b) {
                 return -1;
-            } else if (b.deadline < a.deadline) {
+            } else if (b < a) {
                 return 1;
             } else {
                 return 0;
@@ -24,7 +37,7 @@ function itemCompare(a: Todo, b: Todo) {
             return -1;
         }
     } else {
-        if (b.deadline) {
+        if (b) {
             return 1;
         } else {
             return 0;
@@ -91,9 +104,11 @@ export function todoDue(id: string) {
 }
 
 export function dueTodos() {
-    return Object.keys(store.getState().todos).filter(todoDue).sort((a, b) => itemCompare(getTodo(a), getTodo(b)));
+    return Object.keys(store.getState().todos)
+        .filter(todoDue)
+        .sort((a, b) => itemCompare(a, b));
 }
 
 export function laterTodos() {
-    return Object.keys(store.getState().todos).filter(id => !todoDue(id)).sort((a, b) => itemCompare(getTodo(a), getTodo(b)));
+    return Object.keys(store.getState().todos).filter(id => !todoDue(id)).sort((a, b) => itemCompare(a, b));
 }

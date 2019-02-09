@@ -6,7 +6,7 @@ interface Attrs {
 
 const TodoSection: m.Component<Attrs> = {
     view: function(vnode) {
-        return m("section.todos-section", [
+        return m("section.todo-section", [
             m("h1.section-title", vnode.attrs.title),
             vnode.children
         ]);

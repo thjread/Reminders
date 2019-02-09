@@ -9,11 +9,14 @@ import {create} from "../models/ui";
 export default {
     view: function() {
         return [
+            m("header.header", [
+                m("div.logo", "Reminders"),
+                m("button.pill-button.on-primary", {onclick: logout}, "Log out")
+            ]),
             m("main.todo-container", [
                 m(TodoSection, {title: "Due"}, m(TodoList, {todoIds: dueTodos()})),
                 m(TodoSection, {title: "Upcoming"}, m(TodoList, {todoIds: laterTodos()}))
             ]),
-            m("button.login-button", {onclick: logout}, "Log out"),// TODO
-            m("button.login-button", {onclick: create}, "New todo")// TODO
+            m("button.fab", {onclick: create}, "+")
         ]}
 }

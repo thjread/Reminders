@@ -6,35 +6,36 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="Description" content="Reminders web-app">
         <title>Reminders</title>
-        <link rel="stylesheet" href="reminders.css" >
+        <link rel="stylesheet" href="main.css" >
         <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
     </head>
     <body>
         <header class="header">
-            <button class="login-button" >Log out</button>
+            <div class="logo">Reminders</div>
+            <button class="pill-button on-primary" >Log out</button>
         </header>
-        <main class="todos-container">
-            <section class="todos-section">
-                <h1 class="section-title">Todo</h1>
+        <main class="todo-container">
+            <section class="todo-section">
+                <h1 class="section-title">Due</h1>
                 <ul class="todo-list">
-                    <li class="item" ><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Linear Algebra</div><div class="item-deadline" >Yesterday</div></li>
-                    <li class="item"><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Methods</div><div class="item-deadline" >Today</div></li>
-                    <li class="item"><input type="checkbox" class="item-check" ><div class="item-title" >Do laundry</div></li>
+                    <li class="item" >
+                        <label class="item-main" for="check_1" ><input type="checkbox" class="item-check" id="check_1"><div class="css-check"></div><div class="item-title">Hand in Linear Algebra</div><div class="item-deadline" >Yesterday at 12:00 UTC</div></label>
+                        <div class="item-options" >
+                            <button class="pill-button on-primary narrow-button" >Edit</button>
+                            <button class="pill-button on-primary narrow-button" >Delete</button>
+                        </div>
+                    </li>
+                    <li class="item"><label class="item-main" for="check_2"> <input type="checkbox" class="item-check" id="check_2" ><div class="item-title" ><span class="css-check" ></span>Hand in Methods</div><div class="item-deadline" >Today</div></label></li>
+                    <li class="item"><label class="item-main" for="check_3"><input type="checkbox" class="item-check" id="check_3"><div class="item-title" ><span class="css-check" ></span>Do laundry</div></label></li>
                 </ul>
             </section>
             <section class="deadline-section">
-                <h1 class="section-title">Deadlines</h1>
+                <h1 class="section-title">Upcoming</h1>
                 <ul class="todo-list">
-                    <li class="item" ><input type="checkbox" class="item-check" ><div class="item-title" >Hand in Analysis</div><div class="item-deadline" >Tomorrow</div></li>
+                    <li class="item" ><label for="check_4" class="item-main"> <input type="checkbox" class="item-check" id="check_4"><div class="item-title" ><span class="css-check" ></span>Hand in Analysis</div><div class="item-deadline" >Tomorrow</div></div></li>
                 </ul>
             </section>
         </main>
-        <div class="edit-modal" >
-            <form class="login-form">
-                <input type="text" name="title" placeholder="Title" >
-                <input type="text" name="deadline" placeholder="Deadline" >
-                <button type="submit" class="login-button" ><div class="button-text" >Submit</div></button>
-        </form>
-        </div>
+        <button class="fab" >+</button>
     </body>
 </html>

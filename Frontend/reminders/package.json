@@ -13,7 +13,6 @@
   "private": true,
   "dependencies": {
     "mithril": "^2.0.0-rc.3",
-    "moment": "^2.24.0",
     "redux": "^4.0.1",
     "seamless-immutable": "^7.1.4",
     "sugar-date": "^2.0.6",
@@ -21,14 +20,15 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@types/seamless-immutable": "^7.1.6",
-    "@types/service_worker_api": "0.0.9",
-    "@types/uuid": "^3.4.4",
     "@types/mithril": "^1.1.14",
     "@types/node": "^10.12.19",
+    "@types/seamless-immutable": "^7.1.6",
+    "@types/service_worker_api": "0.0.9",
+    "@types/sugar": "^2.0.2",
+    "@types/uuid": "^3.4.4",
     "ts-loader": "^5.3.3",
     "typescript": "^3.2.4",
     "webpack": "^4.29.0",
-    "webpack-cli": "^3.2.1"
+    "webpack-cli": "^3.2.3"
   }
 }

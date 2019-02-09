@@ -40,8 +40,17 @@ export const setServerTodos = createAction("SET_SERVER_TODOS", resolve => {
 })
 
 export const createTodo = createAction("CREATE_TODO", resolve => {
-    return (title: string, deadline: Date | null) => {
-        const action = resolve({id: uuidv4(), title, deadline, done: false, action_id: uuidv4()});
+    return (title: string, deadline: Date | null, done: boolean) => {
+        const action = resolve({id: uuidv4(), title, deadline, done, action_id: uuidv4()});
+        store.dispatch(syncAction(action));
+        serverUpdate();
+        return action;
+    }
+})
+
+export const editTodo = createAction("EDIT_TODO", resolve => {
+    return (id: string, title: string, deadline: Date | null, done: boolean) => {
+        const action = resolve({id, title, deadline, done, action_id: uuidv4()});
         store.dispatch(syncAction(action));
         serverUpdate();
         return action;
@@ -51,6 +60,15 @@ export const createTodo = createAction("CREATE_TODO", resolve => {
 export const toggleDone = createAction("TOGGLE_DONE", resolve => {
     return (id: string, done: boolean) => {
         const action = resolve({id, done, action_id: uuidv4()});
+        store.dispatch(syncAction(action));
+        serverUpdate();
+        return action;
+    }
+})
+
+export const deleteTodo = createAction("DELETE_TODO", resolve => {
+    return (id: string) => {
+        const action = resolve({id, action_id: uuidv4()});
         store.dispatch(syncAction(action));
         serverUpdate();
         return action;

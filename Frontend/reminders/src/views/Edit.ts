@@ -1,5 +1,5 @@
 import m from "mithril";
-import { setModal, createTodo } from "../models/actions";
+import { setModal, editTodo, createTodo } from "../models/actions";
 import {store, getTodo} from "../models/store";
 import { Date } from "sugar";
 import {formatDateTime} from "../utils";
@@ -17,33 +17,29 @@ export default function (editId: string | null = null) {
             deadline = todo.deadline;
             deadlineInputText = formatDateTime(deadline);
         }
+        done = todo.done;
     }
 
-    function create() {
-        store.dispatch(createTodo(title, deadline));
-        store.dispatch(setModal(null));
-    }
-
-    function edit() {
-        //store.dispatch(editTodo(title, deadline)); TODO
+    function dispatch() {
+        if (editId) {
+            store.dispatch(editTodo(editId, title, deadline, done));
+        } else {
+            store.dispatch(createTodo(title, deadline, done));
+        }
         store.dispatch(setModal(null));
     }
 
     return {
         view: function() {
-            return m("main.edit-container", m("form.edit-form", {
+            return m("main.modal-container", m("form.modal-form", {
                 onsubmit: function (e: any) {
                     e.preventDefault();
                     if (title == "") return;
-                    if (editId) {
-                        edit();
-                    } else {
-                        create();
-                    }
+                    dispatch();
                 }
             }, [
-                m("button[type=button].signup-button", {
-                    onclick: function() { store.dispatch(setModal(null)); } }, "Back"),
+                m("button[type=button].text-button.on-secondary", {
+                    onclick: function() { store.dispatch(setModal(null)); } }, "Cancel"),
                 m("input[type=text]",
                   {name: "title", placeholder: "Title",
                    oninput: function (e: any) {title = e.currentTarget.value;},
@@ -70,7 +66,7 @@ export default function (editId: string | null = null) {
                       }),
                     m("h3.date-display", deadline ? formatDateTime(deadline) : "Never")
                 ]),
-                m("button[type=submit].login-button",
+                m("button[type=submit].pill-button.on-secondary",
                   m("div.button-text", "Submit"))
             ]))
         }

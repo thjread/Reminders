@@ -18,8 +18,13 @@ export default function (isL: boolean = true) {
     }
 
     return {
+        oninit: function() {
+            username = "";
+            password = "";
+        },
+
         view: function() {
-            return m("main.login-container", m("form.login-form", {
+            return m("main.modal-container", m("form.modal-form", {
                 onsubmit: function (e: any) {
                     e.preventDefault();
                     if (isLogin) {
@@ -40,9 +45,9 @@ export default function (isL: boolean = true) {
                    value: password
                   }),
                 m("div.login-signup", [
-                    m("button[type=submit].login-button",
+                    m("button[type=submit].pill-button.on-secondary",
                       m("div.button-text", isLogin ? "Log in" : "Sign up")),
-                    m("button[type=button].signup-button",
+                    m("button[type=button].text-button",
                       { onclick: function() { isLogin = !isLogin } },
                       isLogin ? "Sign up" : "Log in")
                 ])
