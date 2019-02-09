@@ -1,7 +1,7 @@
 import m from "mithril";
 import { store } from "./store";
-import { logoutResetStore, setLoginDetails } from "./actions";
-import { serverUpdate, storeState } from "./update";
+import { logoutResetStore, setState } from "./actions";
+import { stateFromStorage, serverUpdate } from "./update";
 
 export interface LoginDetails {
     username: string;
@@ -18,7 +18,12 @@ export function login(username: string, password: string) {
     }).then(function (response: any) {
         switch (response.type) {
             case "Success":
-                store.dispatch(setLoginDetails(username, response.userid, response.jwt));
+                const loginDetails: LoginDetails = {
+                    username,
+                    userid: response.userid,
+                    jwt: response.jwt
+                }
+                store.dispatch(setState(stateFromStorage(loginDetails)));
                 serverUpdate([]);
                 break;
             case "UsernameNotFound":
@@ -34,11 +39,7 @@ export function login(username: string, password: string) {
 }
 
 export function logout() {
-    if (store.getState().syncActions.length > 0) {
-        console.log("WARNING: will lose unsaved offline data");// TODO
-    }
     store.dispatch(logoutResetStore());
-    storeState();
 }
 
 export function signup(username: string, password: string) {
@@ -50,7 +51,12 @@ export function signup(username: string, password: string) {
     }).then(function (response: any) {
         switch (response.type) {
             case "Success":
-                store.dispatch(setLoginDetails(username, response.userid, response.jwt));
+                const loginDetails: LoginDetails = {
+                    username,
+                    userid: response.userid,
+                    jwt: response.jwt
+                }
+                store.dispatch(setState(stateFromStorage(loginDetails)));
                 serverUpdate([]);
                 break;
             case "UsernameTooLong":

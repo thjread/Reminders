@@ -2,6 +2,8 @@ import { createStore } from "redux";
 import Immutable from "seamless-immutable";
 import { LoginDetails } from "./auth";
 import reducer from "./reducer";
+import { setState } from "./actions";
+import { stateFromStorage } from "./update";
 
 export interface Todo {
     title: string,
@@ -54,16 +56,6 @@ interface StateI {
 }
 export type State = Immutable.Immutable<StateI>;
 
-function dateTimeReviver(_: any, value: any) {
-    if (typeof value === 'string') {
-        const reISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*))(?:Z|(\+|-)([\d|:]*))?$/;
-        if (reISO.exec(value)) {
-            return new Date(value);
-        }
-    }
-    return value;
-}
-
 const s: StateI = {
     todos: {},
     currentDate: new Date("2019-01-29T13:00:00.000Z"),
@@ -72,23 +64,8 @@ const s: StateI = {
 }
 export const initState: State = Immutable(s);
 
-export function loadFromStorage() {
-    let is = initState;
-    const loginJSON = localStorage.getItem("loginDetails");
-    if (loginJSON) {
-        const loginDetails = JSON.parse(loginJSON);
-        is = is.set("loginDetails", loginDetails);
-        const stateJSON = localStorage.getItem(loginDetails.userid);
-        if (stateJSON) {
-            const state = JSON.parse(stateJSON, dateTimeReviver);
-            is = is.set("todos", state.todos);
-            is = is.set("syncActions", state.syncActions);
-        }
-    }
-    return is;
-}
-
-export const store = createStore(reducer, loadFromStorage(), (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
+export const store = createStore(reducer, initState, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
+store.dispatch(setState(stateFromStorage()));
 
 export function getTodo(id: string) {
     return store.getState().todos[id].asMutable();

@@ -1,6 +1,8 @@
 import m from "mithril";
-import { store, Todo } from "./store";
+import { store, initState, Todo } from "./store";
 import { syncActionSynced, setServerTodos } from  "./actions";
+import { dateTimeReviver } from "../utils";
+import { logout, LoginDetails } from "./auth";
 
 interface ActionDummy {
     type: string,
@@ -15,19 +17,39 @@ export function storeState() {
             syncActions: state.syncActions,
         }));
         localStorage.setItem("loginDetails", JSON.stringify(state.loginDetails));
+        console.log("Saved to localStorage");
     } else {
         localStorage.removeItem("loginDetails");
+        console.log("Login details removed from localStorage")
     }
-    console.log("Saved to localStorage");
+}
+
+export function stateFromStorage(loginDetails: LoginDetails | null = null) {
+    let is = initState;
+    if (!loginDetails) {
+        const loginJSON = localStorage.getItem("loginDetails");
+        if (loginJSON) {
+            loginDetails = JSON.parse(loginJSON);
+        }
+    }
+    if (loginDetails) {
+        is = is.set("loginDetails", loginDetails);
+        const stateJSON = localStorage.getItem(loginDetails.userid);
+        if (stateJSON) {
+            const state = JSON.parse(stateJSON, dateTimeReviver);
+            is = is.set("todos", state.todos);
+            is = is.set("syncActions", state.syncActions);
+        }
+    }
+    console.log("Loaded from storage");
+    return is;
 }
 
 // action must have an action_id field with a uuidv4 in it
 export function serverUpdate(actions: ActionDummy[]
                              = store.getState().syncActions.asMutable()) {
-    console.log(JSON.stringify(actions));
     const state = store.getState();
     if (state.loginDetails) {
-        storeState();
         if (navigator.onLine !== false) {
             return m.request({
                 method: "PUT",
@@ -36,10 +58,23 @@ export function serverUpdate(actions: ActionDummy[]
                     jwt: state.loginDetails.jwt,
                     batch: actions
                 }
-            }).then(function (todos) {
-                actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
-                updateWithServerTodos(todos as ServerTodoRow[]);
-                storeState();
+            }).then(function (response: any) {
+                switch (response.type) {
+                    case "SUCCESS": {
+                        const todos = response.todos;
+                        actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        updateWithServerTodos(todos as ServerTodoRow[]);
+                        break;
+                    }
+                    case "INVALID_TOKEN":
+                    case "EXPIRED_TOKEN":
+                        console.log(response.type);
+                        logout();
+                        break;
+                    default:
+                        console.log("Unrecognised server response " + response);
+                }
+
             }).catch(function (e) {
                 if (e.code !== 0) {// got a response from server
                     console.log("Server error " + e.message);

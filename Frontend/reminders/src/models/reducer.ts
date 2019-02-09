@@ -8,8 +8,6 @@ export default (state: State, action: Action) => {
     switch (action.type) {
         case getType(actions.setModal):
             return state.set("modal", action.payload.modal);
-        case getType(actions.setLoginDetails):
-            return state.set("loginDetails", action.payload);
         case getType(actions.logoutResetStore):
             return initState;
         case getType(actions.createTodo): {
@@ -62,6 +60,8 @@ export default (state: State, action: Action) => {
                              state.syncActions.filter(
                                  a => a.payload.action_id !== action_id
                              ));
+        case getType(actions.setState):
+            return action.payload.state;
         case getType(actions.setServerTodos):
             const todos = action.payload.todos;
             return state.set("todos", todos);

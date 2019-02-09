@@ -49,10 +49,11 @@ pub struct UpdateRequest {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
+#[allow(non_camel_case_types)]
 pub enum UpdateResult {
-    InvalidToken,
-    ExpiredToken,
-    Success,
+    INVALID_TOKEN,
+    EXPIRED_TOKEN,
+    SUCCESS{todos: Vec<models::Todo>},
 }
 
 fn update(
@@ -61,10 +62,10 @@ fn update(
     let jwt_result = auth::verify_jwt(&data.0.jwt);
     match jwt_result {
         Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
-            futures::future::ok(HttpResponse::Ok().json(UpdateResult::InvalidToken)).responder()
+            futures::future::ok(HttpResponse::Ok().json(UpdateResult::INVALID_TOKEN)).responder()
         },
         Err(JWTVerifyError::Expired{time: _}) => {
-            futures::future::ok(HttpResponse::Ok().json(UpdateResult::ExpiredToken)).responder()
+            futures::future::ok(HttpResponse::Ok().json(UpdateResult::EXPIRED_TOKEN)).responder()
         },
         Ok(userid) => {
             let actions = data.0.batch;
@@ -73,7 +74,7 @@ fn update(
                 .send(UpdateBatch(userid, actions))
                 .from_err()
                 .and_then(|res| match res {
-                    Ok(todos) => Ok(HttpResponse::Ok().json(todos)),
+                    Ok(todos) => Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS{todos: todos})),
                     Err(e) => {
                         dbg!(e);
                         Ok(HttpResponse::InternalServerError().into())

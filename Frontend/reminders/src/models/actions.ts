@@ -2,8 +2,8 @@ import { createAction } from "typesafe-actions";
 import m from "mithril";
 import uuidv4 from "uuid/v4";
 
-import { store, TodoMap } from "./store";
-import { ServerTodoRow, serverRowToTodo, serverUpdate } from "./update";
+import { store, TodoMap, State } from "./store";
+import { ServerTodoRow, serverRowToTodo, serverUpdate, stateFromStorage } from "./update";
 
 interface ActionDummy {
     type: string,
@@ -16,15 +16,15 @@ export const setModal = createAction("SET_MODAL", resolve => {
     }
 })
 
-export const setLoginDetails = createAction("SET_LOGIN_DETAILS", resolve => {
-    return (username: string, userid: string, jwt: string) => {
-        return resolve({username, userid, jwt});
-    }
-})
-
 export const logoutResetStore = createAction("LOGOUT_RESET_STORE", resolve => {
     return () => {
         return resolve();
+    }
+})
+
+export const setState = createAction("SET_STATE", resolve => {
+    return (state: State) => {
+        return resolve({state});
     }
 })
 
@@ -34,7 +34,6 @@ export const setServerTodos = createAction("SET_SERVER_TODOS", resolve => {
         serverTodos.forEach(row => {
             todos[row.id] = serverRowToTodo(row);
         })
-        console.log(todos);
         return resolve({todos});
     }
 })

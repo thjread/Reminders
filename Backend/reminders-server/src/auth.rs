@@ -7,7 +7,7 @@ use actix::prelude::*;
 use failure::Error;
 
 const COST: u32 = 11;
-const JWT_VALID_TIME: i64 = 7*24*60*60;// 7 weeks
+const JWT_VALID_TIME: i64 = 7*24*60*60;// 7 days
 
 pub struct HashExecutor();
 
