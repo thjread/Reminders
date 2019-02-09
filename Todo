@@ -1,3 +1,2 @@
-Replace moment.js with sugar.js + custom "tomorrow" / "yesterday" etc. (it really doesn't do very much)
 Lazy load sugar.js?
-Don't store current date in state
+Duplicate button?

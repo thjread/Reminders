@@ -47,10 +47,22 @@ function deadlineCompare(a: Date | undefined, b: Date | undefined) {
     }
 }
 
+export interface ActionDummy {
+    type: string,
+    payload: any
+}
+
+
+export interface UndoInfo {
+    redoAction: () => ActionDummy;
+    time: Date;
+}
+
 interface StateI {
     todos: TodoMap;
     currentDate: Date;
-    syncActions: any[];
+    syncActions: ActionDummy[];
+    undoAction?: UndoInfo;
     loginDetails?: LoginDetails;
     modal: any;
 }
@@ -92,4 +104,8 @@ export function laterTodos() {
         .filter(id => !todoDue(id))
         .filter((id) => !getTodo(id).done)
         .sort((a, b) => itemCompare(a, b));
+}
+
+export function pendingUndo() {
+    return store.getState().undoAction;
 }

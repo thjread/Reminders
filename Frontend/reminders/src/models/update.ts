@@ -1,6 +1,7 @@
 import m from "mithril";
 import { store, initState, Todo } from "./store";
 import { syncActionSynced, setServerTodos } from  "./actions";
+import { Action } from "./reducer";
 import { dateTimeReviver } from "../utils";
 import { logout, LoginDetails } from "./auth";
 
@@ -112,5 +113,5 @@ export function serverRowToTodo(t: ServerTodoRow) {
 
 function updateWithServerTodos(todos: ServerTodoRow[]) {
     store.dispatch(setServerTodos(todos));
-    store.getState().syncActions.forEach(a => store.dispatch(a));
+    store.getState().syncActions.forEach(a => store.dispatch(a as Action));
 }

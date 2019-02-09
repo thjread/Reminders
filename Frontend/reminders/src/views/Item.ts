@@ -38,8 +38,14 @@ const Item: m.Component<Attrs> = {
                      ]),
             m("div.item-options",
               {class: selected ? "selected" : undefined}, [
-                m("button.pill-button.on-primary.narrow-button", {onclick: () => edit(id)}, "Edit"),
-                m("button.pill-button.on-primary.narrow-button", {onclick: () => store.dispatch(deleteTodo(id))}, "Delete")
+                  m("button.pill-button.on-primary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
+                      toggleSelect(id);
+                      edit(id);
+                  }}, "Edit"),
+                  m("button.pill-button.on-primary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
+                      toggleSelect(id);
+                      store.dispatch(deleteTodo(id));
+                  }}, "Delete")
             ])
         ]);
     }

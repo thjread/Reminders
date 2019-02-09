@@ -8,7 +8,7 @@ store.subscribe(storeState);
 m.mount(document.body, App);
 
 askServerForTodos();
-//const syncInterval = setInterval(serverUpdate, 5000); TODO
+const syncInterval = setInterval(serverUpdate, 5000);
 window.addEventListener("online", _ => serverUpdate());
 
 /*if ("serviceWorker" in navigator) {
@@ -24,3 +24,4 @@ window.addEventListener("online", _ => serverUpdate());
         console.log('Registration failed with ' + error);
     });
 }*/
+

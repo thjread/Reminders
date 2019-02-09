@@ -1,6 +1,6 @@
 import { ActionType, getType } from "typesafe-actions";
 
-import { State, initState, Todo } from "./store";
+import { State, initState, Todo, ActionDummy } from "./store";
 import * as actions from "./actions";
 export type Action = ActionType<typeof actions>;
 
@@ -53,7 +53,10 @@ export default (state: State, action: Action) => {
         }
         case getType(actions.syncAction):
             const sync_action = action.payload.action;
-            return state.set("syncActions", state.syncActions.concat([sync_action]));
+            return state.set("syncActions", state.syncActions.concat(sync_action as ActionDummy));
+        case getType(actions.setUndoAction):
+            const undo_info = action.payload.info;
+            return state.set("undoAction", undo_info);
         case getType(actions.syncActionSynced):
             const action_id = action.payload.action_id;
             return state.set("syncActions",

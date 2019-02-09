@@ -1,26 +1,26 @@
 import { Date as SDate } from "sugar";
 
 export function formatDateTime(d: Date) {
-    let format_time = '{hours}:{mm}{tt}';
+    let format_time = ' {hours}:{mm}{tt}';
     if (d.getHours() === 0 && d.getMinutes() === 0) {
         format_time = '';
     }
-    let format_day = ' {d} {Month}';
+    let format_day = '{do} {Month}';
     if (SDate.isYesterday(d)) {
-        format_day = ' Yesterday';
+        format_day = 'Yesterday';
     } else if (SDate.isToday(d)) {
-        format_day = ' Today';
-        format_time = '{hours}:{mm}{tt}';
+        format_day = 'Today';
+        format_time = ' {hours}:{mm}{tt}';
     } else if (SDate.isTomorrow(d)) {
-        format_day = ' Tomorrow';
+        format_day = 'Tomorrow';
     } else if (SDate.daysUntil(SDate.create('today'), d) < 7) {
-        format_day = ' {Weekday}';
+        format_day = '{Weekday}';
     }
-    let format_year = ' {year}'
+    let format_year = '{year} '
     if (SDate.isThisYear(d)) {
         format_year = '';
     }
-    return SDate.format(d, format_time + format_day + format_year);
+    return SDate.format(d, format_year + format_day + format_time);
 }
 
 export function dateTimeReviver(_: any, value: any) {
