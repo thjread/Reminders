@@ -8,6 +8,7 @@ RUN cargo build --release
 
 RUN rm src/*.rs
 COPY ./reminders-server/src ./src
+COPY ./reminders-server/migrations ./migrations
 
 RUN rm ./target/release/deps/reminders_server*
 RUN cargo build --release

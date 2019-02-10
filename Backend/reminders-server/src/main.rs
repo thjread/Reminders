@@ -15,6 +15,8 @@ extern crate frank_jwt;
 extern crate futures;
 #[macro_use]
 extern crate failure;
+#[macro_use]
+extern crate diesel_migrations;
 
 use actix::prelude::*;
 use actix_web::{
@@ -226,6 +228,8 @@ fn signup(
         .responder()
 }
 
+embed_migrations!("./migrations/");
+
 fn main() {
     std::env::set_var("RUST_LOG", "actix_web=INFO");
     env_logger::init();
@@ -234,6 +238,7 @@ fn main() {
     let sys = actix::System::new("reminders-server");
 
     let pool = database::establish_connection();
+    embedded_migrations::run(&pool.get().unwrap()).expect("Failed to apply migrations");
     let db_addr = SyncArbiter::start(2, move || DbExecutor(pool.clone()));
     let hash_addr = SyncArbiter::start(2, move || HashExecutor());
 
@@ -243,6 +248,7 @@ fn main() {
             hash: hash_addr.clone(),
         })
         .middleware(Logger::new("%r %b %D"))
+        .prefix("/api")
         .resource("/update", |r| {
             r.method(http::Method::PUT).with_async(update)
         })
