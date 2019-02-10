@@ -1,2 +1,5 @@
 Lazy load sugar.js?
 Duplicate button?
+Make sure service-worker.js has no-cache
+What about index.html? Or manifest.json?
+Everything else max age

@@ -1,9 +1,15 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin')
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const WorkboxPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
     entry: {
         app: './src/index.ts',
+        css: './src/main.css'
     },
     module: {
         rules: [
@@ -19,11 +25,42 @@ module.exports = {
                     'css-loader'
                 ]
             }*/
+            {
+                test: /\.css$/,
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                    },
+                    "css-loader"
+                ]
+            }
         ]
     },
     plugins: [
+        new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
             template: './src/index.html'
+        }),
+        new webpack.HashedModuleIdsPlugin(),
+        new CopyWebpackPlugin([{from: './src/manifest.json', to: './manifest.json'}]),
+        new MiniCssExtractPlugin({
+            filename: "[name].[contenthash].css",
+            chunkFilename: "[name].[contenthash].css"
+        }),
+        new WorkboxPlugin.GenerateSW({
+            clientsClaim: true,
+            skipWaiting: true,
+            runtimeCaching: [
+                {
+                    urlPattern: new RegExp('https://fonts.googleapis.com/'),
+                    handler: 'staleWhileRevalidate'
+                },
+                {
+                    urlPattern: new RegExp('https://fonts.gstatic.com/'),
+                    handler: 'cacheFirst'
+                }
+            ],
+            swDest: 'sw.js'
         })
     ],
     resolve: {
@@ -35,8 +72,9 @@ module.exports = {
         path: path.resolve(__dirname, 'dist')
     },
     optimization: {
+        runtimeChunk: 'single',
         splitChunks: {
-            chunks: "all"
+            chunks: 'all'
         }
     }
 };

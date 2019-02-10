@@ -1,3 +1,5 @@
+import m from "mithril";
+
 export let formatDateTime = (d: Date) => {
     return d.toLocaleTimeString() + " " + d.toLocaleDateString();
 }
@@ -5,6 +7,7 @@ export let formatDateTime = (d: Date) => {
 export function sugarDateTime() {
     import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils").then(({sugarFormatDateTime}) => {
         formatDateTime = sugarFormatDateTime;
+        m.redraw();
     }).catch((e) => "Error " + e + " while loading Sugar library");
 }
 

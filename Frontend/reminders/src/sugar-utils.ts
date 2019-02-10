@@ -1,6 +1,7 @@
 import {Date as SDate} from "sugar";
 
 export const sugarFormatDateTime = (d: Date) => {
+    // TODO rewrite this to not use sugar
     let format_time = ' {hours}:{mm}{tt}';
     if (d.getHours() === 0 && d.getMinutes() === 0) {
         format_time = '';
