@@ -5,4 +5,4 @@ CREATE TABLE todos (
   deadline TIMESTAMP,
   done BOOLEAN NOT NULL DEFAULT 'f'
 );
-CREATE INDEX userid_id_idx on todos (userid, id);
+CREATE INDEX userid_done_idx on todos (userid, done);

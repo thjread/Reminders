@@ -1,10 +1,9 @@
 import m from "mithril";
 import { setModal, editTodo, createTodo } from "../models/actions";
 import {store, getTodo} from "../models/store";
-import { Date } from "sugar";
 import {formatDateTime} from "../utils";
 
-export default function (editId: string | null = null) {
+export default function (dateParseFunction: (s: string) => Date | null, editId: string | null = null) {
     let title = "";
     let deadlineInputText = "";
     let deadline: Date | null = null;
@@ -30,8 +29,16 @@ export default function (editId: string | null = null) {
     }
 
     return {
+        oncreate: function() {
+            const title = document.getElementById("title");
+            if (title) {
+                title.focus();
+            }
+        },
+
         view: function() {
             return m("main.modal-container", m("form.modal-form", {
+                autocomplete: "off",
                 onsubmit: function (e: any) {
                     e.preventDefault();
                     if (title == "") return;
@@ -40,7 +47,7 @@ export default function (editId: string | null = null) {
             }, [
                 m("button[type=button].text-button.on-secondary", {
                     onclick: function() { store.dispatch(setModal(null)); } }, "Cancel"),
-                m("input[type=text]",
+                m("input[type=text]#title",
                   {name: "title", placeholder: "Title",
                    oninput: function (e: any) {title = e.currentTarget.value;},
                    value: title
@@ -49,18 +56,7 @@ export default function (editId: string | null = null) {
                   {name: "deadline", placeholder: "Deadline",
                    oninput: function (e: any) {
                        deadlineInputText = e.currentTarget.value;
-                       Date.setLocale('en-GB');
-                       const date = Date.create(deadlineInputText, {future: true});
-                       if (Date.isValid(date)) {
-                           deadline = date;
-                       } else {
-                           const inDate = Date.create("in " + deadlineInputText, {future: true});
-                           if (Date.isValid(inDate)) {
-                               deadline = inDate;
-                           } else {
-                               deadline = null;
-                           }
-                       }
+                       deadline = dateParseFunction(deadlineInputText);
                    },
                    value: deadlineInputText
                   }),

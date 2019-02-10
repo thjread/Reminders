@@ -3,11 +3,12 @@
     "outDir": "./dist/",
     "sourceMap": true,
     "noImplicitAny": true,
-    "module": "commonjs",
+    "module": "esnext",
     "esModuleInterop": true,
     "target": "es5",
     "allowJs": true,
     "strictNullChecks": true,
-    "lib": ["es2015", "dom"]
+    "moduleResolution": "node",
+    "lib": ["es5", "es2015.promise", "dom"]
   }
 }

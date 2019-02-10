@@ -5,11 +5,15 @@ import Edit from "../views/Edit";
 import { serverUpdate } from "./update";
 
 export function create() {
-    store.dispatch(setModal(Edit()));
+    import(/* webpackChunkName: "sugar", webpackPreload: true */ "../sugar-utils").then(({sugarParseDate}) => {
+        store.dispatch(setModal(Edit(sugarParseDate)));
+    })
 }
 
 export function edit(id: string) {
-    store.dispatch(setModal(Edit(id)));
+    import(/* webpackChunkName: "sugar", webpackPreload: true */ "../sugar-utils").then(({sugarParseDate}) => {
+        store.dispatch(setModal(Edit(sugarParseDate, id)));
+    })
 }
 
 export function undo() {

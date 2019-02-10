@@ -1,3 +1,3 @@
 #!/bin/sh
-webpack --stats --json > stats.json
+webpack --config webpack.prod.js --stats --json > stats.json
 webpack-bundle-analyzer stats.json dist

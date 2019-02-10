@@ -23,6 +23,13 @@ export default function (isL: boolean = true) {
             password = "";
         },
 
+        oncreate: function() {
+            const username = document.getElementById("username");
+            if (username) {
+                username.focus();
+            }
+        },
+
         view: function() {
             return m("main.modal-container", m("form.modal-form", {
                 onsubmit: function (e: any) {
@@ -34,7 +41,7 @@ export default function (isL: boolean = true) {
                     }
                 }
             }, [
-                m("input[type=text]",
+                m("input[type=text]#username",
                   {name: "username", placeholder: "Username",
                    oninput: function (e: any) {username = e.currentTarget.value;},
                    value: username

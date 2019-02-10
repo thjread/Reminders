@@ -1,9 +1,11 @@
 import m from "mithril";
 import { store } from "./models/store"; // initialise store
 import { storeState, askServerForTodos, serverUpdate } from "./models/update";
+import { sugarDateTime } from "./utils";
 import App from "./views/App";
 
 store.subscribe(storeState);
+sugarDateTime();
 
 m.mount(document.body, App);
 
