@@ -54,7 +54,7 @@ export function serverUpdate(actions: ActionDummy[]
         if (navigator.onLine !== false) {
             return m.request({
                 method: "PUT",
-                url: "http://localhost:3000/api/update",
+                url: "http://reminders.thjread.com/api/update", // TODO make ssl
                 data: {
                     jwt: state.loginDetails.jwt,
                     batch: actions

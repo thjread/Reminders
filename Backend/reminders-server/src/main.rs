@@ -53,7 +53,7 @@ pub struct UpdateRequest {
 pub enum UpdateResult {
     INVALID_TOKEN,
     EXPIRED_TOKEN,
-    SUCCESS{todos: Vec<models::Todo>},
+    SUCCESS { todos: Vec<models::Todo> },
 }
 
 fn update(
@@ -63,10 +63,10 @@ fn update(
     match jwt_result {
         Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
             futures::future::ok(HttpResponse::Ok().json(UpdateResult::INVALID_TOKEN)).responder()
-        },
-        Err(JWTVerifyError::Expired{time: _}) => {
+        }
+        Err(JWTVerifyError::Expired { time: _ }) => {
             futures::future::ok(HttpResponse::Ok().json(UpdateResult::EXPIRED_TOKEN)).responder()
-        },
+        }
         Ok(userid) => {
             let actions = data.0.batch;
             req.state()
@@ -74,7 +74,9 @@ fn update(
                 .send(UpdateBatch(userid, actions))
                 .from_err()
                 .and_then(|res| match res {
-                    Ok(todos) => Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS{todos: todos})),
+                    Ok(todos) => {
+                        Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS { todos: todos }))
+                    }
                     Err(e) => {
                         dbg!(e);
                         Ok(HttpResponse::InternalServerError().into())
@@ -240,28 +242,36 @@ fn main() {
             db: db_addr.clone(),
             hash: hash_addr.clone(),
         })
-        .prefix("/api")
         .middleware(Logger::new("%r %b %D"))
-        .configure(|app| {
-            Cors::for_app(app)
+        .resource("/update", |r| {
+            r.method(http::Method::PUT).with_async(update)
+        })
+        .resource("/login", |r| r.method(http::Method::POST).with_async(login))
+        .resource("/signup", |r| {
+            r.method(http::Method::POST).with_async(signup)
+        })
+        /*.configure(|app| {
+                Cors::for_app(app)
                 .allowed_origin("http://localhost:8000")
                 .resource("/update", |r| {
-                    r.method(http::Method::PUT).with_async(update)
-                })
+                r.method(http::Method::PUT).with_async(update)
+        })
                 .resource("/login", |r| r.method(http::Method::POST).with_async(login))
                 .resource("/signup", |r| {
-                    r.method(http::Method::POST).with_async(signup)
-                })
-                .register()
+                r.method(http::Method::POST).with_async(signup)
         })
+                .register()
+        })*/
     });
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
         server.listen(l)
     } else {
-        server.bind("127.0.0.1:3000").unwrap()
+        server.bind("0.0.0.0:3000").unwrap()
     };
 
-    server.run();
+    server.start();
+
+    println!("Started server");
 
     let _ = sys.run();
 }

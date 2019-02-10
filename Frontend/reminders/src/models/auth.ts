@@ -13,7 +13,7 @@ export function login(username: string, password: string) {
     logout();
     m.request({
         method: "POST",
-        url: "http://localhost:3000/api/login",
+        url: "http://reminders.thjread.com/api/login", // TODO make ssl
         data: {username, password}
     }).then(function (response: any) {
         switch (response.type) {
@@ -46,7 +46,7 @@ export function signup(username: string, password: string) {
     logout();
     m.request({
         method: "POST",
-        url: "http://localhost:3000/api/signup",
+        url: "http://reminders.thjread.com/api/signup",
         data: {username, password}
     }).then(function (response: any) {
         switch (response.type) {
