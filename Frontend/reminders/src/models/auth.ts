@@ -47,8 +47,8 @@ export function logout() {
 export function signup(username: string, password: string) {
     logout();
     m.request({
-        method: API_URI+"POST",
-        url: "http://reminders.thjread.com/api/signup",
+        method: "POST",
+        url: API_URI+"/signup",
         data: {username, password}
     }).then(function (response: any) {
         switch (response.type) {
