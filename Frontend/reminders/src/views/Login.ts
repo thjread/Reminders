@@ -43,12 +43,12 @@ export default function () {
                 }
             }, [
                 m("input[type=text]#username",
-                  {name: "username", placeholder: "Username",
+                  {name: "username", placeholder: "Username", "aria-label": "Username",
                    oninput: function (e: any) {username = e.currentTarget.value;},
                    value: username
                   }),
                 m("input[type=password]",
-                  {name: "password", placeholder: "Password",
+                  {name: "password", placeholder: "Password", "aria-label": "Password",
                    oninput: function (e: any) {password = e.currentTarget.value;},
                    value: password
                   }),

@@ -48,12 +48,12 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                 m("button[type=button].text-button.on-secondary", {
                     onclick: function() { store.dispatch(setModal(null)); } }, "Cancel"),
                 m("input[type=text]#title",
-                  {name: "title", placeholder: "Title",
+                  {name: "title", placeholder: "Title", "aria-label": "Title",
                    oninput: function (e: any) {title = e.currentTarget.value;},
                    value: title
                   }),
                 m("input[type=text].date-input",
-                  {name: "deadline", placeholder: "Deadline",
+                  {name: "deadline", placeholder: "Deadline", "aria-label": "Deadline",
                    oninput: function (e: any) {
                        deadlineInputText = e.currentTarget.value;
                        deadline = dateParseFunction(deadlineInputText);

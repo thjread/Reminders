@@ -42,7 +42,11 @@ module.exports = {
             template: './src/index.html'
         }),
         new webpack.HashedModuleIdsPlugin(),
-        new CopyWebpackPlugin([{from: './src/manifest.json', to: './manifest.json'}]),
+        new CopyWebpackPlugin([
+            {from: './src/manifest.json', to: './manifest.json'},
+            {from: './src/logo512.png', to: './images/logo512.png'},
+            {from: './src/logo192.png', to: './images/logo192.png'}
+        ]),
         new MiniCssExtractPlugin({
             filename: "[name].[contenthash].css",
             chunkFilename: "[name].[contenthash].css"
