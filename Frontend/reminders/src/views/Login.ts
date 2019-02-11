@@ -1,11 +1,11 @@
 import m from "mithril";
 import * as auth from "../models/auth";
 
-export default function (isL: boolean = true) {
+export default function () {
     let username = "";
     let password = "";
 
-    var isLogin = isL;
+    var isLogin = true;
 
     const login = function() {
         auth.login(username, password)
@@ -21,6 +21,7 @@ export default function (isL: boolean = true) {
         oninit: function() {
             username = "";
             password = "";
+            isLogin = true;
         },
 
         oncreate: function() {
