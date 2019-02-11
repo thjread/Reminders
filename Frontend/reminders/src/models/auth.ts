@@ -3,6 +3,8 @@ import { store } from "./store";
 import { logoutResetStore, setState } from "./actions";
 import { stateFromStorage, serverUpdate } from "./update";
 
+declare var API_URI: boolean;//provided by webpack
+
 export interface LoginDetails {
     username: string;
     userid: string;
@@ -13,7 +15,7 @@ export function login(username: string, password: string) {
     logout();
     m.request({
         method: "POST",
-        url: "http://reminders.thjread.com/api/login", // TODO make ssl
+        url: API_URI+"/login", // TODO make ssl
         data: {username, password}
     }).then(function (response: any) {
         switch (response.type) {
@@ -45,7 +47,7 @@ export function logout() {
 export function signup(username: string, password: string) {
     logout();
     m.request({
-        method: "POST",
+        method: API_URI+"POST",
         url: "http://reminders.thjread.com/api/signup",
         data: {username, password}
     }).then(function (response: any) {

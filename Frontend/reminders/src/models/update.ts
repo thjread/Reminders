@@ -5,6 +5,8 @@ import { Action } from "./reducer";
 import { dateTimeReviver } from "../utils";
 import { logout, LoginDetails } from "./auth";
 
+declare var API_URI: boolean;//provided by webpack
+
 interface ActionDummy {
     type: string,
     payload: any
@@ -54,7 +56,7 @@ export function serverUpdate(actions: ActionDummy[]
         if (navigator.onLine !== false) {
             return m.request({
                 method: "PUT",
-                url: "http://reminders.thjread.com/api/update", // TODO make ssl
+                url: API_URI+"/update", // TODO make ssl
                 data: {
                     jwt: state.loginDetails.jwt,
                     batch: actions
