@@ -243,31 +243,35 @@ fn main() {
     let hash_addr = SyncArbiter::start(2, move || HashExecutor());
 
     let mut server = server::new(move || {
-        App::with_state(AppState {
+        let app = App::with_state(AppState {
             db: db_addr.clone(),
             hash: hash_addr.clone(),
         })
         .middleware(Logger::new("%r %b %D"))
-        .prefix("/api")
-        .resource("/update", |r| {
-            r.method(http::Method::PUT).with_async(update)
-        })
-        .resource("/login", |r| r.method(http::Method::POST).with_async(login))
-        .resource("/signup", |r| {
-            r.method(http::Method::POST).with_async(signup)
-        })
-        /*.configure(|app| {
+        .prefix("/api");
+
+        if cfg!(debug_assertions) {
+            app.configure(|app| {
                 Cors::for_app(app)
-                .allowed_origin("http://localhost:8000")
-                .resource("/update", |r| {
+                    .allowed_origin("http://localhost:8000")
+                    .resource("/update", |r| {
+                        r.method(http::Method::PUT).with_async(update)
+                    })
+                    .resource("/login", |r| r.method(http::Method::POST).with_async(login))
+                    .resource("/signup", |r| {
+                        r.method(http::Method::POST).with_async(signup)
+                    })
+                    .register()
+            })
+        } else {
+            app.resource("/update", |r| {
                 r.method(http::Method::PUT).with_async(update)
-        })
-                .resource("/login", |r| r.method(http::Method::POST).with_async(login))
-                .resource("/signup", |r| {
+            })
+            .resource("/login", |r| r.method(http::Method::POST).with_async(login))
+            .resource("/signup", |r| {
                 r.method(http::Method::POST).with_async(signup)
-        })
-                .register()
-        })*/
+            })
+        }
     });
     server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
         server.listen(l)
