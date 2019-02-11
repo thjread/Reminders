@@ -9,6 +9,7 @@ RUN cargo build --release
 RUN rm src/*.rs
 COPY ./reminders-server/src ./src
 COPY ./reminders-server/migrations ./migrations
+COPY ./reminders-server/secrets/jwt_secret ./secrets/jwt_secret
 
 RUN rm ./target/release/deps/reminders_server*
 RUN cargo build --release

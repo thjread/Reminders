@@ -56,7 +56,7 @@ export function serverUpdate(actions: ActionDummy[]
         if (navigator.onLine !== false) {
             return m.request({
                 method: "PUT",
-                url: API_URI+"/update", // TODO make ssl
+                url: API_URI+"/update",
                 data: {
                     jwt: state.loginDetails.jwt,
                     batch: actions

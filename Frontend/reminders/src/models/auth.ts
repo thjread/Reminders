@@ -15,7 +15,7 @@ export function login(username: string, password: string) {
     logout();
     m.request({
         method: "POST",
-        url: API_URI+"/login", // TODO make ssl
+        url: API_URI+"/login",
         data: {username, password}
     }).then(function (response: any) {
         switch (response.type) {

@@ -8,6 +8,7 @@ use failure::Error;
 
 const COST: u32 = 11;
 const JWT_VALID_TIME: i64 = 7*24*60*60;// 7 days
+const SECRET: &'static str = include_str!("../secrets/jwt_secret");
 
 pub struct HashExecutor();
 
@@ -58,8 +59,7 @@ pub fn gen_jwt(userid: Uuid) -> Result<String, Error> {
         iat: chrono::Utc::now().timestamp(),
     }).expect("Failed to convert JWT payload to JSON");
     let header = json!({});
-    let secret = "secret";// TODO
-    frank_jwt::encode(header, &secret.to_string(), &payload, HS256).map_err(|e| e.into())
+    frank_jwt::encode(header, &SECRET.to_string(), &payload, HS256).map_err(|e| e.into())
 }
 
 #[derive(Debug, Fail)]
@@ -73,7 +73,7 @@ pub enum JWTVerifyError  {
 }
 
 pub fn verify_jwt(jwt: &String) -> Result<Uuid, JWTVerifyError> {
-    match frank_jwt::decode(jwt, &"secret".to_string(), HS256) {
+    match frank_jwt::decode(jwt, &SECRET.to_string(), HS256) {
         Err(_) => Err(JWTVerifyError::SignatureInvalid),
         Ok((_, p)) => {
             match serde_json::from_value::<JWTPayload>(p) {
