@@ -441,7 +441,7 @@ input[type=password]:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.7rem 0.4rem;
+    padding: 0.7rem 0.8rem;
 }
 
 .item-first {
@@ -476,17 +476,18 @@ input[type=password]:focus {
 }
 
 input[type=checkbox] {
-    width     : 2em;
-    margin    : 0;
-    padding   : 0;
-    opacity   : 0;
+    min-width: 0.5em;
+    width: 0.5em;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
 }
 
 .css-check {
     display: inline-block;
     width: 1em;
     height: 1em;
-    margin-left: -1.1em;
+    margin-left: -0.6em;
     margin-right: 0.6em;
     vertical-align: bottom;
     border: 1.5px solid var(--outline);
