@@ -53,8 +53,8 @@ module.exports = {
             chunkFilename: "[name].[contenthash].css"
         }),
         new WorkboxPlugin.GenerateSW({
-            clientsClaim: true,
-            skipWaiting: true,
+            /*clientsClaim: true,
+            skipWaiting: true,*/
             runtimeCaching: [
                 {
                     urlPattern: new RegExp('https://fonts.googleapis.com/'),
