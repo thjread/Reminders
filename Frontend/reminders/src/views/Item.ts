@@ -24,7 +24,7 @@ const Item: m.Component<Attrs> = {
         const toggleSelect = vnode.attrs.selectCallback;
         const selected = vnode.attrs.selected;
 
-        return m("li.item", [
+        return m("li.item", {class: selected ? "selected" : undefined}, [
                      m("div.item-main", { onclick: () => toggleSelect(id) }, [
                          m("div.item-first", [
                              m("input[type=checkbox]",
@@ -36,8 +36,7 @@ const Item: m.Component<Attrs> = {
                          ]),
                          item.deadline ? m("h3.item-deadline", formatDateTime(item.deadline)) : undefined
                      ]),
-            m("div.item-options",
-              {class: selected ? "selected" : undefined}, [
+            m("div.item-options", [
                   m("button.pill-button.on-primary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
                       toggleSelect(id);
                       edit(id);

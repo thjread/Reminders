@@ -437,17 +437,40 @@ input[type=password]:focus {
     font-size: 1.1rem;
 }
 
+.item-main::before {
+    content: '';
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: linear-gradient(transparent 2.8em, white 4.3em);
+    transition: opacity 0.3s;
+}
+.selected .item-main::before {
+    opacity: 0;
+}
+
 .item-main {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0.7rem 0.8rem;
+    position: relative;
 }
 
 .item-first {
     display: flex;
     justify-content: flex-start;
-    align-items: center;
+    align-items: flex-start;
+    overflow: hidden;
+    max-height: 3.6em;
+    transition: max-height 0.3s;
+}
+
+.selected .item-first {
+    max-height: 20em;
+    transition: max-height 1.0s;
 }
 
 .item-exit {
@@ -481,6 +504,7 @@ input[type=checkbox] {
     margin: 0;
     padding: 0;
     opacity: 0;
+    align-self: center;
 }
 
 .css-check {
@@ -492,6 +516,7 @@ input[type=checkbox] {
     vertical-align: bottom;
     border: 1.5px solid var(--outline);
     border-radius: 0.2rem;
+    align-self: center;
 }
 
 input[type=checkbox] + .css-check::after {
@@ -532,7 +557,7 @@ input[type=checkbox]:checked + .css-check::after {
     transition: height 0.3s;
 }
 
-.item-options.selected {
+.selected .item-options {
     height: 3rem;
 }
 
