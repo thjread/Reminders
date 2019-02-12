@@ -65,7 +65,8 @@ module.exports = {
                     handler: 'cacheFirst'
                 }
             ],
-            swDest: 'sw.js'
+            swDest: 'sw.js',
+            importWorkboxFrom: 'local'
         })
     ],
     resolve: {
