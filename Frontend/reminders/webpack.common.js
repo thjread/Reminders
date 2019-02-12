@@ -58,11 +58,11 @@ module.exports = {
             runtimeCaching: [
                 {
                     urlPattern: new RegExp('https://fonts.googleapis.com/'),
-                    handler: 'staleWhileRevalidate'
+                    handler: 'StaleWhileRevalidate'
                 },
                 {
                     urlPattern: new RegExp('https://fonts.gstatic.com/'),
-                    handler: 'cacheFirst'
+                    handler: 'CacheFirst'
                 }
             ],
             swDest: 'sw.js',
