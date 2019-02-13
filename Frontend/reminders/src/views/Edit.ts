@@ -47,12 +47,12 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
             }, [
                 m("button[type=button].text-button.on-secondary", {
                     onclick: function() { store.dispatch(setModal(null)); } }, "Cancel"),
-                m("input[type=text]#title",
+                m("input[type=text].text-input#title",// make text-area with rows=several, max-height=small, transition max-height to expand when more than one line of text input
                   {name: "title", placeholder: "Title", "aria-label": "Title",
                    oninput: function (e: any) {title = e.currentTarget.value;},
                    value: title
                   }),
-                m("input[type=text].date-input",
+                m("input[type=text].text-input",
                   {name: "deadline", placeholder: "Deadline", "aria-label": "Deadline",
                    oninput: function (e: any) {
                        deadlineInputText = e.currentTarget.value;
