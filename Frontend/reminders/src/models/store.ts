@@ -48,13 +48,18 @@ function deadlineCompare(a: Date | undefined, b: Date | undefined) {
 }
 
 export interface ActionDummy {
-    type: string,
-    payload: any
+    type: string;
+    payload: any;
 }
 
 
 export interface UndoInfo {
     redoAction: () => ActionDummy;
+    time: Date;
+}
+
+export interface Message {
+    text: string;
     time: Date;
 }
 
@@ -65,6 +70,7 @@ interface StateI {
     undoAction?: UndoInfo;
     loginDetails?: LoginDetails;
     modal: any;
+    message?: Message;
 }
 export type State = Immutable.Immutable<StateI>;
 

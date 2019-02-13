@@ -9,12 +9,10 @@ export default function () {
 
     const login = function() {
         auth.login(username, password)
-        console.log("Log in " + username);
     }
 
     const signup = function() {
         auth.signup(username, password)
-        console.log("Sign up " + username);
     }
 
     return {

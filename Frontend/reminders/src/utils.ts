@@ -1,5 +1,8 @@
 import m from "mithril";
 
+import { store, Message } from "./models/store";
+import { setMessage } from "./models/actions";
+
 export let formatDateTime = (d: Date) => {
     return d.toLocaleTimeString() + " " + d.toLocaleDateString();
 }
@@ -19,4 +22,12 @@ export function dateTimeReviver(_: any, value: any) {
         }
     }
     return value;
+}
+
+export function showMessage(text: string) {
+    const message: Message = {
+        text,
+        time: new Date()
+    }
+    store.dispatch(setMessage(message));
 }

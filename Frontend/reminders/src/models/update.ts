@@ -4,6 +4,7 @@ import { syncActionSynced, setServerTodos } from  "./actions";
 import { Action } from "./reducer";
 import { dateTimeReviver } from "../utils";
 import { logout, LoginDetails } from "./auth";
+import { showMessage, clearMessage } from "./ui";
 
 declare var API_URI: boolean;//provided by webpack
 
@@ -20,10 +21,8 @@ export function storeState() {
             syncActions: state.syncActions,
         }));
         localStorage.setItem("loginDetails", JSON.stringify(state.loginDetails));
-        console.log("Saved to localStorage");
     } else {
         localStorage.removeItem("loginDetails");
-        console.log("Login details removed from localStorage")
     }
 }
 
@@ -44,7 +43,6 @@ export function stateFromStorage(loginDetails: LoginDetails | null = null) {
             is = is.set("syncActions", state.syncActions);
         }
     }
-    console.log("Loaded from storage");
     return is;
 }
 
@@ -70,17 +68,20 @@ export function serverUpdate(actions: ActionDummy[]
                         break;
                     }
                     case "INVALID_TOKEN":
+                        showMessage("Authentication error");
+                        logout();
+                        break;
                     case "EXPIRED_TOKEN":
-                        console.log(response.type);
+                        showMessage("Saved login details expired - please log in again");
                         logout();
                         break;
                     default:
-                        console.log("Unrecognised server response " + response);
+                        showMessage("Server error");
                 }
 
             }).catch(function (e) {
                 if (e.code !== 0) {// got a response from server
-                    console.log("Server error " + e.message);
+                    showMessage("Server error - offline actions not saved");
                     // give up on actions
                     actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
                     setTimeout(askServerForTodos, 500);// try to reset to server state

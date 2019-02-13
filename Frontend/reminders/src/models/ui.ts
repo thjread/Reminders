@@ -1,8 +1,11 @@
-import { store, pendingUndo } from "./store";
-import { setModal, setUndoAction, syncAction } from "./actions";
+import m from "mithril";
+
+import { store, pendingUndo, Message } from "./store";
+import { setModal, setUndoAction, syncAction, setMessage } from "./actions";
 import { Action } from "./reducer";
 import Edit from "../views/Edit";
 import { serverUpdate } from "./update";
+import { MESSAGE_SHOW_TIME } from "../views/Message"
 
 export function create() {
     import(/* webpackChunkName: "sugar", webpackPreload: true */ "../sugar-utils").then(({sugarParseDate}) => {
@@ -26,4 +29,17 @@ export function undo() {
 
 export function dismissUndo() {
     store.dispatch(setUndoAction(null));
+}
+
+export function showMessage(text: string) {
+    const message: Message = {
+        text,
+        time: new Date()
+    }
+    store.dispatch(setMessage(message));
+    setTimeout(() => m.redraw(), MESSAGE_SHOW_TIME + 100);
+}
+
+export function clearMessage() {
+    store.dispatch(setMessage(undefined));
 }

@@ -2,6 +2,7 @@ import m from "mithril";
 import { store } from "./store";
 import { logoutResetStore, setState } from "./actions";
 import { stateFromStorage, serverUpdate } from "./update";
+import { showMessage, clearMessage } from "./ui";
 
 declare var API_URI: boolean;//provided by webpack
 
@@ -27,16 +28,21 @@ export function login(username: string, password: string) {
                 }
                 store.dispatch(setState(stateFromStorage(loginDetails)));
                 serverUpdate([]);
+                clearMessage();
                 break;
             case "UsernameNotFound":
-                console.log("Username " + username + " not found");//TODO
+                showMessage("User \"" + username + "\" not found");
                 break;
             case "IncorrectPassword":
-                console.log("Incorrect password");//TODO
+                showMessage("Incorrect password");
                 break;
         }
     }).catch(function (e) {
-        console.log("Log in failed with error " + e.message);//TODO notice when offline
+        if (e.code !== 0) {
+            showMessage("Server error");
+        } else {
+            showMessage("Failed to reach server - please check your internet connection and try again");
+        }
     })
 }
 
@@ -45,6 +51,10 @@ export function logout() {
 }
 
 export function signup(username: string, password: string) {
+    if (password.length == 0) {
+        showMessage("Please enter a password");
+        return;
+    }
     logout();
     m.request({
         method: "POST",
@@ -60,15 +70,20 @@ export function signup(username: string, password: string) {
                 }
                 store.dispatch(setState(stateFromStorage(loginDetails)));
                 serverUpdate([]);
+                clearMessage();
                 break;
             case "UsernameTooLong":
-                console.log("Username " + username + " too long");//TODO
+                showMessage("Username \"" + username + "\" is too long (max 100 characters)");
                 break;
             case "UsernameTaken":
-                console.log("Username " + username + " already taken");//TODO
+                showMessage("Username \"" + username + "\" is already taken");
                 break;
         }
     }).catch(function (e) {
-        console.log("Sign up failed with error " + e.message);//TODO notice when offline
+        if (e.code !== 0) {
+            showMessage("Server error");
+        } else {
+            showMessage("Failed to reach server - please check your internet connection and try again");
+        }
     })
 }

@@ -412,6 +412,28 @@ body {
     text-align: center;
 }
 
+/* Message */
+
+.message {
+    font-family: 'Raleway', sans-serif;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    font-size: 1.2rem;
+    background-color: var(--warning);
+    width: 100%;
+    padding: 1rem;
+    opacity: 1;
+    transition: opacity 0.3s;
+    min-height: 3.2rem;
+    z-index: 40000;
+}
+
+.message.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
 /* Main styles */
 
 .todo-container {
@@ -473,9 +495,11 @@ body {
     top: 0;
     background: linear-gradient(transparent 2.8em, white 4.3em);
     transition: opacity 0.3s;
+    pointer-events: none;
 }
 .selected .item-main::before {
     opacity: 0;
+    pointer-events: none;
 }
 
 .item-main {
@@ -655,6 +679,7 @@ input[type=checkbox]:checked + .css-check::after {
 
 .undo-hidden {
     opacity: 0;
+    pointer-events: none;
 }
 
 /* Desktop layout */

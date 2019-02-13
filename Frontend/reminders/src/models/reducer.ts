@@ -68,6 +68,9 @@ export default (state: State, action: Action) => {
         case getType(actions.setServerTodos):
             const todos = action.payload.todos;
             return state.set("todos", todos);
+        case getType(actions.setMessage):
+            const message = action.payload.message;
+            return state.set("message", message);
         default:
             return state;
     }

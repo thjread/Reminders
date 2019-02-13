@@ -1,6 +1,7 @@
 import m from "mithril";
 import TodoPage from "./TodoPage";
 import Login from "./Login";
+import Message from "./Message";
 
 import {store} from "../models/store";
 
@@ -10,15 +11,20 @@ export default function () {
     return {
         view: function() {
             const state = store.getState();
+            var main;
             if (state.loginDetails) {
                 if (state.modal) {
-                    return m(state.modal);
+                    main = m(state.modal);
                 } else {
-                    return m(TodoPage);
+                    main = m(TodoPage);
                 }
             } else {
-                return m(login);
+                main = m(login);
             }
+            return [
+                main,
+                m(Message)
+            ]
         }
     }
 }
