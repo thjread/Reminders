@@ -32,7 +32,7 @@ export default function () {
         },
 
         view: function() {
-            return m("main.modal-container", m("form.modal-form", {
+            return m("main.modal-container", m("form.modal-form.login-form", {
                 onsubmit: function (e: any) {
                     e.preventDefault();
                     if (isLogin) {
@@ -42,7 +42,7 @@ export default function () {
                     }
                 }
             }, [
-                m("input[type=text].text-input#username",
+                m("input[type=text].text-input#username",// TODO wrap in a div
                   {name: "username", placeholder: "Username", "aria-label": "Username",
                    oninput: function (e: any) {username = e.currentTarget.value;},
                    value: username

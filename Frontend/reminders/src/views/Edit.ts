@@ -37,7 +37,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
         },
 
         view: function() {
-            return m("main.modal-container", m("form.modal-form", {
+            return m("main.modal-container", m("form.modal-form.edit-form", {
                 autocomplete: "off",
                 onsubmit: function (e: any) {
                     e.preventDefault();
@@ -47,10 +47,12 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
             }, [
                 m("button[type=button].text-button.on-secondary", {
                     onclick: function() { store.dispatch(setModal(null)); } }, "Cancel"),
-                m("input[type=text].text-input#title",// make text-area with rows=several, max-height=small, transition max-height to expand when more than one line of text input
+                m("textarea.text-input#title",// make text-area with rows=several, max-height=small, transition max-height to expand when more than one line of text input
                   {name: "title", placeholder: "Title", "aria-label": "Title",
                    oninput: function (e: any) {title = e.currentTarget.value;},
-                   value: title
+                   value: title,
+                   rows: 7,
+                   class: title.length > 27 ? "expand" : undefined
                   }),
                 m("input[type=text].text-input",
                   {name: "deadline", placeholder: "Deadline", "aria-label": "Deadline",

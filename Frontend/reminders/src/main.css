@@ -84,29 +84,6 @@ input:focus
 /* Box Sizing Reset
 -----------------------------------------------*/
 
-/* All of our custom controls should be what we expect them to be */
-input,
-textarea
-{
-	-webkit-box-sizing:content-box;
-	-moz-box-sizing:content-box;
-	box-sizing:content-box;
-}
-
-/* These elements are usually rendered a certain way by the browser */
-button,
-input[type=reset],
-input[type=button],
-input[type=submit],
-input[type=checkbox],
-input[type=radio],
-select
-{
-	-webkit-box-sizing:border-box;
-	-moz-box-sizing:border-box;
-	box-sizing:border-box;
-}
-
 /* Text Inputs
 -----------------------------------------------*/
 
@@ -258,7 +235,7 @@ body {
     background-color: var(--background);
 }
 
-/* Login form */
+/* Login and edit forms */
 
 .modal-container {
     background-color: var(--primary-light);
@@ -269,11 +246,15 @@ body {
 }
 
 .modal-form {
-    border: 0.5px solid var(--outline-faint);
     box-shadow: 0px 1px 5px 0px var(--shadow);
     padding: 0.8rem 1.5rem;
-    border-radius: 0.5rem;
     background-color: var(--secondary);
+    width: 100%;
+}
+
+.login-form {
+    border: 0.5px solid var(--outline-faint);
+    border-radius: 0.5rem;
     width: 90%;
     max-width: 23rem;
 }
@@ -282,8 +263,7 @@ body {
     display: block;
     margin: 1rem 0;
     font-size: 1.5rem;
-    width: 95%;
-    max-width: 20rem;
+    width: 100%;
     border: 1px solid var(--outline);
     padding: 0.2em;
     border-radius: 0.2em;
@@ -300,6 +280,29 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+#title {
+    max-height: 2em;
+    transition: max-height 0.3s, font-size 0.3s;
+    resize: none;
+}
+
+#title.expand {
+    font-size: 1.2rem;
+    max-height: 7em;
+}
+
+.item-deadline.on-edit-form {
+    background: var(--background);
+    margin: 0;
+    width: 100%;
+    margin: 1rem 0;
+    padding: 0 0.7rem;
+    border-radius: 0.3rem;
+    height: 2.15rem;
+    line-height: 2.15rem;
+    font-size: 1.3rem;
 }
 
 .pill-button {
@@ -640,24 +643,20 @@ input[type=checkbox]:checked + .css-check::after {
     opacity: 0;
 }
 
-/* Edit form */
+/* Desktop layout */
 
-/*.date{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 1rem 0;
-}*/
+@media only screen and (min-width: 700px) {
+    .todo-container {
+        flex-direction: row;
+    }
 
-.item-deadline.on-edit-form {
-    background: var(--background);
-    margin: 0;
-    width: 100%;
-    margin: 1rem 0;
-    max-width: 20.65rem;
-    padding: 0 0.7rem;
-    border-radius: 0.3rem;
-    height: 2.15rem;
-    line-height: 2.15rem;
-    font-size: 1.3rem;
+    .todo-section {
+        padding: 0 1rem;
+    }
+
+    .edit-form {
+        border: 0.5px solid var(--outline-faint);
+        border-radius: 0.5rem;
+        max-width: 35rem;
+    }
 }

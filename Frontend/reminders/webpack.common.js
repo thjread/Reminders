@@ -4,7 +4,6 @@ const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const WorkboxPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -51,22 +50,6 @@ module.exports = {
         new MiniCssExtractPlugin({
             filename: "[name].[contenthash].css",
             chunkFilename: "[name].[contenthash].css"
-        }),
-        new WorkboxPlugin.GenerateSW({
-            /*clientsClaim: true,
-            skipWaiting: true,*/
-            runtimeCaching: [
-                {
-                    urlPattern: new RegExp('https://fonts.googleapis.com/'),
-                    handler: 'StaleWhileRevalidate'
-                },
-                {
-                    urlPattern: new RegExp('https://fonts.gstatic.com/'),
-                    handler: 'CacheFirst'
-                }
-            ],
-            swDest: 'sw.js',
-            importWorkboxFrom: 'local'
         })
     ],
     resolve: {
