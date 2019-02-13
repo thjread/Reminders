@@ -75,6 +75,10 @@ textarea
 	font-family: 'Raleway', sans-serif;
 }
 
+textarea {
+    white-space: pre-wrap;
+}
+
 /* Remove the stupid outer glow in Webkit */
 input:focus
 {
@@ -227,6 +231,8 @@ button::-moz-focus-inner {
     --outline-faint: #0003;
     --outline-focus-light: #fff8;
     --outline-focus-dark: #000;
+
+    --warning: #f4c242;
 }
 
 /* Body */
@@ -396,6 +402,14 @@ body {
 
 .logout-button:active {
     background-color: #eee;
+}
+
+.noscript-header {
+    background-color: var(--warning);
+    font-size: 1.4rem;
+    font-family: sans-serif;
+    padding: 1.2rem 0;
+    text-align: center;
 }
 
 /* Main styles */
