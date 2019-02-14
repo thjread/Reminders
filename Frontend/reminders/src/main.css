@@ -265,6 +265,10 @@ body {
     max-width: 23rem;
 }
 
+.edit-form {
+    padding: 0.8rem 0.6rem;
+}
+
 .text-input {
     display: block;
     margin: 1rem 0;
@@ -715,5 +719,6 @@ input[type=checkbox]:checked + .css-check::after {
         border: 0.5px solid var(--outline-faint);
         border-radius: 0.5rem;
         max-width: 35rem;
+        padding: 0.8rem 1rem;
     }
 }
