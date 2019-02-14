@@ -521,7 +521,6 @@ body {
 }
 .selected .item-main::before {
     opacity: 0;
-    pointer-events: none;
 }
 
 .item-main {
@@ -543,7 +542,21 @@ body {
 
 .selected .item-first {
     max-height: 20em;
-    transition: max-height 1.0s;
+    overflow-y: auto;
+    animation: enlarge 0.3s ease-in;
+}
+@keyframes enlarge {
+    0% {
+        max-height: 3.75em;
+        overflow-y: hidden;
+    }
+    99% {
+        max-height: 20em;
+    }
+    100% {
+        max-height: 20em;
+        overflow-y: auto;
+    }
 }
 
 .item-exit {

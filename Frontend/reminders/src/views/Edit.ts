@@ -73,7 +73,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                    oninput: function (e: any) {title = e.currentTarget.value;},
                    value: title,
                    rows: 7,
-                   class: title.length > 27 ? "expand" : undefined
+                   class: (title.length > 27 || title.indexOf("\n") > -1) ? "expand" : undefined
                   }),
                 m("input[type=text].text-input",
                   {name: "deadline", placeholder: "Deadline", "aria-label": "Deadline",
