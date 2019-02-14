@@ -105,3 +105,9 @@ export const setMessage = createAction("SET_MESSAGE", resolve => {
         return resolve({message});
     }
 })
+
+export const setLastSynced = createAction("SET_LAST_SYNCED", resolve => {
+    return (time: Date) => {
+        return resolve({time});
+    }
+})

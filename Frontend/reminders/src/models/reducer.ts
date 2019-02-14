@@ -71,6 +71,9 @@ export default (state: State, action: Action) => {
         case getType(actions.setMessage):
             const message = action.payload.message;
             return state.set("message", message);
+        case getType(actions.setLastSynced):
+            const time = action.payload.time;
+            return state.set("lastSynced", time);
         default:
             return state;
     }

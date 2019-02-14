@@ -390,6 +390,23 @@ body {
     color: var(--secondary-dark);
 }
 
+.header-last {
+    display: flex;
+    align-items: center;
+}
+
+.cloud {
+    margin-right: 1rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    opacity: 1;
+    transition: opacity 2s ease-in;
+}
+
+.cloud-hidden {
+    opacity: 0;
+}
+
 .logout-button {
     border: 1.5px solid black;
     border-radius: 999rem;
