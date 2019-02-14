@@ -21,7 +21,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
 
     function dispatch() {
         if (editId) {
-            store.dispatch(editTodo(editId, title, deadline, done));
+            store.dispatch(editTodo(editId, title, deadline));
         } else {
             store.dispatch(createTodo(title, deadline, done));
         }

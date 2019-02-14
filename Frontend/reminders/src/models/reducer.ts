@@ -29,11 +29,11 @@ export default (state: State, action: Action) => {
         case getType(actions.editTodo): {
             const id = action.payload.id;
             const title = action.payload.title;
-            const done = action.payload.done;
             const deadline = action.payload.deadline;
+            const old_todo = state.todos[id];
             let new_todo: Todo = {
                 title: title,
-                done: done,
+                done: old_todo.done,
             };
             if (deadline) {
                 new_todo.deadline = deadline;

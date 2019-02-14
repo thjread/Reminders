@@ -64,14 +64,9 @@ fn edit_todo(
     id: Uuid,
     title: String,
     deadline: Option<chrono::NaiveDateTime>,
-    done: bool,
 ) -> Result<usize, Error> {
     diesel::update(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id))
-        .set((
-            todo_dsl::title.eq(title),
-            todo_dsl::deadline.eq(deadline),
-            todo_dsl::done.eq(done),
-        ))
+        .set((todo_dsl::title.eq(title), todo_dsl::deadline.eq(deadline)))
         .execute(connection)
 }
 
@@ -95,7 +90,6 @@ pub enum UpdateAction {
         id: Uuid,
         title: String,
         deadline: Option<chrono::DateTime<chrono::Utc>>,
-        done: bool,
         action_id: Uuid,
     },
     DELETE_TODO {
@@ -143,7 +137,6 @@ impl Handler<UpdateBatch> for DbExecutor {
                     id,
                     title,
                     deadline,
-                    done,
                     ..
                 } => edit_todo(
                     &conn,
@@ -151,7 +144,6 @@ impl Handler<UpdateBatch> for DbExecutor {
                     id,
                     title,
                     deadline.map(|date| date.naive_utc()),
-                    done,
                 ),
                 UpdateAction::TOGGLE_DONE { id, done, .. } => toggle_done(&conn, userid, id, done),
                 UpdateAction::DELETE_TODO { id, .. } => delete(&conn, userid, id),

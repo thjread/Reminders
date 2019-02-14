@@ -44,12 +44,12 @@ export const createTodo = createAction("CREATE_TODO", resolve => {
 })
 
 export const editTodo = createAction("EDIT_TODO", resolve => {
-    return (id: string, title: string, deadline: Date | null | undefined, done: boolean) => {
-        const action = resolve({id, title, deadline, done, action_id: uuidv4()});
+    return (id: string, title: string, deadline: Date | null | undefined) => {
+        const action = resolve({id, title, deadline, action_id: uuidv4()});
         const todo = getTodo(id);
         store.dispatch(syncAction(action));
         serverUpdate();
-        store.dispatch(setUndoAction(() => editTodo(id, todo.title, todo.deadline, todo.done)));
+        store.dispatch(setUndoAction(() => editTodo(id, todo.title, todo.deadline)));
         return action;
     }
 })
