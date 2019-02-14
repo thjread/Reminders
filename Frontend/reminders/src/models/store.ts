@@ -63,6 +63,14 @@ export interface Message {
     time: Date;
 }
 
+export interface Shortcut {
+    callback: () => void;
+    anywhere: boolean;
+    preventDefault: boolean;
+}
+
+export type ShortcutMap = { [key: string]: Shortcut};
+
 interface StateI {
     todos: TodoMap;
     currentDate: Date;
@@ -72,6 +80,7 @@ interface StateI {
     modal: any;
     message?: Message;
     onlineAsOf?: Date
+    shortcuts: ShortcutMap;
 }
 export type State = Immutable.Immutable<StateI>;
 
@@ -80,6 +89,7 @@ const s: StateI = {
     currentDate: new Date("2019-01-29T13:00:00.000Z"),
     syncActions: [],
     modal: null,
+    shortcuts: {}
 }
 export const initState: State = Immutable(s);
 

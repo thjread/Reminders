@@ -3,6 +3,7 @@ import TodoSection from "./TodoSection";
 import TodoList from "./TodoList";
 
 import {store, dueTodos, laterTodos, pendingUndo} from "../models/store";
+import {addShortcut, removeShortcut} from "../models/actions";
 import {logout} from "../models/auth";
 import {undo, dismissUndo, create} from "../models/ui";
 import { CLOUD_SVG } from "./Icons";
@@ -11,6 +12,18 @@ const UNDO_SHOW_TIME = 10*1000;// 10 seconds
 const SYNC_DISPLAY_TIME = 10*1000;// 10 seconds
 
 export default {
+    oninit: function() {
+        store.dispatch(addShortcut("Enter 000", {
+            callback: create,
+            anywhere: false,
+            preventDefault: true
+        }));
+    },
+
+    onremove: function() {
+        store.dispatch(removeShortcut("Enter 000"));
+    },
+
     view: function() {
         const undoAction = pendingUndo();
         let showUndo = false;

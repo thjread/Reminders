@@ -1,5 +1,5 @@
 import m from "mithril";
-import { setModal, editTodo, createTodo } from "../models/actions";
+import { setModal, editTodo, createTodo, addShortcut, removeShortcut } from "../models/actions";
 import {store, getTodo} from "../models/store";
 import {formatDateTime} from "../utils";
 
@@ -19,7 +19,8 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
         done = todo.done;
     }
 
-    function dispatch() {
+    function submit() {
+        if (title === "") return;
         if (editId) {
             store.dispatch(editTodo(editId, title, deadline));
         } else {
@@ -28,7 +29,28 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
         store.dispatch(setModal(null));
     }
 
+    function cancel() {
+        store.dispatch(setModal(null));
+    }
+
     return {
+        oninit: function() {
+            store.dispatch(addShortcut("Escape 000", {
+                callback: cancel,
+                anywhere: true,
+                preventDefault: true
+            }));
+            store.dispatch(addShortcut("Enter 010", {
+                callback: submit,
+                anywhere: true,
+                preventDefault: true
+            }));
+        },
+
+        onremove: function() {
+            store.dispatch(removeShortcut("Escape 000"));
+        },
+
         oncreate: function() {
             const title = document.getElementById("title");
             if (title) {
@@ -41,12 +63,11 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                 autocomplete: "off",
                 onsubmit: function (e: any) {
                     e.preventDefault();
-                    if (title == "") return;
-                    dispatch();
+                    submit();
                 }
             }, [
                 m("button[type=button].text-button.on-secondary", {
-                    onclick: function() { store.dispatch(setModal(null)); } }, "Cancel"),
+                    onclick: cancel }, "Cancel"),
                 m("textarea.text-input#title",// make text-area with rows=several, max-height=small, transition max-height to expand when more than one line of text input
                   {name: "title", placeholder: "Title", "aria-label": "Title",
                    oninput: function (e: any) {title = e.currentTarget.value;},

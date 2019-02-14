@@ -74,6 +74,17 @@ export default (state: State, action: Action) => {
         case getType(actions.setOnlineAsOf):
             const time = action.payload.time;
             return state.set("onlineAsOf", time);
+        case getType(actions.addShortcut): {
+            const code = action.payload.code;
+            const shortcut = action.payload.shortcut;
+            return state.set("shortcuts", state.shortcuts.merge({
+                [code]: shortcut
+            }));
+        }
+        case getType(actions.removeShortcut): {
+            const code = action.payload.code;
+            return state.set("shortcuts", state.shortcuts.without(code));
+        }
         default:
             return state;
     }

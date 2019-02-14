@@ -43,3 +43,19 @@ export function showMessage(text: string) {
 export function clearMessage() {
     store.dispatch(setMessage(undefined));
 }
+
+export function handleShortcuts(e: KeyboardEvent) {
+    const shortcuts = store.getState().shortcuts;
+    const shortcut = shortcuts[e.code.toString() + " " + (+e.ctrlKey) + (+e.shiftKey) + (+e.altKey)]
+    if (shortcut) {
+        const tag = (e.target as HTMLElement).tagName;
+        if (!shortcut.anywhere && (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA")) {
+            return;
+        }
+        if (shortcut.preventDefault) {
+            e.preventDefault();
+        }
+        shortcut.callback();
+        m.redraw();
+    }
+}

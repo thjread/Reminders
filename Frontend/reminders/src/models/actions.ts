@@ -2,7 +2,8 @@ import { createAction } from "typesafe-actions";
 import m from "mithril";
 import uuidv4 from "uuid/v4";
 
-import { store, TodoMap, State, UndoInfo, getTodo, ActionDummy, Message } from "./store";
+import { store, TodoMap, State, UndoInfo, getTodo, ActionDummy, Message,
+         Shortcut } from "./store";
 import { ServerTodoRow, serverRowToTodo, serverUpdate, stateFromStorage } from "./update";
 
 export const setModal = createAction("SET_MODAL", resolve => {
@@ -109,5 +110,18 @@ export const setMessage = createAction("SET_MESSAGE", resolve => {
 export const setOnlineAsOf = createAction("SET_ONLINE_AS_OF", resolve => {
     return (time: Date | undefined) => {
         return resolve({time});
+    }
+})
+
+
+export const addShortcut = createAction("ADD_SHORTCUT", resolve => {
+    return (code: string, shortcut: Shortcut) => {
+        return resolve({code, shortcut})
+    }
+})
+
+export const removeShortcut = createAction("REMOVE_SHORTCUT", resolve => {
+    return (code: string) => {
+        return resolve({code})
     }
 })
