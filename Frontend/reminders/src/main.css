@@ -564,6 +564,7 @@ body {
     margin: 0 1rem;
     margin-left: 0rem;
     line-height: 1.2em;
+    white-space: pre-wrap;
 }
 
 input[type=checkbox] {
