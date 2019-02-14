@@ -19,7 +19,7 @@ export default {
         }
         let showSynced = false;
         const state = store.getState();
-        if (state.syncActions.length === 0 && state.lastSynced && Date.now() - state.lastSynced.getTime() < SYNC_DISPLAY_TIME && navigator.onLine !== false) {
+        if (state.syncActions.length === 0 && state.onlineAsOf && Date.now() - state.onlineAsOf.getTime() < SYNC_DISPLAY_TIME && navigator.onLine !== false) {
             showSynced = true;
         }
         return [

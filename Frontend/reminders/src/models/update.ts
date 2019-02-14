@@ -1,6 +1,6 @@
 import m from "mithril";
 import { store, initState, Todo } from "./store";
-import { syncActionSynced, setServerTodos, setLastSynced } from  "./actions";
+import { syncActionSynced, setServerTodos, setOnlineAsOf } from  "./actions";
 import { Action } from "./reducer";
 import { dateTimeReviver } from "../utils";
 import { logout, LoginDetails } from "./auth";
@@ -86,6 +86,8 @@ export function serverUpdate(actions: ActionDummy[]
                     actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
                     setTimeout(askServerForTodos, 500);// try to reset to server state
                     // TODO do we really want this? or logout on error
+                } else {
+                    setOnlineAsOf(undefined);
                 }
             })
         }
@@ -117,5 +119,5 @@ export function serverRowToTodo(t: ServerTodoRow) {
 function updateWithServerTodos(todos: ServerTodoRow[]) {
     store.dispatch(setServerTodos(todos));
     store.getState().syncActions.forEach(a => store.dispatch(a as Action));
-    store.dispatch(setLastSynced(new Date()));
+    store.dispatch(setOnlineAsOf(new Date()));
 }

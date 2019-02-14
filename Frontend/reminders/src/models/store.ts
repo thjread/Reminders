@@ -71,7 +71,7 @@ interface StateI {
     loginDetails?: LoginDetails;
     modal: any;
     message?: Message;
-    lastSynced?: Date
+    onlineAsOf?: Date
 }
 export type State = Immutable.Immutable<StateI>;
 

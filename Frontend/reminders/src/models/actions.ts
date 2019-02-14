@@ -106,8 +106,8 @@ export const setMessage = createAction("SET_MESSAGE", resolve => {
     }
 })
 
-export const setLastSynced = createAction("SET_LAST_SYNCED", resolve => {
-    return (time: Date) => {
+export const setOnlineAsOf = createAction("SET_ONLINE_AS_OF", resolve => {
+    return (time: Date | undefined) => {
         return resolve({time});
     }
 })

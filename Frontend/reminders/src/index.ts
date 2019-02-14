@@ -12,6 +12,7 @@ m.mount(document.body, App);
 askServerForTodos();
 const syncInterval = setInterval(serverUpdate, 5000);
 window.addEventListener("online", _ => serverUpdate());
+window.addEventListener("offline", _ => m.redraw());// make sure sync indicator redraws
 
 if ("serviceWorker" in navigator) {
     window.addEventListener('load', function () {

@@ -71,9 +71,9 @@ export default (state: State, action: Action) => {
         case getType(actions.setMessage):
             const message = action.payload.message;
             return state.set("message", message);
-        case getType(actions.setLastSynced):
+        case getType(actions.setOnlineAsOf):
             const time = action.payload.time;
-            return state.set("lastSynced", time);
+            return state.set("onlineAsOf", time);
         default:
             return state;
     }
