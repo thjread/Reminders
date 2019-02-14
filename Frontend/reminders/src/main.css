@@ -80,7 +80,8 @@ textarea {
 }
 
 /* Remove the stupid outer glow in Webkit */
-input:focus
+input:focus,
+textarea:focus
 {
 	outline:0;
 }
