@@ -3,13 +3,18 @@ use tokio::prelude::future::*;
 use std::time::Duration;
 use web_push::*;
 use failure::Error;
+use chrono::prelude::*;
+use futures::future::Either;
 
-const info_json: &'static str = r#"{"endpoint":"https://updates.push.services.mozilla.com/wpush/v2/gAAAAABcZ857Ak6F76_07CkFnkyG5XdwHLa2dJezHa4rrVMzEAvpYPQxEPxvVsJ3h08dcWk60v-pitA_tbtiFf2KG_QmjRNI6nGtaOikwCsg2YyUer6sDn-2uw_wuYNfra4vRP9GWV_JjZeqIxulKm58QzPVhj4YFT4Ai4hX3Fln_KlA9JYkdqs","keys":{"auth":"-rgPEoFoTKgQosEi3MR-Ow","p256dh":"BBU8jn3JvnL2F_DptbDDn5d_U2Vyn2Cxuy90XWSFAuaae5Ms9NEh2U3eFemPwjY2ILuBWqzTRccvmhIwjMJoz9g"}}"#;
+use crate::database::{DbExecutor, GetNotifications, GetSubscriptions};
 
 const PUSH_FREQUENCY: u64 = 10;
 const PRIVATE_KEY: &'static str = include_str!("../secrets/private_key.pem");
 
-pub struct Push;
+pub struct Push {
+    pub db: Addr<DbExecutor>,
+    pub last_notify: NaiveDateTime,
+}
 
 impl Actor for Push {
     type Context = Context<Self>;
@@ -17,32 +22,62 @@ impl Actor for Push {
     fn started(&mut self, ctx: &mut Context<Self>) {
 
         ctx.run_interval(Duration::from_secs(PUSH_FREQUENCY), |a, ctx| {
-            push(a, ctx).ok();
+            push(a, ctx)
         });
     }
 }
 
-fn push(a: &mut Push, ctx: &mut Context<Push>) -> Result<(), Error> {
-    let info: SubscriptionInfo = serde_json::from_str(info_json)?;// TODO don't use unwrap
-    let mut builder = WebPushMessageBuilder::new(&info)?;
+fn notify(info: SubscriptionInfo) -> impl Future<Item = (), Error = Error> {
+    dbg!(&info);
+    // TODO don't use unwrap
+    let mut builder = WebPushMessageBuilder::new(&info).unwrap();
     builder.set_payload(ContentEncoding::AesGcm, "hi there".as_bytes());
     builder.set_ttl(10);
 
-    let sig_builder = VapidSignatureBuilder::from_pem(PRIVATE_KEY.as_bytes(), &info)?;
-    let signature = sig_builder.build()?;
+    let sig_builder = VapidSignatureBuilder::from_pem(PRIVATE_KEY.as_bytes(), &info).unwrap();
+    let signature = sig_builder.build().unwrap();
     builder.set_vapid_signature(signature);
 
-    let message = builder.build()?;
-    let client = WebPushClient::new()?;
+    let message = builder.build().unwrap();
+    let client = WebPushClient::new().unwrap();
 
-    ctx.spawn(client
-        .send_with_timeout(message, Duration::from_secs(4))
-        .map(|response| {
+    client.send_with_timeout(message, Duration::from_secs(4)).map_err(|e| e.into())
+        /*.map(|response| {
             println!("Sent: {:?}", response);
         }).map_err(|error| {
             println!("Error: {:?}", error);// TODO delete sub info on endpoint error
-        }).into_actor(a));
+        })*/
+}
 
-    println!("TODO push");
-    Ok(())
+fn push(a: &mut Push, ctx: &mut Context<Push>) {
+    let db = a.db.clone();
+    let fut = db.send(GetNotifications {
+        since: a.last_notify,
+        until: Utc::now().naive_utc(),
+    }).from_err().and_then(move |t_res| match t_res {
+        Err(e) => {
+            Either::A(futures::future::ok(println!("Error {:?} retrieving todos to notify", e)))
+        }
+        Ok(todos) => {
+            Either::B(db.send(GetSubscriptions)
+                .from_err().and_then(|s_res| match s_res {
+                    Err(e) => {
+                        Either::A(futures::future::ok(println!("Error {:?} retrieving subscriptions", e)))
+                    }
+                    Ok(subs) => {
+                        Either::B(futures::future::join_all(subs.into_iter().map(|s| {
+                            let info = SubscriptionInfo {
+                                endpoint: s.endpoint,
+                                keys: SubscriptionKeys {
+                                    auth: s.auth,
+                                    p256dh: s.p256dh,
+                                }
+                            };
+                            notify(info)
+                        })).map(|_| ()))
+                    }
+                })
+        )}
+    });
+    ctx.spawn(fut.map_err(|_| ()).into_actor(a));
 }

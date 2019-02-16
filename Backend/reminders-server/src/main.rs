@@ -85,7 +85,7 @@ fn update(
                         Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS { todos: todos }))
                     }
                     Err(e) => {
-                        dbg!(e);
+                        println!("Error performing update {:?}", e);
                         Ok(HttpResponse::InternalServerError().into())
                     }
                 })
@@ -329,6 +329,12 @@ fn main() {
     let db_addr = SyncArbiter::start(2, move || DbExecutor(pool.clone()));
     let hash_addr = SyncArbiter::start(2, move || HashExecutor());
 
+    let p = Push{
+        last_notify: Utc::now().naive_utc() - chrono::Duration::minutes(1),
+        db: db_addr.clone(),
+    };
+    p.start();
+
     let mut server = server::new(move || {
         let app = App::with_state(AppState {
             db: db_addr.clone(),
@@ -381,9 +387,6 @@ fn main() {
     server.start();
 
     println!("Started server");
-
-    let p = Push;
-    p.start();
 
     let _ = sys.run();
 }

@@ -10,7 +10,7 @@ use failure::Error;
 use crate::models::*;
 use crate::schema;
 use crate::schema::subscriptions::dsl as subscriptions_dsl;
-use crate::schema::todos::dsl as todo_dsl;
+use crate::schema::todos::dsl as todos_dsl;
 use crate::schema::users::dsl as users_dsl;
 
 pub struct DbExecutor(pub Pool<ConnectionManager<PgConnection>>);
@@ -31,8 +31,8 @@ pub fn establish_connection() -> r2d2::Pool<ConnectionManager<PgConnection>> {
 
 // TODO don't send completed todos?
 fn get_todos(connection: &PgConnection, userid: Uuid) -> Result<Vec<Todo>, Error> {
-    todo_dsl::todos
-        .filter(todo_dsl::userid.eq(userid))
+    todos_dsl::todos
+        .filter(todos_dsl::userid.eq(userid))
         .load::<Todo>(connection)
         .map_err(|e| e.into())//TODO limit total number?
 }
@@ -44,14 +44,14 @@ fn toggle_done(
     done: bool,
     done_time: Option<chrono::NaiveDateTime>
 ) -> Result<usize, Error> {
-    diesel::update(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id))
-        .set((todo_dsl::done.eq(done), todo_dsl::done_time.eq(done_time)))
+    diesel::update(todos_dsl::todos.filter(todos_dsl::userid.eq(userid)).find(id))
+        .set((todos_dsl::done.eq(done), todos_dsl::done_time.eq(done_time)))
         .execute(connection)
         .map_err(|e| e.into())
 }
 
 fn delete(connection: &PgConnection, userid: Uuid, id: Uuid) -> Result<usize, Error> {
-    diesel::delete(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id)).execute(connection)
+    diesel::delete(todos_dsl::todos.filter(todos_dsl::userid.eq(userid)).find(id)).execute(connection)
         .map_err(|e| e.into())
 }
 
@@ -70,8 +70,8 @@ fn edit_todo(
     title: String,
     deadline: Option<chrono::NaiveDateTime>,
 ) -> Result<usize, Error> {
-    diesel::update(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id))
-        .set((todo_dsl::title.eq(title), todo_dsl::deadline.eq(deadline)))
+    diesel::update(todos_dsl::todos.filter(todos_dsl::userid.eq(userid)).find(id))
+        .set((todos_dsl::title.eq(title), todos_dsl::deadline.eq(deadline)))
         .execute(connection)
         .map_err(|e| e.into())
 }
@@ -253,5 +253,43 @@ impl Handler<Unsubscribe> for DbExecutor {
         )
         .execute(&conn)?;
         Ok(())
+    }
+}
+
+pub struct GetNotifications {
+    pub since: chrono::NaiveDateTime,
+    pub until: chrono::NaiveDateTime
+}
+
+impl Message for GetNotifications {
+    type Result = Result<Vec<Todo>, Error>;
+}
+
+impl Handler<GetNotifications> for DbExecutor {
+    type Result = Result<Vec<Todo>, Error>;
+
+    fn handle(&mut self, notif: GetNotifications, _: &mut Self::Context) -> Self::Result {
+        let conn = self.0.get()?;
+        todos_dsl::todos
+            .filter(todos_dsl::deadline.between(notif.since, notif.until).and(todos_dsl::done.eq(false)))
+            .load::<Todo>(&conn)
+            .map_err(|e| e.into())
+    }
+}
+
+pub struct GetSubscriptions;
+
+impl Message for GetSubscriptions {
+    type Result = Result<Vec<Subscription>, Error>;
+}
+
+impl Handler<GetSubscriptions> for DbExecutor {
+    type Result = Result<Vec<Subscription>, Error>;
+
+    fn handle(&mut self, _: GetSubscriptions, _: &mut Self::Context) -> Self::Result {
+        let conn = self.0.get()?;
+        subscriptions_dsl::subscriptions
+            .load::<Subscription>(&conn)
+            .map_err(|e| e.into())
     }
 }

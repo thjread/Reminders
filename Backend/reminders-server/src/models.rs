@@ -30,8 +30,8 @@ pub struct User {
 #[derive(Debug, Serialize, Insertable, Deserialize, Queryable, AsChangeset)]
 #[table_name="subscriptions"]
 pub struct Subscription {
-    pub userid: Uuid,
     pub endpoint: String,
-    pub auth: String,
     pub p256dh: String,
+    pub auth: String,
+    pub userid: Uuid,
 }

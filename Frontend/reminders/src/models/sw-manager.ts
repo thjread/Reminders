@@ -40,6 +40,7 @@ export function pushSubscribe() {
             applicationServerKey: urlBase64ToUint8Array('BPIRY5FILkfU3oWiL5_glenBme7ryX39oucdQqwjl_EHME9f4IDSC2mQdIQe-Hnu5viH1kUPnjZCUlTvlnfNSeY=')
         }).then(function (pushSubscription) {
             subscription = pushSubscription;
+            console.log(JSON.stringify(pushSubscription));
             return m.request({
                 method: "POST",
                 url: API_URI+"/subscribe",
