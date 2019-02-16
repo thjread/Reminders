@@ -15,13 +15,14 @@ impl Actor for Push {
     type Context = Context<Self>;
 
     fn started(&mut self, ctx: &mut Context<Self>) {
-        ctx.run_interval(Duration::new(PUSH_FREQUENCY, 0), |_, _| {
-            push().ok();
+
+        ctx.run_interval(Duration::from_secs(PUSH_FREQUENCY), |a, ctx| {
+            push(a, ctx).ok();
         });
     }
 }
 
-fn push() -> Result<(), Error> {
+fn push(a: &mut Push, ctx: &mut Context<Push>) -> Result<(), Error> {
     let info: SubscriptionInfo = serde_json::from_str(info_json)?;// TODO don't use unwrap
     let mut builder = WebPushMessageBuilder::new(&info)?;
     builder.set_payload(ContentEncoding::AesGcm, "hi there".as_bytes());
@@ -34,15 +35,13 @@ fn push() -> Result<(), Error> {
     let message = builder.build()?;
     let client = WebPushClient::new()?;
 
-    tokio::spawn(lazy(move || {
-        client
-            .send_with_timeout(message, Duration::from_secs(4))
-            .map(|response| {
-                println!("Sent: {:?}", response);
-            }).map_err(|error| {
-                println!("Error: {:?}", error)// TODO delete sub info on endpoint error
-            })
-    }));
+    ctx.spawn(client
+        .send_with_timeout(message, Duration::from_secs(4))
+        .map(|response| {
+            println!("Sent: {:?}", response);
+        }).map_err(|error| {
+            println!("Error: {:?}", error);// TODO delete sub info on endpoint error
+        }).into_actor(a));
 
     println!("TODO push");
     Ok(())
