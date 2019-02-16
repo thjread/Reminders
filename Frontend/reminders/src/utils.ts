@@ -1,8 +1,5 @@
 import m from "mithril";
 
-import { store, Message } from "./models/store";
-import { setMessage } from "./models/actions";
-
 export let formatDateTime = (d: Date) => {
     return d.toLocaleTimeString() + " " + d.toLocaleDateString();
 }
@@ -24,10 +21,12 @@ export function dateTimeReviver(_: any, value: any) {
     return value;
 }
 
-export function showMessage(text: string) {
-    const message: Message = {
-        text,
-        time: new Date()
-    }
-    store.dispatch(setMessage(message));
+export function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/')
+    ;
+    const rawData = window.atob(base64);
+    return Uint8Array.from([...Array.from(rawData)].map((char) => char.charCodeAt(0)));
 }

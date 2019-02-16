@@ -6,6 +6,7 @@
   "scripts": {
     "watch": "webpack --config webpack.dev.js -d --define API_URI=\"'http://localhost:3000/api'\" --watch",
     "start": "webpack-dev-server --config webpack.dev.js -d --define API_URI=\"'http://localhost:3000/api'\" --port 8000 --open",
+    "watch-sw": "webpack --config webpack.prod.js -d --define API_URI=\"'http://localhost:3000/api'\" --watch",
     "debug": "webpack --config webpack.dev.js -d --define API_URI=\"'http://localhost:3000/api'\"",
     "stage": "webpack --config webpack.prod.js -p --define API_URI=\"'http://reminders.staging.test/api'\"",
     "build": "webpack --config webpack.prod.js -p --define API_URI=\"'https://reminders.thjread.com/api'\""

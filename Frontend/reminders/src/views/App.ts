@@ -4,6 +4,7 @@ import Login from "./Login";
 import Message from "./Message";
 
 import {store} from "../models/store";
+import { loggedIn } from "../models/auth";
 
 export default function () {
     const login = Login();
@@ -12,7 +13,7 @@ export default function () {
         view: function() {
             const state = store.getState();
             var main;
-            if (state.loginDetails) {
+            if (loggedIn(state)) {
                 if (state.modal) {
                     main = m(state.modal);
                 } else {

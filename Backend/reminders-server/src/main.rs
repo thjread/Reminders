@@ -17,6 +17,8 @@ extern crate futures;
 extern crate failure;
 #[macro_use]
 extern crate diesel_migrations;
+extern crate web_push;
+extern crate tokio;
 
 use actix::prelude::*;
 use actix_web::{
@@ -34,9 +36,11 @@ mod auth;
 mod database;
 mod models;
 mod schema;
+mod push;
 
 use auth::{CheckHash, Hash, HashExecutor, JWTVerifyError};
 use database::{DbExecutor, GetUser, Signup, UpdateAction, UpdateBatch};
+use push::{Push};
 
 struct AppState {
     db: Addr<DbExecutor>,
@@ -282,6 +286,9 @@ fn main() {
     server.start();
 
     println!("Started server");
+
+    let p = Push;
+    p.start();
 
     let _ = sys.run();
 }

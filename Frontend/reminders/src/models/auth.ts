@@ -1,8 +1,9 @@
 import m from "mithril";
-import { store } from "./store";
+import { store, State } from "./store";
 import { logoutResetStore, setState } from "./actions";
 import { stateFromStorage, serverUpdate } from "./update";
 import { showMessage, clearMessage } from "./ui";
+import { pushSubscribe, pushUnsubscribe } from "./sw-manager";
 
 declare var API_URI: boolean;//provided by webpack
 
@@ -10,6 +11,17 @@ export interface LoginDetails {
     username: string;
     userid: string;
     jwt: string;
+}
+
+export function loggedIn(state: State = store.getState()) {
+    return store.getState().loginDetails ? true : false;
+}
+
+function doLogin(loginDetails: LoginDetails) {
+    store.dispatch(setState(stateFromStorage(loginDetails)));
+    serverUpdate([]);
+    clearMessage();
+    pushSubscribe();
 }
 
 export function login(username: string, password: string) {
@@ -26,9 +38,7 @@ export function login(username: string, password: string) {
                     userid: response.userid,
                     jwt: response.jwt
                 }
-                store.dispatch(setState(stateFromStorage(loginDetails)));
-                serverUpdate([]);
-                clearMessage();
+                doLogin(loginDetails);
                 break;
             case "UsernameNotFound":
                 showMessage("User \"" + username + "\" not found");
@@ -48,6 +58,7 @@ export function login(username: string, password: string) {
 
 export function logout() {
     store.dispatch(logoutResetStore());
+    pushUnsubscribe();
 }
 
 export function signup(username: string, password: string) {
@@ -68,9 +79,7 @@ export function signup(username: string, password: string) {
                     userid: response.userid,
                     jwt: response.jwt
                 }
-                store.dispatch(setState(stateFromStorage(loginDetails)));
-                serverUpdate([]);
-                clearMessage();
+                doLogin(loginDetails);
                 break;
             case "UsernameTooLong":
                 showMessage("Username \"" + username + "\" is too long (max 100 characters)");
