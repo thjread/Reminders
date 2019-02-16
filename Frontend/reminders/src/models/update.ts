@@ -4,7 +4,7 @@ import { syncActionSynced, setServerTodos, setOnlineAsOf } from  "./actions";
 import { Action } from "./reducer";
 import { dateTimeReviver } from "../utils";
 import { logout, LoginDetails } from "./auth";
-import { showMessage, clearMessage } from "./ui";
+import { showMessage } from "./ui";
 
 declare var API_URI: boolean;//provided by webpack
 
@@ -101,17 +101,23 @@ export function askServerForTodos() {
 export interface ServerTodoRow {
     id: string;
     title: string;
-    deadline: string;
+    deadline: string | null;
     done: boolean;
+    done_time: string | null;
+    create_time: string;
 }
 
 export function serverRowToTodo(t: ServerTodoRow) {
     let todo: Todo = {
         title: t.title,
-        done: t.done
+        done: t.done,
+        create_time: new Date(t.create_time)
     }
     if (t.deadline) {
         todo.deadline = new Date(t.deadline);
+    }
+    if (t.done_time) {
+        todo.done_time = new Date(t.done_time);
     }
     return todo;
 }

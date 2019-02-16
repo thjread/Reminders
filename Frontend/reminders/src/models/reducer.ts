@@ -1,6 +1,6 @@
 import { ActionType, getType } from "typesafe-actions";
 
-import { State, initState, Todo, ActionDummy } from "./store";
+import { State, initState, Todo, ActionDummy, getTodo } from "./store";
 import * as actions from "./actions";
 export type Action = ActionType<typeof actions>;
 
@@ -15,12 +15,18 @@ export default (state: State, action: Action) => {
             const title = action.payload.title;
             const done = action.payload.done;
             const deadline = action.payload.deadline;
+            const done_time = action.payload.done_time;
+            const create_time = action.payload.create_time;
             let new_todo: Todo = {
                 title: title,
                 done: done,
+                create_time: create_time
             };
             if (deadline) {
                 new_todo.deadline = deadline;
+            }
+            if (done_time) {
+                new_todo.done_time = done_time;
             }
             return state.set("todos", state.todos.merge({
                 [id]: new_todo
@@ -30,13 +36,17 @@ export default (state: State, action: Action) => {
             const id = action.payload.id;
             const title = action.payload.title;
             const deadline = action.payload.deadline;
-            const old_todo = state.todos[id];
+            const old_todo = getTodo(id);
             let new_todo: Todo = {
                 title: title,
                 done: old_todo.done,
+                create_time: old_todo.create_time
             };
             if (deadline) {
                 new_todo.deadline = deadline;
+            }
+            if (old_todo.done_time) {
+                new_todo.done_time = old_todo.done_time;
             }
             return state.set("todos", state.todos.merge({
                 [id]: new_todo
@@ -45,7 +55,9 @@ export default (state: State, action: Action) => {
         case getType(actions.toggleDone): {
             const id = action.payload.id;
             const done = action.payload.done;
-            return state.setIn(["todos", id, "done"], done);
+            const done_time = action.payload.done_time;
+            return state.setIn(["todos", id, "done"], done)
+                .setIn(["todos", id, "done_time"], done_time);
         }
         case getType(actions.deleteTodo): {
             const id = action.payload.id;

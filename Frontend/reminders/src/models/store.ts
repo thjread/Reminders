@@ -8,7 +8,9 @@ import { stateFromStorage } from "./update";
 export interface Todo {
     title: string,
     deadline?: Date,
-    done: boolean
+    done: boolean,
+    done_time?: Date,
+    create_time: Date
 }
 export type TodoMap = { [id: string]: Todo };
 

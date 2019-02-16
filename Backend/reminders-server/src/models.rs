@@ -14,6 +14,8 @@ pub struct Todo {
     pub title: String,
     pub deadline: Option<NaiveDateTime>,
     pub done: bool,
+    pub done_time: Option<NaiveDateTime>,
+    pub create_time: NaiveDateTime,
 }
 
 #[derive(Debug, Serialize, Insertable, Deserialize, Queryable)]

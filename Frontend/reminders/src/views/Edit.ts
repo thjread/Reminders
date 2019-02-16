@@ -24,7 +24,11 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
         if (editId) {
             store.dispatch(editTodo(editId, title, deadline));
         } else {
-            store.dispatch(createTodo(title, deadline, done));
+            let done_time = undefined;
+            if (done) {
+                done_time = new Date();
+            }
+            store.dispatch(createTodo(title, deadline, done, done_time, new Date()));
         }
         store.dispatch(setModal(null));
     }

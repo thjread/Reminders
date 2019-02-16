@@ -14,6 +14,8 @@ table! {
         title -> Varchar,
         deadline -> Nullable<Timestamp>,
         done -> Bool,
+        done_time -> Nullable<Timestamp>,
+        create_time -> Timestamp,
     }
 }
 

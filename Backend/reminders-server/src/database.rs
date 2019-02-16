@@ -7,7 +7,6 @@ use serde_derive::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
 use failure::Error;
-
 use crate::models::*;
 use crate::schema;
 use crate::schema::subscriptions::dsl as subscriptions_dsl;
@@ -43,9 +42,10 @@ fn toggle_done(
     userid: Uuid,
     id: Uuid,
     done: bool,
+    done_time: Option<chrono::NaiveDateTime>
 ) -> Result<usize, Error> {
     diesel::update(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id))
-        .set(todo_dsl::done.eq(done))
+        .set((todo_dsl::done.eq(done), todo_dsl::done_time.eq(done_time)))
         .execute(connection)
         .map_err(|e| e.into())
 }
@@ -83,6 +83,7 @@ pub enum UpdateAction {
     TOGGLE_DONE {
         id: Uuid,
         done: bool,
+        done_time: Option<chrono::DateTime<chrono::Utc>>,
         action_id: Uuid,
     },
     CREATE_TODO {
@@ -90,6 +91,8 @@ pub enum UpdateAction {
         title: String,
         deadline: Option<chrono::DateTime<chrono::Utc>>,
         done: bool,
+        done_time: Option<chrono::DateTime<chrono::Utc>>,
+        create_time: chrono::DateTime<chrono::Utc>,
         action_id: Uuid,
     },
     EDIT_TODO {
@@ -128,6 +131,8 @@ impl Handler<UpdateBatch> for DbExecutor {
                     title,
                     deadline,
                     done,
+                    done_time,
+                    create_time,
                     ..
                 } => {
                     let todo = Todo {
@@ -136,6 +141,8 @@ impl Handler<UpdateBatch> for DbExecutor {
                         title: title,
                         deadline: deadline.map(|date| date.naive_utc()),
                         done: done,
+                        done_time: done_time.map(|date| date.naive_utc()),
+                        create_time: create_time.naive_utc(),
                     };
                     create_todo(&conn, todo)
                 }
@@ -151,7 +158,9 @@ impl Handler<UpdateBatch> for DbExecutor {
                     title,
                     deadline.map(|date| date.naive_utc()),
                 ),
-                UpdateAction::TOGGLE_DONE { id, done, .. } => toggle_done(&conn, userid, id, done),
+                UpdateAction::TOGGLE_DONE { id, done, done_time, .. } => {
+                    toggle_done(&conn, userid, id, done, done_time.map(|date| date.naive_utc()))
+                },
                 UpdateAction::DELETE_TODO { id, .. } => delete(&conn, userid, id),
             };
             if let Err(e) = result {

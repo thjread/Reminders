@@ -1,10 +1,9 @@
 import { createAction } from "typesafe-actions";
-import m from "mithril";
 import uuidv4 from "uuid/v4";
 
-import { store, TodoMap, State, UndoInfo, getTodo, ActionDummy, Message,
+import { store, TodoMap, State, getTodo, ActionDummy, Message,
          Shortcut } from "./store";
-import { ServerTodoRow, serverRowToTodo, serverUpdate, stateFromStorage } from "./update";
+import { ServerTodoRow, serverRowToTodo, serverUpdate } from "./update";
 
 export const setModal = createAction("SET_MODAL", resolve => {
     return (modal: any) => {
@@ -35,8 +34,8 @@ export const setServerTodos = createAction("SET_SERVER_TODOS", resolve => {
 })
 
 export const createTodo = createAction("CREATE_TODO", resolve => {
-    return (title: string, deadline: Date | null | undefined, done: boolean, id: string = uuidv4()) => {
-        const action = resolve({id, title, deadline, done, action_id: uuidv4()});
+    return (title: string, deadline: Date | null | undefined, done: boolean, done_time: Date | null | undefined, create_time: Date, id: string = uuidv4()) => {
+        const action = resolve({id, title, deadline, done, done_time, create_time, action_id: uuidv4()});
         store.dispatch(syncAction(action));
         serverUpdate();
         store.dispatch(setUndoAction(() => deleteTodo(id)))
@@ -57,10 +56,14 @@ export const editTodo = createAction("EDIT_TODO", resolve => {
 
 export const toggleDone = createAction("TOGGLE_DONE", resolve => {
     return (id: string, done: boolean) => {
-        const action = resolve({id, done, action_id: uuidv4()});
+        let done_time = undefined;
+        if (done) {
+            done_time = new Date();
+        }
+        const action = resolve({id, done, done_time, action_id: uuidv4()});
         store.dispatch(syncAction(action));
         serverUpdate();
-        store.dispatch(setUndoAction(() => toggleDone(id, !done)));
+        store.dispatch(setUndoAction(() => toggleDone(id, !done)));// TODO undo doesn't set correct done_time
         return action;
     }
 })
@@ -71,7 +74,7 @@ export const deleteTodo = createAction("DELETE_TODO", resolve => {
         const todo = getTodo(id);
         store.dispatch(syncAction(action));
         serverUpdate();
-        store.dispatch(setUndoAction(() => createTodo(todo.title, todo.deadline, todo.done, id)));
+        store.dispatch(setUndoAction(() => createTodo(todo.title, todo.deadline, todo.done, todo.done_time, todo.create_time, id)));
         return action;
     }
 })
