@@ -73,7 +73,7 @@ export function serverUpdate(actions: ActionDummy[]
                         break;
                     case "EXPIRED_TOKEN":
                         showMessage("Saved login details expired - please log in again");
-                        logout();
+                        logout(false);
                         break;
                     default:
                         showMessage("Server error");

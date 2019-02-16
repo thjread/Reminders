@@ -1,4 +1,13 @@
 table! {
+    subscriptions (endpoint) {
+        endpoint -> Varchar,
+        p256dh -> Varchar,
+        auth -> Varchar,
+        userid -> Uuid,
+    }
+}
+
+table! {
     todos (id) {
         id -> Uuid,
         userid -> Uuid,
@@ -17,7 +26,11 @@ table! {
     }
 }
 
+joinable!(subscriptions -> users (userid));
+joinable!(todos -> users (userid));
+
 allow_tables_to_appear_in_same_query!(
+    subscriptions,
     todos,
     users,
 );

@@ -2,8 +2,9 @@ use actix::prelude::*;
 use tokio::prelude::future::*;
 use std::time::Duration;
 use web_push::*;
+use failure::Error;
 
-const info_json: &'static str = r#"{"endpoint":"https://updates.push.services.mozilla.com/wpush/v2/gAAAAABcZyHvCQHYz_Nt3uBAhrCKHjtQA83fiAuVZHQ-ACtpELWGJRczRXOzttzZZytCtkBqkiS5KMyAdxnAb62X8qeftBuruo57OJTBOLwdNQFbDlVzQCnWbIiy_GibMocREtDN-Ig3KlzFTohP-01vqd6BrhWBTtMx29qAIB3peswrLLuAv4w","keys":{"auth":"RkeqkT6aAUxory3fGIMbiA","p256dh":"BH0KmAfodEQr3nUcnojwF9vBaKxmxvi-YnYQy0xTosI5Trb61tX5xbtMmfSIRkQDDxlJ3XkVdzE455fKszslvuc"}}"#;
+const info_json: &'static str = r#"{"endpoint":"https://updates.push.services.mozilla.com/wpush/v2/gAAAAABcZ857Ak6F76_07CkFnkyG5XdwHLa2dJezHa4rrVMzEAvpYPQxEPxvVsJ3h08dcWk60v-pitA_tbtiFf2KG_QmjRNI6nGtaOikwCsg2YyUer6sDn-2uw_wuYNfra4vRP9GWV_JjZeqIxulKm58QzPVhj4YFT4Ai4hX3Fln_KlA9JYkdqs","keys":{"auth":"-rgPEoFoTKgQosEi3MR-Ow","p256dh":"BBU8jn3JvnL2F_DptbDDn5d_U2Vyn2Cxuy90XWSFAuaae5Ms9NEh2U3eFemPwjY2ILuBWqzTRccvmhIwjMJoz9g"}}"#;
 
 const PUSH_FREQUENCY: u64 = 10;
 const PRIVATE_KEY: &'static str = include_str!("../secrets/private_key.pem");
@@ -14,23 +15,24 @@ impl Actor for Push {
     type Context = Context<Self>;
 
     fn started(&mut self, ctx: &mut Context<Self>) {
-        ctx.run_interval(Duration::new(PUSH_FREQUENCY, 0), push);
+        ctx.run_interval(Duration::new(PUSH_FREQUENCY, 0), |_, _| {
+            push().ok();
+        });
     }
 }
 
-// TODO deal with errors properly
-fn push(_act: &mut Push, _ctx: &mut Context<Push>) {
-    let info: SubscriptionInfo = serde_json::from_str(info_json).unwrap();// TODO don't use unwrap
-    let mut builder = WebPushMessageBuilder::new(&info).unwrap();
+fn push() -> Result<(), Error> {
+    let info: SubscriptionInfo = serde_json::from_str(info_json)?;// TODO don't use unwrap
+    let mut builder = WebPushMessageBuilder::new(&info)?;
     builder.set_payload(ContentEncoding::AesGcm, "hi there".as_bytes());
     builder.set_ttl(10);
 
-    let mut sig_builder = VapidSignatureBuilder::from_pem(PRIVATE_KEY.as_bytes(), &info).unwrap();
-    let signature = sig_builder.build().unwrap();
+    let sig_builder = VapidSignatureBuilder::from_pem(PRIVATE_KEY.as_bytes(), &info)?;
+    let signature = sig_builder.build()?;
     builder.set_vapid_signature(signature);
 
-    let message = builder.build().unwrap();
-    let client = WebPushClient::new().unwrap();
+    let message = builder.build()?;
+    let client = WebPushClient::new()?;
 
     tokio::spawn(lazy(move || {
         client
@@ -38,9 +40,10 @@ fn push(_act: &mut Push, _ctx: &mut Context<Push>) {
             .map(|response| {
                 println!("Sent: {:?}", response);
             }).map_err(|error| {
-                println!("Error: {:?}", error)
+                println!("Error: {:?}", error)// TODO delete sub info on endpoint error
             })
     }));
 
     println!("TODO push");
+    Ok(())
 }

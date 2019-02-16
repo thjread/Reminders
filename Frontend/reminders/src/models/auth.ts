@@ -56,9 +56,11 @@ export function login(username: string, password: string) {
     })
 }
 
-export function logout() {
+export function logout(unsubscribe: boolean = true) {
+    if (unsubscribe) {
+        pushUnsubscribe();
+    }
     store.dispatch(logoutResetStore());
-    pushUnsubscribe();
 }
 
 export function signup(username: string, password: string) {

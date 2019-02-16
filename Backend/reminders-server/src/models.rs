@@ -4,6 +4,7 @@ use serde_derive::{Serialize, Deserialize};
 
 use super::schema::todos;
 use super::schema::users;
+use super::schema::subscriptions;
 
 #[derive(Debug, Serialize, Insertable, Deserialize, Queryable)]
 #[table_name="todos"]
@@ -22,4 +23,13 @@ pub struct User {
     pub username: String,
     pub hash: String,
     pub signup: NaiveDateTime,
+}
+
+#[derive(Debug, Serialize, Insertable, Deserialize, Queryable, AsChangeset)]
+#[table_name="subscriptions"]
+pub struct Subscription {
+    pub userid: Uuid,
+    pub endpoint: String,
+    pub auth: String,
+    pub p256dh: String,
 }

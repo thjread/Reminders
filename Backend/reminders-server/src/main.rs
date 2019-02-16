@@ -17,8 +17,8 @@ extern crate futures;
 extern crate failure;
 #[macro_use]
 extern crate diesel_migrations;
-extern crate web_push;
 extern crate tokio;
+extern crate web_push;
 
 use actix::prelude::*;
 use actix_web::{
@@ -31,16 +31,17 @@ use futures::Future;
 use listenfd::ListenFd;
 use serde_derive::{Deserialize, Serialize};
 use uuid::Uuid;
+use web_push::SubscriptionInfo;
 
 mod auth;
 mod database;
 mod models;
-mod schema;
 mod push;
+mod schema;
 
 use auth::{CheckHash, Hash, HashExecutor, JWTVerifyError};
-use database::{DbExecutor, GetUser, Signup, UpdateAction, UpdateBatch};
-use push::{Push};
+use database::{DbExecutor, GetUser, Signup, UpdateAction, UpdateBatch, Subscribe, Unsubscribe };
+use push::Push;
 
 struct AppState {
     db: Addr<DbExecutor>,
@@ -232,6 +233,88 @@ fn signup(
         .responder()
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct SubscribeRequest {
+    jwt: String,
+    info: SubscriptionInfo
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type")]
+#[allow(non_camel_case_types)]
+pub enum SubscribeResult {
+    INVALID_TOKEN,
+    EXPIRED_TOKEN,
+    SUCCESS,
+}
+
+fn subscribe(
+    (req, data): (HttpRequest<AppState>, Json<SubscribeRequest>),
+) -> Box<Future<Item = HttpResponse, Error = Error>> {
+    let jwt_result = auth::verify_jwt(&data.0.jwt);
+    match jwt_result {
+        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
+            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN)).responder()
+        }
+        Err(JWTVerifyError::Expired { time: _ }) => {
+            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN)).responder()
+        }
+        Ok(userid) => {
+            let info = data.0.info;
+            let sub = models::Subscription {
+                userid: userid,
+                endpoint: info.endpoint,
+                auth: info.keys.auth,
+                p256dh: info.keys.p256dh,
+            };
+            req.state().db.send(Subscribe(sub))
+                .from_err()
+                .and_then(|res| match res {
+                    Ok(_) => {
+                        Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
+                    }
+                    Err(e) => {
+                        dbg!(e);
+                        Ok(HttpResponse::InternalServerError().into())
+                    }
+                })
+                .responder()
+        }
+    }
+}
+
+fn unsubscribe(
+    (req, data): (HttpRequest<AppState>, Json<SubscribeRequest>),
+) -> Box<Future<Item = HttpResponse, Error = Error>> {
+    let jwt_result = auth::verify_jwt(&data.0.jwt);
+    match jwt_result {
+        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
+            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN)).responder()
+        }
+        Err(JWTVerifyError::Expired { time: _ }) => {
+            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN)).responder()
+        }
+        Ok(userid) => {
+            let info = data.0.info;
+            req.state().db.send(Unsubscribe {
+                userid: userid,
+                endpoint: info.endpoint,
+            })
+                .from_err()
+                .and_then(|res| match res {
+                    Ok(_) => {
+                        Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
+                    }
+                    Err(e) => {
+                        dbg!(e);
+                        Ok(HttpResponse::InternalServerError().into())
+                    }
+                })
+                .responder()
+        }
+    }
+}
+
 embed_migrations!("./migrations/");
 
 fn main() {
@@ -265,6 +348,12 @@ fn main() {
                     .resource("/signup", |r| {
                         r.method(http::Method::POST).with_async(signup)
                     })
+                    .resource("/subscribe", |r| {
+                        r.method(http::Method::POST).with_async(subscribe)
+                    })
+                    .resource("/unsubscribe", |r| {
+                        r.method(http::Method::DELETE).with_async(unsubscribe)
+                    })
                     .register()
             })
         } else {
@@ -274,6 +363,12 @@ fn main() {
             .resource("/login", |r| r.method(http::Method::POST).with_async(login))
             .resource("/signup", |r| {
                 r.method(http::Method::POST).with_async(signup)
+            })
+            .resource("/subscribe", |r| {
+                r.method(http::Method::POST).with_async(subscribe)
+            })
+            .resource("/unsubscribe", |r| {
+                r.method(http::Method::POST).with_async(unsubscribe)
             })
         }
     });

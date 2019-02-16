@@ -2,14 +2,15 @@ use actix::prelude::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::result::Error;
 use dotenv::dotenv;
 use serde_derive::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
+use failure::Error;
 
 use crate::models::*;
 use crate::schema;
+use crate::schema::subscriptions::dsl as subscriptions_dsl;
 use crate::schema::todos::dsl as todo_dsl;
 use crate::schema::users::dsl as users_dsl;
 
@@ -33,7 +34,8 @@ pub fn establish_connection() -> r2d2::Pool<ConnectionManager<PgConnection>> {
 fn get_todos(connection: &PgConnection, userid: Uuid) -> Result<Vec<Todo>, Error> {
     todo_dsl::todos
         .filter(todo_dsl::userid.eq(userid))
-        .load::<Todo>(connection) //TODO limit total number?
+        .load::<Todo>(connection)
+        .map_err(|e| e.into())//TODO limit total number?
 }
 
 fn toggle_done(
@@ -45,10 +47,12 @@ fn toggle_done(
     diesel::update(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id))
         .set(todo_dsl::done.eq(done))
         .execute(connection)
+        .map_err(|e| e.into())
 }
 
 fn delete(connection: &PgConnection, userid: Uuid, id: Uuid) -> Result<usize, Error> {
     diesel::delete(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id)).execute(connection)
+        .map_err(|e| e.into())
 }
 
 fn create_todo(connection: &PgConnection, todo: Todo) -> Result<usize, Error> {
@@ -56,6 +60,7 @@ fn create_todo(connection: &PgConnection, todo: Todo) -> Result<usize, Error> {
     diesel::insert_into(schema::todos::table)
         .values(&todo)
         .execute(connection)
+        .map_err(|e| e.into())
 }
 
 fn edit_todo(
@@ -68,6 +73,7 @@ fn edit_todo(
     diesel::update(todo_dsl::todos.filter(todo_dsl::userid.eq(userid)).find(id))
         .set((todo_dsl::title.eq(title), todo_dsl::deadline.eq(deadline)))
         .execute(connection)
+        .map_err(|e| e.into())
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -113,7 +119,7 @@ impl Handler<UpdateBatch> for DbExecutor {
         UpdateBatch(userid, actions): UpdateBatch,
         _: &mut Self::Context,
     ) -> Self::Result {
-        let conn = self.0.get().unwrap();
+        let conn = self.0.get()?;
 
         for action in actions {
             let result = match action {
@@ -167,7 +173,7 @@ impl Handler<GetUser> for DbExecutor {
 
     fn handle(&mut self, GetUser(username): GetUser, _: &mut Self::Context) -> Self::Result {
         println!("{} login request", &username);
-        let conn = self.0.get().unwrap();
+        let conn = self.0.get()?;
         Ok(users_dsl::users
             .filter(users_dsl::username.eq(&username))
             .first::<User>(&conn)
@@ -185,10 +191,58 @@ impl Handler<Signup> for DbExecutor {
     type Result = Result<(), Error>;
 
     fn handle(&mut self, Signup(user): Signup, _: &mut Self::Context) -> Self::Result {
-        let conn = self.0.get().unwrap();
+        let conn = self.0.get()?;
         diesel::insert_into(schema::users::table)
             .values(&user)
             .execute(&conn)?;
+        Ok(())
+    }
+}
+
+pub struct Subscribe(pub Subscription);
+
+impl Message for Subscribe {
+    type Result = Result<(), Error>;
+}
+
+impl Handler<Subscribe> for DbExecutor {
+    type Result = Result<(), Error>;
+
+    fn handle(&mut self, Subscribe(sub): Subscribe, _: &mut Self::Context) -> Self::Result {
+        let conn = self.0.get()?;
+        diesel::insert_into(schema::subscriptions::table)
+            .values(&sub)
+            .on_conflict(subscriptions_dsl::endpoint)
+            .do_update()
+            .set(&sub)
+            .execute(&conn)?;
+        // only allow notifications from one account per device
+        // note attacker who obtained user's subscription endpoint could overwrite the subscription
+        // but can't get alerts for any account other than their own
+        Ok(())
+    }
+}
+
+pub struct Unsubscribe {
+    pub userid: Uuid,
+    pub endpoint: String,
+}
+
+impl Message for Unsubscribe {
+    type Result = Result<(), Error>;
+}
+
+impl Handler<Unsubscribe> for DbExecutor {
+    type Result = Result<(), Error>;
+
+    fn handle(&mut self, unsub: Unsubscribe, _: &mut Self::Context) -> Self::Result {
+        let conn = self.0.get()?;
+        diesel::delete(
+            subscriptions_dsl::subscriptions
+                .filter(subscriptions_dsl::userid.eq(unsub.userid))
+                .find(unsub.endpoint),
+        )
+        .execute(&conn)?;
         Ok(())
     }
 }
