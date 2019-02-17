@@ -14,20 +14,27 @@ export interface Todo {
 }
 export type TodoMap = { [id: string]: Todo };
 
-function itemCompare(a: string, b: string) {
-    let compare = deadlineCompare(getTodo(a).deadline, getTodo(b).deadline);
-    if (compare === 0) {
-        if (a < b) {
-            return -1;
+function itemCompare(id_a: string, id_b: string) {
+    const ta = getTodo(id_a);
+    const tb = getTodo(id_b);
+    let comp1 = dateCompare(ta.deadline, tb.deadline);
+    if (comp1 === 0) {
+        let comp2 = dateCompare(ta.create_time, tb.create_time);
+        if (comp2 === 0) {
+            if (id_a < id_b) {
+                return -1;
+            } else {
+                return 1;
+            }
         } else {
-            return 1;
+            return comp2;
         }
     } else {
-        return compare;
+        return comp1;
     }
 }
 
-function deadlineCompare(a: Date | undefined, b: Date | undefined) {
+function dateCompare(a: Date | undefined, b: Date | undefined) {
     if (a) {
         if (b) {
             if (a < b) {

@@ -9,7 +9,10 @@ self.addEventListener('push', (event) => {
     const title = payload.title;
     const d = new Date(payload.deadline);
     const options = {
-        body: d.toLocaleTimeString() + " " + d.toLocaleDateString()
+        body: d.toLocaleTimeString() + " " + d.toLocaleDateString(),
+        icon: 'images/logo192.png',
+        badge: 'images/favicon.ico',
+        timestamp: d.getTime()
     };
     event.waitUntil(self.registration.showNotification(title, options));
 });
