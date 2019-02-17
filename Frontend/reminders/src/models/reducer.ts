@@ -36,17 +36,17 @@ export default (state: State, action: Action) => {
             const id = action.payload.id;
             const title = action.payload.title;
             const deadline = action.payload.deadline;
-            const old_todo = getTodo(id);
+            const old_todo = state.todos[id];
             let new_todo: Todo = {
                 title: title,
                 done: old_todo.done,
-                create_time: old_todo.create_time
+                create_time: new Date(old_todo.create_time.getTime())
             };
             if (deadline) {
                 new_todo.deadline = deadline;
             }
             if (old_todo.done_time) {
-                new_todo.done_time = old_todo.done_time;
+                new_todo.done_time = new Date(old_todo.done_time.getTime());
             }
             return state.set("todos", state.todos.merge({
                 [id]: new_todo

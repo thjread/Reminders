@@ -374,7 +374,7 @@ fn main() {
                 r.method(http::Method::POST).with_async(subscribe)
             })
             .resource("/unsubscribe", |r| {
-                r.method(http::Method::POST).with_async(unsubscribe)
+                r.method(http::Method::DELETE).with_async(unsubscribe)
             })
         }
     });
