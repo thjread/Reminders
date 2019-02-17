@@ -45,7 +45,8 @@ module.exports = {
             {from: './src/manifest.json', to: './manifest.json'},
             {from: './src/logo512.png', to: './images/logo512.png'},
             {from: './src/logo192.png', to: './images/logo192.png'},
-            {from: './src/favicon.ico', to: './favicon.ico'}
+            {from: './src/favicon.ico', to: './favicon.ico'},
+            {from: './src/robots.txt', to: './robots.txt'}
         ]),
         new MiniCssExtractPlugin({
             filename: "[name].[contenthash].css",

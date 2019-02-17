@@ -16,3 +16,29 @@ self.addEventListener('push', (event) => {
     };
     event.waitUntil(self.registration.showNotification(title, options));
 });
+
+self.addEventListener('notificationclick', function(event) {
+    var notification = event.notification;
+    var action = event.action;
+    console.log("hi");
+
+    notification.close();
+    if (action !== 'close') {
+        event.waitUntil(clients.matchAll({
+            type: "window"
+        }).then(function(clientList) {
+            console.log(clientList.length);
+            for (var i = 0; i < clientList.length; i++) {
+                var client = clientList[i];
+                if ('focus' in client) {
+                    console.log("focus");
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                console.log("open");
+                return clients.openWindow('https://reminders.thjread.com');
+            }
+        }));
+    }
+});

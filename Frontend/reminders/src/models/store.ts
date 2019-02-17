@@ -109,26 +109,32 @@ export function getTodo(id: string) {
     return store.getState().todos[id].asMutable();
 }
 
-export function todoDue(id: string) {
-    const deadline = getTodo(id).deadline;
-    if (deadline) {
-        return new Date() > deadline;
-    } else {
-        return true;
-    }
-}
-
 export function dueTodos() {
+    const now = Date.now();
     return Object.keys(store.getState().todos)
-        .filter(todoDue)
-        .filter((id) => !getTodo(id).done)
+        .filter((id) => {
+            const t = getTodo(id);
+            return !t.done && t.deadline && t.deadline.getTime() <= now;
+        })
         .sort((a, b) => itemCompare(a, b));
 }
 
-export function laterTodos() {
+export function deadlineTodos() {
+    const now = Date.now();
     return Object.keys(store.getState().todos)
-        .filter(id => !todoDue(id))
-        .filter((id) => !getTodo(id).done)
+        .filter((id) => {
+            const t = getTodo(id);
+            return !t.done && t.deadline && t.deadline.getTime() > now;
+        })
+        .sort((a, b) => itemCompare(a, b));
+}
+
+export function otherTodos() {
+    return Object.keys(store.getState().todos)
+        .filter((id) => {
+            const t = getTodo(id);
+            return !t.done && !t.deadline;
+        })
         .sort((a, b) => itemCompare(a, b));
 }
 

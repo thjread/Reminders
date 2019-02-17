@@ -2,7 +2,7 @@ import m from "mithril";
 import TodoSection from "./TodoSection";
 import TodoList from "./TodoList";
 
-import {store, dueTodos, laterTodos, pendingUndo} from "../models/store";
+import {store, dueTodos, deadlineTodos, otherTodos, pendingUndo} from "../models/store";
 import {addShortcut, removeShortcut} from "../models/actions";
 import {logout} from "../models/auth";
 import {undo, dismissUndo, create} from "../models/ui";
@@ -35,6 +35,9 @@ export default {
         if (state.syncActions.length === 0 && state.onlineAsOf && Date.now() - state.onlineAsOf.getTime() < SYNC_DISPLAY_TIME && navigator.onLine !== false) {
             showSynced = true;
         }
+        const due = dueTodos();
+        const deadline = deadlineTodos();
+        const other = otherTodos();
         return [
             m("header.header", [
                 m("div.logo", "Reminders"),
@@ -44,8 +47,9 @@ export default {
                  ])
             ]),
             m("main.todo-container", [
-                m(TodoSection, {title: "Due"}, m(TodoList, {todoIds: dueTodos()})),
-                m(TodoSection, {title: "Upcoming"}, m(TodoList, {todoIds: laterTodos()}))
+                due.length > 0 ? m(TodoSection, {title: "Due"}, m(TodoList, {todoIds: due})) : undefined,
+                other.length > 0 ? m(TodoSection, {title: "Tasks"}, m(TodoList, {todoIds: other})) : undefined,
+                deadline.length > 0 ? m(TodoSection, {title: "Deadlines"}, m(TodoList, {todoIds: deadline})) : undefined
             ]),
             m("div.undo", {tabinput: showUndo ? 0 : -1, class: showUndo ? undefined : "undo-hidden" }, [m("button.undo-button", {onclick: undo}, "Undo"), m("button.dismiss-button", {onclick: dismissUndo}, "✕")]),
             m("button.fab", {onclick: create}, "+")
