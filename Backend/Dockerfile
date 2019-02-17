@@ -19,7 +19,7 @@ RUN cp ./target/release/reminders-server /artefact/
 
 FROM ubuntu
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get -y install libssl-dev libpq5 libpq-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y install libssl-dev libpq5 libpq-dev ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=build /artefact /
 COPY env .env
 CMD /reminders-server
