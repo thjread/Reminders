@@ -306,7 +306,7 @@ fn unsubscribe(
                         Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
                     }
                     Err(e) => {
-                        dbg!(e);
+                        println!("Error {:?} while unsubscribing", e);
                         Ok(HttpResponse::InternalServerError().into())
                     }
                 })

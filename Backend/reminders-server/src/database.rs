@@ -262,34 +262,18 @@ pub struct GetNotifications {
 }
 
 impl Message for GetNotifications {
-    type Result = Result<Vec<Todo>, Error>;
+    type Result = Result<Vec<(Todo, Subscription)>, Error>;
 }
 
 impl Handler<GetNotifications> for DbExecutor {
-    type Result = Result<Vec<Todo>, Error>;
+    type Result = Result<Vec<(Todo, Subscription)>, Error>;
 
     fn handle(&mut self, notif: GetNotifications, _: &mut Self::Context) -> Self::Result {
         let conn = self.0.get()?;
         todos_dsl::todos
             .filter(todos_dsl::deadline.between(notif.since, notif.until).and(todos_dsl::done.eq(false)))
-            .load::<Todo>(&conn)
-            .map_err(|e| e.into())
-    }
-}
-
-pub struct GetSubscriptions;
-
-impl Message for GetSubscriptions {
-    type Result = Result<Vec<Subscription>, Error>;
-}
-
-impl Handler<GetSubscriptions> for DbExecutor {
-    type Result = Result<Vec<Subscription>, Error>;
-
-    fn handle(&mut self, _: GetSubscriptions, _: &mut Self::Context) -> Self::Result {
-        let conn = self.0.get()?;
-        subscriptions_dsl::subscriptions
-            .load::<Subscription>(&conn)
+            .inner_join(subscriptions_dsl::subscriptions.on(todos_dsl::userid.eq(subscriptions_dsl::userid)))
+            .load::<(Todo, Subscription)>(&conn)
             .map_err(|e| e.into())
     }
 }

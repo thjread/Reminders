@@ -4,9 +4,12 @@ workbox.routing.registerRoute(/https:\/\/fonts.googleapis.com\//, new workbox.st
 workbox.routing.registerRoute(/https:\/\/fonts.gstatic.com\//, new workbox.strategies.CacheFirst(), 'GET');
 
 self.addEventListener('push', (event) => {
-    const title = 'Get Started With Workbox';
+    const payload_json = event.data.text();
+    const payload = JSON.parse(payload_json);
+    const title = payload.title;
+    const d = new Date(payload.deadline);
     const options = {
-        body: event.data.text()
+        body: d.toLocaleTimeString() + " " + d.toLocaleDateString()
     };
     event.waitUntil(self.registration.showNotification(title, options));
 });

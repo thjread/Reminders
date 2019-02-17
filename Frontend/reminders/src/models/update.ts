@@ -81,15 +81,16 @@ export function serverUpdate(actions: ActionDummy[]
 
             }).catch(function (e) {
                 if (e.code !== 0) {// got a response from server
-                    showMessage("Server error - offline actions not saved");
+                    showMessage("Server error - offline actions not saved (you may need to close and reopen the webpage)");
                     // give up on actions
                     actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
                     setTimeout(askServerForTodos, 500);// try to reset to server state
                     // TODO do we really want this? or logout on error
-                } else {
-                    setOnlineAsOf(undefined);
                 }
+                setOnlineAsOf(undefined);
             })
+        } else {
+            m.redraw();// make sure other UI elements refresh e.g. todos that have reached their deadline
         }
     }
 }
