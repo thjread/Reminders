@@ -40,6 +40,7 @@ struct PushPayload {
 }
 
 fn notify(todo: Todo, info: SubscriptionInfo, userid: Uuid, db: Addr<DbExecutor>) -> impl Future<Item = (), Error = Error> {
+    println!("Sending push notification to user {}", userid);
     fn notify_result(todo: Todo, info: &SubscriptionInfo) -> Result<Box<Future<Item=(), Error=WebPushError>>, Error> {
         let payload = PushPayload {
             id: todo.id,

@@ -81,7 +81,11 @@ export function serverUpdate(actions: ActionDummy[]
 
             }).catch(function (e) {
                 if (e.code !== 0) {// got a response from server
-                    showMessage("Server error - offline actions not saved (you may need to close and reopen the webpage)");
+                    if (actions.length > 0) {
+                        showMessage("Server error - offline actions not saved (you may need to close and reopen the webpage)");
+                    } else {
+                        showMessage("Server error (you may need to close and reopen the webpage)");
+                    }
                     // give up on actions
                     actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
                     setTimeout(askServerForTodos, 500);// try to reset to server state
