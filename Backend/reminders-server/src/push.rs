@@ -43,7 +43,7 @@ fn notify(
     db: Addr<DbExecutor>,
     ttl: u32,
 ) -> impl Future<Item = (), Error = Error> {
-    println!("Sending push notification to user {}", userid);
+    println!("[RUST] Sending push notification to user {}", userid);
     fn notify_result(
         todo: Todo,
         info: &SubscriptionInfo,
@@ -82,7 +82,7 @@ fn notify(
             | WebPushError::EndpointNotValid
             | WebPushError::EndpointNotFound => {
                 println!(
-                    "Sending notification failed with error {:?}, unsubscribing endpoint {:?}",
+                    "[RUST] Error {:?} sending notification, unsubscribing endpoint {:?}",
                     e, info
                 );
                 Either::A(
@@ -95,7 +95,7 @@ fn notify(
                         match res {
                             Ok(_) => (),
                             Err(e) => {
-                                println!("Error {:?} while unsubscribing invalid subscription", e);
+                                println!("[RUST] Error {:?} while unsubscribing invalid subscription", e);
                             }
                         }
                         futures::future::err(e.into())
@@ -120,7 +120,7 @@ fn push(a: &mut Push, ctx: &mut Context<Push>) {
         .send(GetNotifications { since, until: now })
         .and_then(move |res| match res {
             Err(e) => {
-                println!("Error {:?} retrieving todos and subscriptions to notify", e);
+                println!("[RUST] Error {:?} retrieving todos and subscriptions to notify", e);
                 Either::A(futures::future::ok(()))
             }
             Ok(ts) => {
@@ -135,7 +135,7 @@ fn push(a: &mut Push, ctx: &mut Context<Push>) {
                         };
                         notify(todo, info, subscription.userid, db.clone(), ttl).or_else(|e| {
                             // must return ok or join_all will cancel other futures
-                            println!("Error {:?} on notification", e);
+                            println!("[RUST] Error {:?} on notification", e);
                             futures::future::ok(())
                         })
                     }))
