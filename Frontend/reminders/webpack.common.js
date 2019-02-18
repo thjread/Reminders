@@ -44,6 +44,7 @@ module.exports = {
         new CopyWebpackPlugin([
             {from: './src/manifest.json', to: './manifest.json'},
             {from: './src/images/', to: './images/'},
+            {from: './src/favicon.ico', to: './favicon.ico'},
             {from: './src/robots.txt', to: './robots.txt'}
         ]),
         new MiniCssExtractPlugin({

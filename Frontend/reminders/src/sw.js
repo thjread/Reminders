@@ -12,40 +12,48 @@ self.addEventListener('push', (event) => {
         body: d.toLocaleTimeString() + " " + d.toLocaleDateString(),
         icon: 'images/logo192.png',
         badge: 'images/badge128.png',
-        timestamp: d.getTime()
-        /*actions: [
+        timestamp: d.getTime(),
+        actions: [
             {
                 action: "done",
                 title: "Done"
             }
-        ]*/
+        ],
+        data: payload
     };
     event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', function(event) {
-    var notification = event.notification;
-    var action = event.action;
-    console.log("hi");
+    const notification = event.notification;
+    const action = event.action;
 
     notification.close();
-    // TODO action === done
-    if (action !== 'close') {
-        event.waitUntil(clients.matchAll({
-            type: "window"
-        }).then(function(clientList) {
-            console.log(clientList.length);
-            for (var i = 0; i < clientList.length; i++) {
-                var client = clientList[i];
-                if ('focus' in client) {
-                    console.log("focus");
-                    return client.focus();
-                }
-            }
-            if (clients.openWindow) {
-                console.log("open");
-                return clients.openWindow('https://reminders.thjread.com');
-            }
-        }));
+    if (action === "close") {
+        return;
+    } else {
+        event.waitUntil(
+            self.clients.claim()
+                .then(function () {
+                    return self.clients.matchAll({type: 'window'})
+                })
+                .then(function(clientList) {
+                    for (var i = 0; i < clientList.length; i++) {
+                        const client = clientList[i];
+                        return client.focus();
+                    }
+                    if (self.clients.openWindow) {
+                        return self.clients.openWindow('https://reminders.thjread.com');
+                    }
+                }).then(function(client) {
+                    if (action === "done") {
+                        return client.postMessage({
+                            type: "DONE",
+                            userid: notification.data.userid,
+                            id: notification.data.id
+                        })
+                    }
+                })
+        );
     }
 });

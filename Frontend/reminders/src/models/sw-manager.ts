@@ -2,6 +2,7 @@ import m from "mithril";
 import { logout, loggedIn } from "./auth";
 import { urlBase64ToUint8Array } from "../utils";
 import { store } from "./store";
+import { toggleDone } from "./actions";
 import { showMessage } from "./ui";
 
 declare var API_URI: boolean;//provided by webpack
@@ -28,6 +29,16 @@ export function swInit() {
                 console.log("Service worker registration failed with " + error);
             });
         });
+        navigator.serviceWorker.addEventListener('message', function (event) {
+            switch (event.data.type) {
+                case "DONE":
+                    const state = store.getState();
+                    if (state.loginDetails && state.loginDetails.userid === event.data.userid) {
+                        store.dispatch(toggleDone(event.data.id, true));
+                    }
+                    break;
+            }
+        })
     }
 }
 
