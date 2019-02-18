@@ -11,8 +11,14 @@ self.addEventListener('push', (event) => {
     const options = {
         body: d.toLocaleTimeString() + " " + d.toLocaleDateString(),
         icon: 'images/logo192.png',
-        badge: 'images/favicon.ico',
+        badge: 'images/badge128.png',
         timestamp: d.getTime()
+        /*actions: [
+            {
+                action: "done",
+                title: "Done"
+            }
+        ]*/
     };
     event.waitUntil(self.registration.showNotification(title, options));
 });
@@ -23,6 +29,7 @@ self.addEventListener('notificationclick', function(event) {
     console.log("hi");
 
     notification.close();
+    // TODO action === done
     if (action !== 'close') {
         event.waitUntil(clients.matchAll({
             type: "window"
