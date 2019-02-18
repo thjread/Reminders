@@ -9,7 +9,6 @@ self.addEventListener('push', (event) => {
     const title = payload.title;
     const d = new Date(payload.deadline);
     const options = {
-        body: d.toLocaleTimeString() + " " + d.toLocaleDateString(),
         icon: 'images/logo192.png',
         badge: 'images/badge128.png',
         timestamp: d.getTime(),

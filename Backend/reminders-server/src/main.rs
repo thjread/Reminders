@@ -26,10 +26,12 @@ use actix_web::{
     HttpRequest, HttpResponse, Json,
 };
 use chrono::prelude::*;
+use dotenv::dotenv;
 use futures::future::Either;
 use futures::Future;
 use listenfd::ListenFd;
 use serde_derive::{Deserialize, Serialize};
+use std::env;
 use uuid::Uuid;
 use web_push::SubscriptionInfo;
 
@@ -40,8 +42,13 @@ mod push;
 mod schema;
 
 use auth::{CheckHash, Hash, HashExecutor, JWTVerifyError};
-use database::{DbExecutor, GetUser, Signup, UpdateAction, UpdateBatch, Subscribe, Unsubscribe };
+use database::{DbExecutor, GetUser, Signup, Subscribe, Unsubscribe, UpdateAction, UpdateBatch};
 use push::Push;
+
+const DEFAULT_DB_THREADS: usize = 2;
+const DEFAULT_HASH_THREADS: usize = 2;
+const DEFAULT_PUSH_FREQUENCY: u64 = 5;
+const DEFAULT_PUSH_TTL: u32 = 1200;
 
 struct AppState {
     db: Addr<DbExecutor>,
@@ -76,16 +83,20 @@ fn update(
         }
         Ok(userid) => {
             let actions = data.0.batch;
+            let len = actions.len();
             req.state()
                 .db
                 .send(UpdateBatch(userid, actions))
                 .from_err()
-                .and_then(|res| match res {
+                .and_then(move |res| match res {
                     Ok(todos) => {
+                        if len > 0 {
+                            println!("[RUST] {} update actions from user {}", len, userid);
+                        }
                         Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS { todos: todos }))
                     }
                     Err(e) => {
-                        println!("Error performing update {:?}", e);
+                        println!("[RUST] Error performing update {:?}", e);
                         Ok(HttpResponse::InternalServerError().into())
                     }
                 })
@@ -118,7 +129,7 @@ fn login(
         .and_then(move |res| {
             match res {
                 Err(e) => {
-                    dbg!(e);
+                    println!("[RUST] Error {:?} logging in user", e);
                     Either::A(futures::future::ok(
                         HttpResponse::InternalServerError().into(),
                     ))
@@ -130,18 +141,22 @@ fn login(
                     req.state()
                         .hash
                         .send(CheckHash {
-                            password: details.0.password,
+                            password: details.0.password.clone(),
                             hash: user.hash.clone(),
                         })
                         .from_err()
                         .and_then(move |res| match res {
                             Err(e) => {
-                                dbg!(e);
+                                println!("[RUST] Error {:?} checking user's password", e);
                                 Ok(HttpResponse::InternalServerError().into())
                             }
                             Ok(valid) => {
                                 if valid {
-                                    let jwt = auth::gen_jwt(user.userid.clone())?;
+                                    println!(
+                                        "[RUST] Login \"{}\" ({})",
+                                        details.0.username, user.userid
+                                    );
+                                    let jwt = auth::gen_jwt(user.userid)?;
                                     Ok(HttpResponse::Ok().json(LoginResult::Success {
                                         userid: user.userid,
                                         jwt: jwt,
@@ -179,7 +194,11 @@ fn signup(
         .and_then(move |res| {
             match res {
                 Err(e) => {
-                    dbg!(e);
+                    println!(
+                        "[RUST] Error {:?} checking if username \"{}\" exists",
+                        e,
+                        details.0.username.clone()
+                    );
                     Either::A(futures::future::ok(
                         HttpResponse::InternalServerError().into(),
                     ))
@@ -194,7 +213,7 @@ fn signup(
                         .from_err()
                         .and_then(move |res| match res {
                             Err(e) => {
-                                dbg!(e);
+                                println!("[RUST] Error {:?} hashing new user's password", e);
                                 Either::A(futures::future::ok(
                                     HttpResponse::InternalServerError().into(),
                                 ))
@@ -206,17 +225,21 @@ fn signup(
                                         .db
                                         .send(Signup(models::User {
                                             userid: userid,
-                                            username: details.0.username,
+                                            username: details.0.username.clone(),
                                             hash: hash,
                                             signup: Utc::now().naive_utc(),
                                         }))
                                         .from_err()
                                         .and_then(move |res| match res {
                                             Err(e) => {
-                                                dbg!(e);
+                                                println!("[RUST] Error {:?} signing up user", e);
                                                 Ok(HttpResponse::InternalServerError().into())
                                             }
                                             Ok(_) => {
+                                                println!(
+                                                    "[RUST] Signup \"{}\" ({})",
+                                                    details.0.username, userid
+                                                );
                                                 let jwt = auth::gen_jwt(userid)?;
                                                 Ok(HttpResponse::Ok().json(SignupResult::Success {
                                                     jwt: jwt,
@@ -236,7 +259,7 @@ fn signup(
 #[derive(Debug, Serialize, Deserialize)]
 pub struct SubscribeRequest {
     jwt: String,
-    info: SubscriptionInfo
+    info: SubscriptionInfo,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -267,14 +290,20 @@ fn subscribe(
                 auth: info.keys.auth,
                 p256dh: info.keys.p256dh,
             };
-            req.state().db.send(Subscribe(sub))
+            req.state()
+                .db
+                .send(Subscribe(sub))
                 .from_err()
-                .and_then(|res| match res {
+                .and_then(move |res| match res {
                     Ok(_) => {
+                        println!("[RUST] Notification subscription from {}", userid);
                         Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
                     }
                     Err(e) => {
-                        dbg!(e);
+                        println!(
+                            "[RUST] Error {:?} registering push notification subscription",
+                            e
+                        );
                         Ok(HttpResponse::InternalServerError().into())
                     }
                 })
@@ -296,17 +325,20 @@ fn unsubscribe(
         }
         Ok(userid) => {
             let info = data.0.info;
-            req.state().db.send(Unsubscribe {
-                userid: userid,
-                endpoint: info.endpoint,
-            })
+            req.state()
+                .db
+                .send(Unsubscribe {
+                    userid: userid,
+                    endpoint: info.endpoint,
+                })
                 .from_err()
-                .and_then(|res| match res {
+                .and_then(move |res| match res {
                     Ok(_) => {
+                        println!("[RUST] Notification unsubscription from {}", userid);
                         Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
                     }
                     Err(e) => {
-                        println!("Error {:?} while unsubscribing", e);
+                        println!("[RUST] Error {:?} while unsubscribing", e);
                         Ok(HttpResponse::InternalServerError().into())
                     }
                 })
@@ -318,20 +350,41 @@ fn unsubscribe(
 embed_migrations!("./migrations/");
 
 fn main() {
-    std::env::set_var("RUST_LOG", "actix_web=INFO");
+    std::env::set_var("RUST_LOG", "actix_web=WARN");
     env_logger::init();
+
+    dotenv().ok();
+
+    let db_threads = match env::var("DB_THREADS").ok().and_then(|v| v.parse().ok()) {
+        Some(n) => n,
+        None => DEFAULT_DB_THREADS,
+    };
+    let hash_threads = match env::var("HASH_THREADS").ok().and_then(|v| v.parse().ok()) {
+        Some(n) => n,
+        None => DEFAULT_HASH_THREADS,
+    };
+    let frequency = match env::var("PUSH_FREQUENCY").ok().and_then(|v| v.parse().ok()) {
+        Some(n) => n,
+        None => DEFAULT_PUSH_FREQUENCY,
+    };
+    let ttl = match env::var("PUSH_TTL").ok().and_then(|v| v.parse().ok()) {
+        Some(n) => n,
+        None => DEFAULT_PUSH_TTL,
+    };
 
     let mut listenfd = ListenFd::from_env();
     let sys = actix::System::new("reminders-server");
 
     let pool = database::establish_connection();
     embedded_migrations::run(&pool.get().unwrap()).expect("Failed to apply migrations");
-    let db_addr = SyncArbiter::start(2, move || DbExecutor(pool.clone()));
-    let hash_addr = SyncArbiter::start(2, move || HashExecutor());
+    let db_addr = SyncArbiter::start(db_threads, move || DbExecutor(pool.clone()));
+    let hash_addr = SyncArbiter::start(hash_threads, move || HashExecutor());
 
-    let p = Push{
+    let p = Push {
         last_notify: Utc::now().naive_utc() - chrono::Duration::minutes(1),
         db: db_addr.clone(),
+        frequency: frequency,
+        ttl: ttl,
     };
     p.start();
 
