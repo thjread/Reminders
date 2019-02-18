@@ -10,7 +10,8 @@ use web_push::*;
 
 use crate::database::{DbExecutor, GetNotifications, Unsubscribe};
 use crate::models::Todo;
-const PRIVATE_KEY: &'static str = include_str!("../secrets/private_key.pem");
+
+const PRIVATE_KEY: &str = include_str!("../secrets/private_key.pem");
 
 pub struct Push {
     pub db: Addr<DbExecutor>,
@@ -86,7 +87,7 @@ fn notify(
                 );
                 Either::A(
                     db.send(Unsubscribe {
-                        userid: userid,
+                        userid,
                         endpoint: info.endpoint,
                     })
                     .from_err()
@@ -103,7 +104,7 @@ fn notify(
             }
             _ => Either::B(futures::future::err(e.into())),
         })),
-        Err(e) => Either::B(futures::future::err(e.into())),
+        Err(e) => Either::B(futures::future::err(e)),
     }
 }
 
@@ -116,15 +117,12 @@ fn push(a: &mut Push, ctx: &mut Context<Push>) {
 
     let db = a.db.clone();
     let fut = db
-        .send(GetNotifications {
-            since: since,
-            until: now,
-        })
+        .send(GetNotifications { since, until: now })
         .and_then(move |res| match res {
-            Err(e) => Either::A(futures::future::ok(println!(
-                "Error {:?} retrieving todos and subscriptions to notify",
-                e
-            ))),
+            Err(e) => {
+                println!("Error {:?} retrieving todos and subscriptions to notify", e);
+                Either::A(futures::future::ok(()))
+            }
             Ok(ts) => {
                 Either::B(
                     futures::future::join_all(ts.into_iter().map(move |(todo, subscription)| {

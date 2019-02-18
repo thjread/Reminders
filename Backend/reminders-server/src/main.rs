@@ -78,7 +78,7 @@ fn update(
         Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
             futures::future::ok(HttpResponse::Ok().json(UpdateResult::INVALID_TOKEN)).responder()
         }
-        Err(JWTVerifyError::Expired { time: _ }) => {
+        Err(JWTVerifyError::Expired {..}) => {
             futures::future::ok(HttpResponse::Ok().json(UpdateResult::EXPIRED_TOKEN)).responder()
         }
         Ok(userid) => {
@@ -93,7 +93,7 @@ fn update(
                         if len > 0 {
                             println!("[RUST] {} update actions from user {}", len, userid);
                         }
-                        Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS { todos: todos }))
+                        Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS { todos }))
                     }
                     Err(e) => {
                         println!("[RUST] Error performing update {:?}", e);
@@ -159,7 +159,7 @@ fn login(
                                     let jwt = auth::gen_jwt(user.userid)?;
                                     Ok(HttpResponse::Ok().json(LoginResult::Success {
                                         userid: user.userid,
-                                        jwt: jwt,
+                                        jwt,
                                     }))
                                 } else {
                                     Ok(HttpResponse::Ok().json(LoginResult::IncorrectPassword))
@@ -224,9 +224,9 @@ fn signup(
                                     req.state()
                                         .db
                                         .send(Signup(models::User {
-                                            userid: userid,
+                                            userid,
                                             username: details.0.username.clone(),
-                                            hash: hash,
+                                            hash,
                                             signup: Utc::now().naive_utc(),
                                         }))
                                         .from_err()
@@ -242,8 +242,8 @@ fn signup(
                                                 );
                                                 let jwt = auth::gen_jwt(userid)?;
                                                 Ok(HttpResponse::Ok().json(SignupResult::Success {
-                                                    jwt: jwt,
-                                                    userid: userid,
+                                                    jwt,
+                                                    userid,
                                                 }))
                                             }
                                         }),
@@ -279,13 +279,13 @@ fn subscribe(
         Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
             futures::future::ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN)).responder()
         }
-        Err(JWTVerifyError::Expired { time: _ }) => {
+        Err(JWTVerifyError::Expired {..}) => {
             futures::future::ok(HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN)).responder()
         }
         Ok(userid) => {
             let info = data.0.info;
             let sub = models::Subscription {
-                userid: userid,
+                userid,
                 endpoint: info.endpoint,
                 auth: info.keys.auth,
                 p256dh: info.keys.p256dh,
@@ -320,7 +320,7 @@ fn unsubscribe(
         Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
             futures::future::ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN)).responder()
         }
-        Err(JWTVerifyError::Expired { time: _ }) => {
+        Err(JWTVerifyError::Expired {..}) => {
             futures::future::ok(HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN)).responder()
         }
         Ok(userid) => {
@@ -328,7 +328,7 @@ fn unsubscribe(
             req.state()
                 .db
                 .send(Unsubscribe {
-                    userid: userid,
+                    userid,
                     endpoint: info.endpoint,
                 })
                 .from_err()
@@ -378,13 +378,13 @@ fn main() {
     let pool = database::establish_connection();
     embedded_migrations::run(&pool.get().unwrap()).expect("Failed to apply migrations");
     let db_addr = SyncArbiter::start(db_threads, move || DbExecutor(pool.clone()));
-    let hash_addr = SyncArbiter::start(hash_threads, move || HashExecutor());
+    let hash_addr = SyncArbiter::start(hash_threads, HashExecutor);
 
     let p = Push {
         last_notify: Utc::now().naive_utc() - chrono::Duration::minutes(1),
         db: db_addr.clone(),
-        frequency: frequency,
-        ttl: ttl,
+        frequency,
+        ttl,
     };
     p.start();
 

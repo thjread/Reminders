@@ -148,11 +148,11 @@ impl Handler<UpdateBatch> for DbExecutor {
                     ..
                 } => {
                     let todo = Todo {
-                        id: id,
-                        userid: userid,
-                        title: title,
+                        id,
+                        userid,
+                        title,
                         deadline: deadline.map(|date| date.naive_utc()),
-                        done: done,
+                        done,
                         done_time: done_time.map(|date| date.naive_utc()),
                         create_time: create_time.naive_utc(),
                     };
@@ -191,7 +191,7 @@ impl Handler<UpdateBatch> for DbExecutor {
                 );
             }
         }
-        return get_todos(&conn, userid);
+        get_todos(&conn, userid)
     }
 }
 

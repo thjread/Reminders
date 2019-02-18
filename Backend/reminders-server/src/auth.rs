@@ -8,7 +8,7 @@ use failure::Error;
 
 const COST: u32 = 11;
 const JWT_VALID_TIME: i64 = 7*24*60*60;// 7 days
-const SECRET: &'static str = include_str!("../secrets/jwt_secret");
+const SECRET: &str = include_str!("../secrets/jwt_secret");
 
 pub struct HashExecutor();
 
@@ -55,7 +55,7 @@ pub struct JWTPayload {
 
 pub fn gen_jwt(userid: Uuid) -> Result<String, Error> {
     let payload = serde_json::to_value(JWTPayload {
-        userid: userid,
+        userid,
         iat: chrono::Utc::now().timestamp(),
     }).expect("Failed to convert JWT payload to JSON");
     let header = json!({});
