@@ -22,6 +22,7 @@ function doLogin(loginDetails: LoginDetails) {
     serverUpdate([]);
     clearMessage();
     pushSubscribe();
+    m.route.set("/");
 }
 
 export function login(username: string, password: string) {
@@ -61,6 +62,7 @@ export function logout(unsubscribe: boolean = true) {
         pushUnsubscribe();
     }
     store.dispatch(logoutResetStore());
+    m.route.set("/login");
 }
 
 export function signup(username: string, password: string) {

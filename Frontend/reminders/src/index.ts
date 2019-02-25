@@ -5,6 +5,9 @@ import { loadFonts, sugarDateTime } from "./utils";
 import { handleShortcuts } from "./models/ui";
 import { swInit } from "./models/sw-manager";
 import App from "./views/App";
+import TodoPage from "./views/TodoPage";
+import Login from "./views/Login";
+import { loggedIn } from "./models/auth";
 
 loadFonts()
     .then(function() {
@@ -16,7 +19,28 @@ loadFonts()
 store.subscribe(storeState);
 sugarDateTime();
 
-m.mount(document.body, App);
+m.route(document.body, "/", {
+    "/": {
+        onmatch: function() {
+            if (!loggedIn()) {
+                m.route.set("/login");
+            }
+        },
+        render: function() {
+            return m(App, m(TodoPage));
+        }
+    },
+    "/login": {
+        onmatch: function() {
+            if (loggedIn()) {
+                m.route.set("/");
+            }
+        },
+        render: function() {
+            return m(App, m(Login));
+        }
+    }
+});
 
 askServerForTodos();
 const syncInterval = setInterval(serverUpdate, 5000);
