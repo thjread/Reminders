@@ -1,5 +1,6 @@
 import m from "mithril";
 import { setModal, editTodo, createTodo, addShortcut, removeShortcut } from "../models/actions";
+import { showMessage, clearMessage } from "../models/ui";
 import {store, getTodo} from "../models/store";
 import {formatDateTime} from "../utils";
 
@@ -7,6 +8,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
     let title = "";
     let deadlineInputText = "";
     let deadline: Date | null = null;
+    let invalidDeadline = false;
     let done = false;
 
     if (editId) {
@@ -20,7 +22,15 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
     }
 
     function submit() {
-        if (title === "") return;
+        if (title === "") {
+            showMessage("Please enter a title");
+            return;
+        }
+        if (invalidDeadline) {
+            showMessage("Please enter a valid deadline");
+            return;
+        }
+        clearMessage();
         if (editId) {
             store.dispatch(editTodo(editId, title, deadline));
         } else {
@@ -84,10 +94,15 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                    oninput: function (e: any) {
                        deadlineInputText = e.currentTarget.value;
                        deadline = dateParseFunction(deadlineInputText);
+                       if (deadlineInputText !== "" && deadline === null) {
+                           invalidDeadline = true;
+                       } else {
+                           invalidDeadline = false;
+                       }
                    },
                    value: deadlineInputText
                   }),
-                m("h3.item-deadline.on-edit-form", deadline ? formatDateTime(deadline) : "No deadline"),
+                m("h3.item-deadline.on-edit-form", deadline ? formatDateTime(deadline) : (invalidDeadline ? "Invalid deadline" : "No deadline")),
                 m("button[type=submit].pill-button.on-secondary",
                   m("div.button-text", "Submit"))
             ]))

@@ -1,4 +1,5 @@
 import m from "mithril";
+import FontFaceObserver from "fontfaceobserver";
 
 export let formatDateTime = (d: Date) => {
     return d.toLocaleTimeString() + " " + d.toLocaleDateString();
@@ -29,4 +30,17 @@ export function urlBase64ToUint8Array(base64String: string) {
     ;
     const rawData = window.atob(base64);
     return Uint8Array.from([...Array.from(rawData)].map((char) => char.charCodeAt(0)));
+}
+
+export function loadFonts() {
+    const lora = new FontFaceObserver('Lora', {
+        weight: 400,
+        style: 'italic'
+    });
+    const raleway = new FontFaceObserver('Raleway', {
+        weight: 400
+    });
+    const fontObservers = [lora, raleway].map((obs) => obs.load());
+
+    return Promise.all(fontObservers);
 }

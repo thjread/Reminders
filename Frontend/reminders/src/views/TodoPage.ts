@@ -40,7 +40,7 @@ export default {
         const other = otherTodos();
         return [
             m("header.header", [
-                m("div.logo", "Reminders"),
+                m("div.logo", [m("img.logo-icon", {src: "images/logo.svg", alt: "Logo"}), "Reminders"]),
                 m("div.header-last", [
                     m("div.cloud", { class: showSynced ? undefined : "cloud-hidden" }, m.trust(CLOUD_SVG)),
                     m("button.pill-button.on-primary", {onclick: logout}, "Log out")

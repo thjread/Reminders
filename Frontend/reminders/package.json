@@ -15,6 +15,7 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
+    "fontfaceobserver": "^2.1.0",
     "mithril": "^2.0.0-rc.4",
     "redux": "^4.0.1",
     "seamless-immutable": "^7.1.4",
@@ -23,6 +24,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@types/fontfaceobserver": "0.0.6",
     "@types/mithril": "^1.1.15",
     "@types/node": "^10.12.25",
     "@types/seamless-immutable": "^7.1.6",

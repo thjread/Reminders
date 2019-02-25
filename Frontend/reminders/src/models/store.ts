@@ -21,16 +21,16 @@ function itemCompare(id_a: string, id_b: string) {
     if (comp1 === 0) {
         let comp2 = dateCompare(ta.create_time, tb.create_time);
         if (comp2 === 0) {
-            if (id_a < id_b) {
+            if (id_a < id_b) {// stable tie break
                 return -1;
             } else {
                 return 1;
             }
         } else {
-            return comp2;
+            return -comp2;// most recently created first
         }
     } else {
-        return comp1;
+        return comp1;// oldest deadline first
     }
 }
 

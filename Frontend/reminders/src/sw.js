@@ -52,6 +52,7 @@ self.addEventListener('notificationclick', function(event) {
                             id: notification.data.id
                         })
                     }
+                    return null;
                 })
         );
     }
