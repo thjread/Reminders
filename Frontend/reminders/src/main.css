@@ -418,13 +418,13 @@ body {
 .logo {
     display: flex;
     align-items: center;
-    font-size: 1.9rem;
+    font-size: 0rem;
     color: var(--secondary-dark);
 }
 
 .logo-icon {
-    width: 2.7rem;
-    height: 2.7rem;
+    width: 3rem;
+    height: 3rem;
     margin-right: 0.8rem;
 }
 
@@ -749,6 +749,15 @@ input[type=checkbox]:checked + .css-check::after {
 /* Desktop layout */
 
 @media only screen and (min-width: 700px) {
+    .logo {
+        font-size: 1.9rem;
+    }
+
+    .logo-icon {
+        width: 2.7rem;
+        height: 2.7rem;
+    }
+
     .todo-container {
         flex-direction: row;
     }

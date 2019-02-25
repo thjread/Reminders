@@ -44,6 +44,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
     }
 
     function cancel() {
+        clearMessage();
         store.dispatch(setModal(null));
     }
 
