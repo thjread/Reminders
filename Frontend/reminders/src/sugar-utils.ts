@@ -13,7 +13,7 @@ export const sugarFormatDateTime = (d: Date) => {
         format_day = 'Today';
     } else if (SDate.isTomorrow(d)) {
         format_day = 'Tomorrow';
-    } else if (SDate.daysUntil(SDate.create('today'), d) < 7) {
+    } else if (d.getTime() > Date.now() && SDate.daysUntil(SDate.create('today'), d) < 7) {
         format_day = '{Weekday}';
     }
     let format_year = '{year} '

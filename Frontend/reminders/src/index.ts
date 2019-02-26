@@ -5,6 +5,7 @@ import { loadFonts, sugarDateTime } from "./utils";
 import { handleShortcuts } from "./models/ui";
 import { swInit } from "./models/sw-manager";
 import App from "./views/App";
+import {Show} from "./views/TodoPage";
 import TodoPage from "./views/TodoPage";
 import Login from "./views/Login";
 import { loggedIn } from "./models/auth";
@@ -20,16 +21,6 @@ store.subscribe(storeState);
 sugarDateTime();
 
 m.route(document.body, "/", {
-    "/": {
-        onmatch: function() {
-            if (!loggedIn()) {
-                m.route.set("/login");
-            }
-        },
-        render: function() {
-            return m(App, m(TodoPage));
-        }
-    },
     "/login": {
         onmatch: function() {
             if (loggedIn()) {
@@ -38,6 +29,26 @@ m.route(document.body, "/", {
         },
         render: function() {
             return m(App, m(Login));
+        }
+    },
+    "/": {
+        onmatch: function() {
+            if (!loggedIn()) {
+                m.route.set("/login");
+            }
+        },
+        render: function() {
+            return m(App, m(TodoPage, {show: Show.Normal}))
+        }
+    },
+    "/completed": {
+        onmatch: function() {
+            if (!loggedIn()) {
+                m.route.set("/login");
+            }
+        },
+        render: function() {
+            return m(App, m(TodoPage, {show: Show.Completed}));
         }
     }
 });

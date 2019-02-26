@@ -17,9 +17,9 @@ export type TodoMap = { [id: string]: Todo };
 function itemCompare(id_a: string, id_b: string) {
     const ta = getTodo(id_a);
     const tb = getTodo(id_b);
-    let comp1 = dateCompare(ta.deadline, tb.deadline);
+    let comp1 = dateCompare(ta.deadline, tb.deadline, true);
     if (comp1 === 0) {
-        let comp2 = dateCompare(ta.create_time, tb.create_time);
+        let comp2 = dateCompare(ta.create_time, tb.create_time, false);
         if (comp2 === 0) {
             if (id_a < id_b) {// stable tie break
                 return -1;
@@ -34,7 +34,23 @@ function itemCompare(id_a: string, id_b: string) {
     }
 }
 
-function dateCompare(a: Date | undefined, b: Date | undefined) {
+function completedCompare(id_a: string, id_b: string) {
+    const ta = getTodo(id_a);
+    const tb = getTodo(id_b);
+    console.log(ta);
+    let comp1 = dateCompare(ta.done_time, tb.done_time, false);
+    if (comp1 === 0) {
+        if (id_a < id_b) {// stable tie break
+            return -1;
+        } else {
+            return 1;
+        }
+    } else {
+        return -comp1;// most recently completed first
+    }
+}
+
+function dateCompare(a: Date | undefined, b: Date | undefined, undefined_lower: boolean) {
     if (a) {
         if (b) {
             if (a < b) {
@@ -45,11 +61,11 @@ function dateCompare(a: Date | undefined, b: Date | undefined) {
                 return 0;
             }
         } else {
-            return -1;
+            return undefined_lower ? -1 : 1;
         }
     } else {
         if (b) {
-            return 1;
+            return undefined_lower ? 1 : -1;
         } else {
             return 0;
         }
@@ -136,6 +152,15 @@ export function otherTodos() {
             return !t.done && !t.deadline;
         })
         .sort((a, b) => itemCompare(a, b));
+}
+
+export function completedTodos() {
+    return Object.keys(store.getState().todos)
+        .filter((id) => {
+            const t = getTodo(id);
+            return t.done;
+        })
+        .sort((a, b) => completedCompare(a, b));
 }
 
 export function pendingUndo() {

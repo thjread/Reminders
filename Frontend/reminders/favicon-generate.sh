@@ -1,2 +1,2 @@
 #!/bin/sh
-convert -background transparent "src/logo512.png" -define icon:auto-resize=16,24,32,48,64,72,96,128,256 "src/favicon.ico"
+convert -background transparent "src/images/logo512.png" -define icon:auto-resize=16,32,48,64 "src/favicon.ico"
