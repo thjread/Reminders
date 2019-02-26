@@ -9,30 +9,40 @@
         <link rel="stylesheet" href="main.css" >
         <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
     </head>
-    <body>
+    <body class="content-font fonts-loaded">
         <header class="header">
             <div class="logo">Reminders</div>
             <button class="pill-button on-primary" >Log out</button>
         </header>
+        <div class="menu-container menu-show" >
+            <div class="menu-shadow" ></div>
+            <nav class="menu">
+                <div class="menu-header">
+                    <div class="menu-logo" >
+                        Reminders
+                    </div>
+                </div>
+                <ul class="menu-list">
+                    <li class="main-nav-item"><a>Reminders</a></li>
+                    <li class="main-nav-item"><a>Snoozed</a></li>
+                    <li class="main-nav-item"><a>Completed</a></li>
+                </ul>
+            </nav>
+        </div>
         <main class="todo-container">
             <section class="todo-section">
-                <h1 class="section-title">Due</h1>
+                <h1 class="section-title title-font">Tasks</h1>
                 <ul class="todo-list">
-                    <li class="item" >
-                        <label class="item-main" for="check_1" ><input type="checkbox" class="item-check" id="check_1"><div class="css-check"></div><div class="item-title">Hand in Linear Algebra</div><div class="item-deadline" >Yesterday at 12:00 UTC</div></label>
-                        <div class="item-options" >
-                            <button class="pill-button on-primary narrow-button" >Edit</button>
-                            <button class="pill-button on-primary narrow-button" >Delete</button>
-                        </div>
-                    </li>
-                    <li class="item"><label class="item-main" for="check_2"> <input type="checkbox" class="item-check" id="check_2" ><div class="item-title" ><span class="css-check" ></span>Hand in Methods</div><div class="item-deadline" >Today</div></label></li>
-                    <li class="item"><label class="item-main" for="check_3"><input type="checkbox" class="item-check" id="check_3"><div class="item-title" ><span class="css-check" ></span>Do laundry</div></label></li>
+                    <li class="item selected"><div class="item-main"><div class="item-first"><input id="5328f43e-670c-46ed-8a90-d4b09f5062b9" type="checkbox"><label for="5328f43e-670c-46ed-8a90-d4b09f5062b9" class="css-check"></label><h2 class="item-title">Complex analysis Q3a, Q3d, Q4</h2></div></div><div class="item-options"><button tabindex="-1" class="pill-button on-primary option-button">Edit</button><button tabindex="-1" class="pill-button on-primary option-button">Delete</button></div></li>
+                    <li class="item"><div class="item-main"><div class="item-first"><input id="486a07c6-b5f8-433a-b80d-341612bcdf97" type="checkbox"><label for="486a07c6-b5f8-433a-b80d-341612bcdf97" class="css-check"></label><h2 class="item-title">May ball ticket name change</h2></div></div><div class="item-options"><button tabindex="-1" class="pill-button on-primary option-button">Edit</button><button tabindex="-1" class="pill-button on-primary option-button">Delete</button></div></li>
+                    <li class="item"><div class="item-main"><div class="item-first"><input id="aca75d23-5938-4a15-952f-37db700885ea" type="checkbox"><label for="aca75d23-5938-4a15-952f-37db700885ea" class="css-check"></label><h2 class="item-title">Knife</h2></div></div><div class="item-options"><button tabindex="-1" class="pill-button on-primary option-button">Edit</button><button tabindex="-1" class="pill-button on-primary option-button">Delete</button></div></li>
                 </ul>
             </section>
-            <section class="deadline-section">
-                <h1 class="section-title">Upcoming</h1>
+            <section class="todo-section">
+                <h1 class="section-title title-font">Deadlines</h1>
                 <ul class="todo-list">
-                    <li class="item" ><label for="check_4" class="item-main"> <input type="checkbox" class="item-check" id="check_4"><div class="item-title" ><span class="css-check" ></span>Hand in Analysis</div><div class="item-deadline" >Tomorrow</div></div></li>
+                    <li class="item"><div class="item-main"><div class="item-first"><input id="d7a4d98b-506d-49f0-8299-29175c0a2f16" type="checkbox"><label for="d7a4d98b-506d-49f0-8299-29175c0a2f16" class="css-check"></label><h2 class="item-title">IMC confirmation</h2></div><h3 class="item-deadline">Tomorrow</h3></div><div class="item-options"><button tabindex="-1" class="pill-button on-primary option-button">Edit</button><button tabindex="-1" class="pill-button on-primary option-button">Delete</button></div></li>
+                    <li class="item"><div class="item-main"><div class="item-first"><input id="f683cdd2-946b-4bea-b87d-db7e28018468" type="checkbox"><label for="f683cdd2-946b-4bea-b87d-db7e28018468" class="css-check"></label><h2 class="item-title">Dunlevie cheque</h2></div><h3 class="item-deadline">Friday 8:00am</h3></div><div class="item-options"><button tabindex="-1" class="pill-button on-primary option-button">Edit</button><button tabindex="-1" class="pill-button on-primary option-button">Delete</button></div></li>
                 </ul>
             </section>
         </main>

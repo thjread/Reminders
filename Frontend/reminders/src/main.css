@@ -254,6 +254,7 @@ button::-moz-focus-inner {
     --shadow-dark: #000a;
     --shadow-faint: #0003;
     --outline: #aaa;
+    --outline-less: #bbb;
     --outline-dark: #777;
     --outline-faint: #0003;
     --outline-focus-light: #fff8;
@@ -488,6 +489,66 @@ body {
     pointer-events: none;
 }
 
+/* Menu */
+
+.menu-shadow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    opacity: 0.2;
+    background-color: black;
+    display: none;
+}
+
+.menu-show .menu-shadow {
+    display: block;
+}
+
+.menu {
+    background-color: var(--background-light);
+    position: fixed;
+    width: 80vw;
+    height: 100vh;
+    z-index: 100000;
+    top: 0;
+    left: 0;
+    border-right: 1px solid var(--outline);
+    display: none;/* TODO improve accessibility of this */
+}
+
+.menu-show .menu {
+    display: block;
+}
+
+.menu-header {
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    background-color: var(--primary-light);
+    min-height: 4rem;
+    border-bottom: 1.5px solid var(--primary);
+}
+
+.menu-logo {
+    color: var(--primary-dark);
+    font-size: 1.9rem;
+}
+
+.menu-list {
+    border-top: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--secondary);
+    font-size: 1.3rem;
+}
+
+.main-nav-item {
+    border-top: 1px solid var(--outline-faint);
+    border-bottom: 1px solid var(--outline-faint);
+    padding: 1rem;
+}
+
 /* Main styles */
 
 .todo-container {
@@ -519,8 +580,8 @@ body {
 .item {
     display: flex;
     flex-direction: column;
-    border-top: 0.5px solid #bbb;
-    border-bottom: 0.5px solid #bbb;
+    border-top: 0.5px solid var(--outline-faint);
+    border-bottom: 0.5px solid var(--outline-faint);
     background: var(--background-light);
     color: var(--on-primary);
     font-size: 1.1rem;
