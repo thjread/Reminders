@@ -503,6 +503,7 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: 0.1s opacity ease-out;
+    will-change: opacity;
 }
 
 .menu-show .menu-shadow {
@@ -522,6 +523,7 @@ body {
     opacity: 0;
     pointer-events: none;
     transition: left 0.3s ease-out, opacity 0.01s linear 0.3s;
+    will-change: left, opacity;
 }
 
 .menu-show .menu {
@@ -620,6 +622,7 @@ body {
     color: var(--on-primary);
     font-size: 1.1rem;
     animation: expand-in 0.3s ease-in;
+    will-change: transform;
 }
 @keyframes expand-in {
     from {
@@ -765,6 +768,7 @@ input[type=checkbox]:checked + .css-check::after {
     height: 0;
     overflow: hidden;
     transition: height 0.3s;
+    will-change: height;
 }
 
 .selected .item-options {
@@ -844,6 +848,17 @@ input[type=checkbox]:checked + .css-check::after {
 /* Desktop layout */
 
 @media only screen and (min-width: 700px) {
+    .menu {
+        width: 20rem;
+        left: -20rem;
+        transition: left 0.2s ease-out, opacity 0.01s linear 0.2s;
+        will-change: left, opacity;
+    }
+
+    .menu-show .menu {
+        transition: left 0.2s ease-out, opacity 0.01s linear;
+    }
+
     .logo {
         font-size: 1.9rem;
     }
