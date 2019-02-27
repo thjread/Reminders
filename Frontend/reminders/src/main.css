@@ -248,6 +248,7 @@ button::-moz-focus-inner {
 
     --background-light: #fafafa;
     --background: #eeeeee;
+    --background-medium: #bbb;
     --background-dark: #888888;
     --background-darker: #555555;
     --shadow: #0007;
@@ -498,29 +499,44 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: 99999;
-    opacity: 0.2;
     background-color: black;
-    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.1s opacity ease-out;
 }
 
 .menu-show .menu-shadow {
-    display: block;
+    pointer-events: auto;
+    opacity: 0.2;
 }
 
 .menu {
     background-color: var(--background-light);
+    border-right: 1px solid var(--outline);
     position: fixed;
     width: 80vw;
     height: 100vh;
     z-index: 100000;
     top: 0;
-    left: 0;
-    border-right: 1px solid var(--outline);
-    display: none;/* TODO improve accessibility of this */
+    left: -100vw;
+    opacity: 0;
+    pointer-events: none;
+    transition: left 0.3s ease-out, opacity 0.01s linear 0.3s;
 }
 
 .menu-show .menu {
-    display: block;
+    left: 0;
+    opacity: 1;
+    pointer-events: auto;
+    transition: left 0.3s ease-out, opacity 0.01s linear;
+}
+@keyframes slide-in {
+    from {
+        left: -100vw;
+    }
+    to {
+        left: 0;
+    }
 }
 
 .menu-header {
@@ -538,15 +554,33 @@ body {
 }
 
 .menu-list {
-    border-top: 1px solid var(--secondary);
-    border-bottom: 1px solid var(--secondary);
+    border-top: 1px solid var(--outline-faint);
+    border-bottom: 1px solid var(--outline-faint);
     font-size: 1.3rem;
 }
 
 .main-nav-item {
+    display: block;
     border-top: 1px solid var(--outline-faint);
     border-bottom: 1px solid var(--outline-faint);
     padding: 1rem;
+    color: black;
+    text-decoration: none;
+    transition: background-color 0.1s;
+}
+
+.main-nav-item.selected {
+    color: var(--secondary-dark);
+    background-color: var(--secondary-lighter);
+}
+
+.main-nav-item:focus {
+    border-top: 1px solid var(--secondary);
+    border-bottom: 1px solid var(--secondary);
+}
+
+.main-nav-item:active {
+    background-color: var(--secondary-light);
 }
 
 /* Main styles */
