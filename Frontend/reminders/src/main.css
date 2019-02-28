@@ -563,8 +563,6 @@ body {
 
 .main-nav-item {
     display: block;
-    border-top: 1px solid var(--outline-faint);
-    border-bottom: 1px solid var(--outline-faint);
     padding: 1rem;
     color: black;
     text-decoration: none;
@@ -573,7 +571,7 @@ body {
 
 .main-nav-item.selected {
     color: var(--secondary-dark);
-    background-color: var(--secondary-lighter);
+    background-color: var(--secondary-lightest);
 }
 
 .main-nav-item:focus {
@@ -606,10 +604,21 @@ body {
     color: var(--primary-dark);
 }
 
+.section-before {
+    width: 100%;
+    border-top: 1px solid var(--secondary);
+}
+
+.section-after {
+    width: 100%;
+    border-top: 0.5px solid var(--outline-faint);
+    border-bottom: 1px solid var(--secondary);
+    z-index: 100000000;
+    margin-top: 1px;
+}
+
 .todo-list {
     position: relative;
-    border-top: 1px solid var(--secondary);
-    border-bottom: 1px solid var(--secondary);
     z-index: 1000;
 }
 
@@ -617,7 +626,6 @@ body {
     display: flex;
     flex-direction: column;
     border-top: 0.5px solid var(--outline-faint);
-    border-bottom: 0.5px solid var(--outline-faint);
     background: var(--background-light);
     color: var(--on-primary);
     font-size: 1.1rem;
