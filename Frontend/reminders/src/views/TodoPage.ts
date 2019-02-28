@@ -2,7 +2,7 @@ import m from "mithril";
 import TodoSection from "./TodoSection";
 import TodoList from "./TodoList";
 
-import {store, dueTodos, deadlineTodos, otherTodos, completedTodos, pendingUndo} from "../models/store";
+import {store, dueTodos, deadlineTodos, otherTodos, completedTodos, upcomingTodos, pendingUndo} from "../models/store";
 import {addShortcut, removeShortcut} from "../models/actions";
 import {logout} from "../models/auth";
 import {undo, dismissUndo, create} from "../models/ui";
@@ -13,6 +13,7 @@ const SYNC_DISPLAY_TIME = 10*1000;// 10 seconds
 
 export enum Show {
     Normal,
+    Upcoming,
     Completed
 }
 
@@ -64,11 +65,18 @@ const TodoPage = function (): m.Component<Attrs> {
                     ];
                     break;
                 }
+                case Show.Upcoming: {
+                    const upcoming = upcomingTodos();
+                    todoSections = [
+                        section(upcoming, "Upcoming")
+                    ];
+                    break;
+                }
                 case Show.Completed: {
                     const completed = completedTodos();
                     todoSections = [
                         section(completed, "Completed")
-                    ]
+                    ];
                     break;
                 }
             }
@@ -91,6 +99,7 @@ const TodoPage = function (): m.Component<Attrs> {
                         ]),
                         m("ul.menu-list", [
                             ["Reminders", "", vnode.attrs.show === Show.Normal],
+                            ["Upcoming", "upcoming", vnode.attrs.show === Show.Upcoming],
                             ["Completed", "completed", vnode.attrs.show === Show.Completed]
                         ].map(([title, path, selected]) => {
                             return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {showMenu = false;}}, title));

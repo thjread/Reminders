@@ -275,6 +275,7 @@ body {
 .modal-container {
     background-color: var(--primary-light);
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -341,6 +342,22 @@ body {
     border-radius: 0.3rem;
     height: 2.15rem;
     line-height: 2.15rem;
+    font-size: 1.3rem;
+}
+
+.show-in-deadlines {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+    padding: 0.5rem 0.3rem;
+}
+
+.css-check.on-secondary {
+    background: var(--on-secondary);
+}
+
+.deadline-check-label {
+    color: var(--on-secondary);
     font-size: 1.3rem;
 }
 
@@ -606,14 +623,13 @@ body {
 
 .section-before {
     width: 100%;
-    border-top: 1px solid var(--secondary);
+    border-top: 0.5px solid var(--secondary);
 }
 
 .section-after {
     width: 100%;
     border-top: 0.5px solid var(--outline-faint);
-    border-bottom: 1px solid var(--secondary);
-    z-index: 100000000;
+    border-bottom: 0.5px solid var(--secondary);
     margin-top: 1px;
 }
 
@@ -662,7 +678,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.7rem 0.8rem;
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+    padding-left: 0.5rem;
+    padding-right: 0.8rem;
     position: relative;
 }
 
@@ -694,6 +713,23 @@ body {
     }
 }
 
+.item-deadline {
+    font-style: italic;
+    color: var(--secondary-dark);
+    line-height: 1.2em;
+    margin-left: 0 0.5rem;
+    text-align: right;
+    min-width: 5rem;
+    max-height: 3.75em;
+    padding-right: 0.2rem;/* stop weird clipping */
+    overflow-y: hidden;
+}
+
+.selected .item-deadline {
+    max-height: 20rem;
+    overflow-y: auto;
+}
+
 .item-exit {
     animation: slide-out 0.5s;
     overflow: hidden;
@@ -716,6 +752,7 @@ body {
     font-weight: bold;
     line-height: 1.2em;
     white-space: pre-wrap;
+    margin-left: 0.2rem;
 }
 
 input[type=checkbox] {
@@ -729,41 +766,37 @@ input[type=checkbox] {
 
 .css-check {
     display: inline-block;
-    width: 1em;
-    height: 1em;
+    width: 1.2em;
+    height: 1.2em;
     margin-left: -0.5em;
     margin-right: 0.6em;
     vertical-align: bottom;
-    border: 1.5px solid var(--outline);
+    border: 1.7px solid var(--outline);
     border-radius: 0.2rem;
     align-self: center;
 }
 
 input[type=checkbox] + .css-check::after {
+    font-size: 1.2rem;
     content: '✓';
     text-align: center;
     position: relative;
     bottom: 0.1em;
     opacity: 0;
-    color: var(--outline-dark);
-    transition: opacity 0.1s ease-out;
+    color: var(--primary-dark);
+    transition: opacity 0.07s ease-out;
 }
 
 input[type=checkbox]:focus + .css-check {
     box-shadow: 0 0 3px 0 var(--shadow);
 }
 
-input[type=checkbox]:checked + .css-check::after {
-    opacity: 1;
+input[type=checkbox]:checked + .css-check {
+    border: 1.7px solid var(--primary-dark);
 }
 
-.item-deadline {
-    font-style: italic;
-    color: var(--secondary-dark);
-    line-height: 1.2em;
-    margin-left: 0 0.5rem;
-    text-align: right;
-    min-width: 5rem;
+input[type=checkbox]:checked + .css-check::after {
+    opacity: 1;
 }
 
 .item-options {

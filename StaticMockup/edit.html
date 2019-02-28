@@ -6,17 +6,25 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="Description" content="Reminders web-app">
         <title>Reminders</title>
-        <link rel="stylesheet" href="reminders.css" >
+        <link rel="stylesheet" href="main.css" >
         <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
     </head>
-    <body class="edit-container">
-        <form class="edit-form">
-            <input type="text" name="title" placeholder="Title" >
-            <div class="date" >
-                <input class="date-input" type="text" name="deadline" placeholder="Deadline" >
-                <h3 class="date-display">Tomorrow</h3>
-            </div>
-            <button type="submit" class="login-button" ><div class="button-text" >Submit</div></button>
-        </form>
-    </body>
+    <body class="content-font fonts-loaded">
+        <main class="modal-container">
+            <form autocomplete="off" class="modal-form edit-form">
+                <button type="button" class="text-button on-secondary">Cancel</button>
+                <textarea name="title" placeholder="Title" aria-label="Title" rows="7" id="title" class="text-input"></textarea>
+                <input name="deadline" placeholder="Deadline" aria-label="Deadline" type="text" class="text-input">
+                <h3 class="item-deadline on-edit-form">No deadline</h3>
+                <div class="show-in-deadlines" >
+                    <input id="deadline-check" type="checkbox" >
+                    <label for="deadline-check" class="css-check on-secondary" ></label>
+                    <label for="deadline-check" class="deadline-check-label">Show in deadlines</label>
+                </div>
+                <button type="submit" class="pill-button on-secondary">
+                    <div class="button-text">Submit</div>
+                </button>
+            </form>
+        </main>
+        <footer class="message hidden"></footer>
 </html>

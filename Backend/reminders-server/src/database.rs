@@ -76,13 +76,14 @@ fn edit_todo(
     id: Uuid,
     title: String,
     deadline: Option<chrono::NaiveDateTime>,
+    hide_until_done: bool,
 ) -> Result<usize, Error> {
     diesel::update(
         todos_dsl::todos
             .filter(todos_dsl::userid.eq(userid))
             .find(id),
     )
-    .set((todos_dsl::title.eq(title), todos_dsl::deadline.eq(deadline)))
+    .set((todos_dsl::title.eq(title), todos_dsl::deadline.eq(deadline), todos_dsl::hide_until_done.eq(hide_until_done)))
     .execute(connection)
     .map_err(|e| e.into())
 }
@@ -104,12 +105,14 @@ pub enum UpdateAction {
         done: bool,
         done_time: Option<chrono::DateTime<chrono::Utc>>,
         create_time: chrono::DateTime<chrono::Utc>,
+        hide_until_done: bool,
         action_id: Uuid,
     },
     EDIT_TODO {
         id: Uuid,
         title: String,
         deadline: Option<chrono::DateTime<chrono::Utc>>,
+        hide_until_done: bool,
         action_id: Uuid,
     },
     DELETE_TODO {
@@ -145,6 +148,7 @@ impl Handler<UpdateBatch> for DbExecutor {
                     done,
                     done_time,
                     create_time,
+                    hide_until_done,
                     ..
                 } => {
                     let todo = Todo {
@@ -155,6 +159,7 @@ impl Handler<UpdateBatch> for DbExecutor {
                         done,
                         done_time: done_time.map(|date| date.naive_utc()),
                         create_time: create_time.naive_utc(),
+                        hide_until_done,
                     };
                     create_todo(&conn, todo)
                 }
@@ -162,6 +167,7 @@ impl Handler<UpdateBatch> for DbExecutor {
                     id,
                     title,
                     deadline,
+                    hide_until_done,
                     ..
                 } => edit_todo(
                     &conn,
@@ -169,6 +175,7 @@ impl Handler<UpdateBatch> for DbExecutor {
                     id,
                     title,
                     deadline.map(|date| date.naive_utc()),
+                    hide_until_done,
                 ),
                 UpdateAction::TOGGLE_DONE {
                     id,

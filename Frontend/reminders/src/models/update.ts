@@ -110,13 +110,15 @@ export interface ServerTodoRow {
     done: boolean;
     done_time: string | null;
     create_time: string;
+    hide_until_done: boolean;
 }
 
 export function serverRowToTodo(t: ServerTodoRow) {
     let todo: Todo = {
         title: t.title,
         done: t.done,
-        create_time: new Date(t.create_time)
+        create_time: new Date(t.create_time),
+        hide_until_done: t.hide_until_done
     }
     if (t.deadline) {
         todo.deadline = new Date(t.deadline);

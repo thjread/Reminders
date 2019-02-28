@@ -16,6 +16,7 @@ table! {
         done -> Bool,
         done_time -> Nullable<Timestamp>,
         create_time -> Timestamp,
+        hide_until_done -> Bool,
     }
 }
 

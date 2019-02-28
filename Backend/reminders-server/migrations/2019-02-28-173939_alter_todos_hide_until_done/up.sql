@@ -1,0 +1,2 @@
+ALTER TABLE todos
+  ADD COLUMN hide_until_done BOOLEAN DEFAULT 'f' NOT NULL;

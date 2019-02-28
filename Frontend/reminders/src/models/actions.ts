@@ -34,8 +34,8 @@ export const setServerTodos = createAction("SET_SERVER_TODOS", resolve => {
 })
 
 export const createTodo = createAction("CREATE_TODO", resolve => {
-    return (title: string, deadline: Date | null | undefined, done: boolean, done_time: Date | null | undefined, create_time: Date, id: string = uuidv4()) => {
-        const action = resolve({id, title, deadline, done, done_time, create_time, action_id: uuidv4()});
+    return (title: string, deadline: Date | null | undefined, done: boolean, done_time: Date | null | undefined, create_time: Date, hide_until_done: boolean, id: string = uuidv4()) => {
+        const action = resolve({id, title, deadline, done, done_time, create_time, hide_until_done, action_id: uuidv4()});
         store.dispatch(syncAction(action));
         serverUpdate();
         store.dispatch(setUndoAction(() => deleteTodo(id)))
@@ -44,12 +44,12 @@ export const createTodo = createAction("CREATE_TODO", resolve => {
 })
 
 export const editTodo = createAction("EDIT_TODO", resolve => {
-    return (id: string, title: string, deadline: Date | null | undefined) => {
-        const action = resolve({id, title, deadline, action_id: uuidv4()});
+    return (id: string, title: string, deadline: Date | null | undefined, hide_until_done: boolean) => {
+        const action = resolve({id, title, deadline, hide_until_done, action_id: uuidv4()});
         const todo = getTodo(id);
         store.dispatch(syncAction(action));
         serverUpdate();
-        store.dispatch(setUndoAction(() => editTodo(id, todo.title, todo.deadline)));
+        store.dispatch(setUndoAction(() => editTodo(id, todo.title, todo.deadline, todo.hide_until_done)));
         return action;
     }
 })
@@ -74,7 +74,7 @@ export const deleteTodo = createAction("DELETE_TODO", resolve => {
         const todo = getTodo(id);
         store.dispatch(syncAction(action));
         serverUpdate();
-        store.dispatch(setUndoAction(() => createTodo(todo.title, todo.deadline, todo.done, todo.done_time, todo.create_time, id)));
+        store.dispatch(setUndoAction(() => createTodo(todo.title, todo.deadline, todo.done, todo.done_time, todo.create_time, todo.hide_until_done, id)));
         return action;
     }
 })

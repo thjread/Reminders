@@ -41,6 +41,16 @@ m.route(document.body, "/", {
             return m(App, m(TodoPage, {show: Show.Normal}))
         }
     },
+    "/upcoming": {
+        onmatch: function() {
+            if (!loggedIn()) {
+                m.route.set("/login");
+            }
+        },
+        render: function() {
+            return m(App, m(TodoPage, {show: Show.Upcoming}));
+        }
+    },
     "/completed": {
         onmatch: function() {
             if (!loggedIn()) {

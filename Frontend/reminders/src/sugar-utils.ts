@@ -6,7 +6,7 @@ export const sugarFormatDateTime = (d: Date) => {
     if (d.getHours() === 0 && d.getMinutes() === 0) {
         format_time = '';
     }
-    let format_day = '{Weekday} {do} {Month}';
+    let format_day = '{Weekday} {do} {Mon}';
     if (SDate.isYesterday(d)) {
         format_day = 'Yesterday';
     } else if (SDate.isToday(d)) {

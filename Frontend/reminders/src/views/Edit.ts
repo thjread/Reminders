@@ -10,6 +10,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
     let deadline: Date | null = null;
     let invalidDeadline = false;
     let done = false;
+    let hide_until_done = true;
 
     if (editId) {
         const todo = getTodo(editId);
@@ -19,6 +20,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
             deadlineInputText = formatDateTime(deadline);
         }
         done = todo.done;
+        hide_until_done = todo.hide_until_done;
     }
 
     function submit() {
@@ -32,13 +34,13 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
         }
         clearMessage();
         if (editId) {
-            store.dispatch(editTodo(editId, title, deadline));
+            store.dispatch(editTodo(editId, title, deadline, hide_until_done));
         } else {
             let done_time = undefined;
             if (done) {
                 done_time = new Date();
             }
-            store.dispatch(createTodo(title, deadline, done, done_time, new Date()));
+            store.dispatch(createTodo(title, deadline, done, done_time, new Date(), hide_until_done));
         }
         store.dispatch(setModal(null));
     }
@@ -104,6 +106,19 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                    value: deadlineInputText
                   }),
                 m("h3.item-deadline.on-edit-form", deadline ? formatDateTime(deadline) : (invalidDeadline ? "Invalid deadline" : "No deadline")),
+                m("div.show-in-deadlines", [
+                    m("input#deadline-check[type=checkbox]", {
+                        checked: !hide_until_done,
+                        oninput: (e: Event) => {
+                            console.log(e);
+                            if (e.target && (e.target as HTMLInputElement).checked !== null) {
+                                hide_until_done = !(e.target as HTMLInputElement).checked;
+                            }
+                        }
+                    }),
+                    m("label.css-check.on-secondary", {for: "deadline-check"}),
+                    m("label.deadline-check-label", {for: "deadline-check"}, "Show in Deadlines")
+                ]),
                 m("button[type=submit].pill-button.on-secondary",
                   m("div.button-text", "Submit"))
             ]))

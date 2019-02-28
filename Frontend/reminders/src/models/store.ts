@@ -11,6 +11,7 @@ export interface Todo {
     done: boolean,
     done_time?: Date,
     create_time: Date
+    hide_until_done: boolean,
 }
 export type TodoMap = { [id: string]: Todo };
 
@@ -136,6 +137,16 @@ export function dueTodos() {
 }
 
 export function deadlineTodos() {
+    const now = Date.now();
+    return Object.keys(store.getState().todos)
+        .filter((id) => {
+            const t = getTodo(id);
+            return !t.hide_until_done && !t.done && t.deadline && t.deadline.getTime() > now;
+        })
+        .sort((a, b) => itemCompare(a, b));
+}
+
+export function upcomingTodos() {
     const now = Date.now();
     return Object.keys(store.getState().todos)
         .filter((id) => {

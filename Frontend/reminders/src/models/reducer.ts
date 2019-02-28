@@ -17,10 +17,12 @@ export default (state: State, action: Action) => {
             const deadline = action.payload.deadline;
             const done_time = action.payload.done_time;
             const create_time = action.payload.create_time;
+            const hide_until_done = action.payload.hide_until_done;
             let new_todo: Todo = {
                 title: title,
                 done: done,
-                create_time: create_time
+                create_time: create_time,
+                hide_until_done
             };
             if (deadline) {
                 new_todo.deadline = deadline;
@@ -37,10 +39,12 @@ export default (state: State, action: Action) => {
             const title = action.payload.title;
             const deadline = action.payload.deadline;
             const old_todo = state.todos[id];
+            const hide_until_done = action.payload.hide_until_done;
             let new_todo: Todo = {
                 title: title,
                 done: old_todo.done,
-                create_time: new Date(old_todo.create_time.getTime())
+                create_time: new Date(old_todo.create_time.getTime()),
+                hide_until_done
             };
             if (deadline) {
                 new_todo.deadline = deadline;

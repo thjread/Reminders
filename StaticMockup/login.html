@@ -8,15 +8,18 @@
         <title>Reminders</title>
         <link rel="stylesheet" href="main.css" >
         <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
-    </head>
-    <body class="login-container">
-        <form class="login-form">
-            <input class="" type="text" name="username" placeholder="Username" >
-            <input type="password" name="password" placeholder="Password">
-            <div class="login-signup" >
-                <button type="submit" class="pill-button on-secondary"><div class="button-text" >Log in</div></button>
-                <button class="signup-button" type="button" >Sign up</button>
+</head>
+<body class="content-font fonts-loaded">
+    <main class="modal-container">
+        <h1 class="login-form-title">Reminders</h1>
+        <form class="modal-form login-form">
+            <input name="username" placeholder="Username" aria-label="Username" type="text" id="username" class="text-input">
+            <input name="password" placeholder="Password" aria-label="Password" type="password" class="text-input">
+            <div class="login-signup">
+                <button type="submit" class="pill-button on-secondary"><div class="button-text">Log in</div></button>
+                <button type="button" class="text-button">Sign up</button>
             </div>
         </form>
-    </body>
+    </main>
+    <footer class="message hidden"></footer>
 </html>
