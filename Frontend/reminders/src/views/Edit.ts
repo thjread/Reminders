@@ -93,7 +93,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                    class: (title.length > 27 || title.indexOf("\n") > -1) ? "expand" : undefined
                   }),
                 m("input[type=text].text-input",
-                  {name: "deadline", placeholder: "Deadline", "aria-label": "Deadline",
+                  {name: "deadline", placeholder: "Time", "aria-label": "time",
                    oninput: function (e: any) {
                        deadlineInputText = e.currentTarget.value;
                        deadline = dateParseFunction(deadlineInputText);
@@ -105,7 +105,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                    },
                    value: deadlineInputText
                   }),
-                m("h3.item-deadline.on-edit-form", deadline ? formatDateTime(deadline) : (invalidDeadline ? "Invalid deadline" : "No deadline")),
+                m("h3.item-deadline.on-edit-form", deadline ? formatDateTime(deadline) : (invalidDeadline ? "Invalid time" : "No time")),
                 m("div.show-in-deadlines", [
                     m("input#deadline-check[type=checkbox]", {
                         checked: !hide_until_done,

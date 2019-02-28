@@ -681,7 +681,7 @@ body {
     padding-top: 0.7rem;
     padding-bottom: 0.7rem;
     padding-left: 0.5rem;
-    padding-right: 0.8rem;
+    padding-right: 0.4rem;
     position: relative;
 }
 
@@ -717,12 +717,13 @@ body {
     font-style: italic;
     color: var(--secondary-dark);
     line-height: 1.2em;
-    margin-left: 0 0.5rem;
+    margin-left: 0.5rem;
     text-align: right;
     min-width: 5rem;
     max-height: 3.75em;
-    padding-right: 0.2rem;/* stop weird clipping */
+    padding-right: 0.4rem;/* stop weird clipping */
     overflow-y: hidden;
+    overflow-x: hidden;/*seems to be necessary to avoid scrollbar*/
 }
 
 .selected .item-deadline {
