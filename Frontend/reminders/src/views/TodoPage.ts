@@ -6,7 +6,7 @@ import {store, dueTodos, deadlineTodos, otherTodos, completedTodos, pendingUndo}
 import {addShortcut, removeShortcut} from "../models/actions";
 import {logout} from "../models/auth";
 import {undo, dismissUndo, create} from "../models/ui";
-import { CLOUD_SVG } from "./Icons";
+import { CLOUD_SVG, MENU_SVG } from "./Icons";
 
 const UNDO_SHOW_TIME = 10*1000;// 10 seconds
 const SYNC_DISPLAY_TIME = 10*1000;// 10 seconds
@@ -74,7 +74,10 @@ const TodoPage = function (): m.Component<Attrs> {
             }
             return [
                 m("header.header", [
-                    m("div.logo", [m("img.logo-icon", {src: "images/logo.svg", alt: "Logo", onclick: () => {showMenu = true;}}), "Reminders"]),
+                    m("div.header-first", [
+                        m("div.menu-icon", { onclick: () => {showMenu = true;}}, m.trust(MENU_SVG)),
+                        "Reminders"
+                    ]),
                     m("div.header-last", [
                         m("div.cloud", { class: showSynced ? undefined : "cloud-hidden" }, m.trust(CLOUD_SVG)),
                         m("button.pill-button.on-primary", {onclick: logout}, "Log out")
