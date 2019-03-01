@@ -34,7 +34,7 @@ const Item: m.Component<Attrs> = {
                              m("label.css-check", {for: id}),
                              m("h2.item-title", item.title),
                          ]),
-                         (item.deadline && !item.hide_until_done) ? m("h3.item-deadline", formatDateTime(item.deadline)) : undefined
+                         item.deadline ? m("h3.item-deadline", formatDateTime(item.deadline)) : undefined
                      ]),
             m("div.item-options", [
                   m("button.pill-button.on-primary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {

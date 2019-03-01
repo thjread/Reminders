@@ -49,7 +49,7 @@ export function login(username: string, password: string) {
                 break;
         }
     }).catch(function (e) {
-        if (e.code !== 0) {
+        if (e.code !== 0 && e.code !== 503) {
             showMessage("Server error");
         } else {
             showMessage("Failed to reach server - please check your internet connection and try again");
@@ -93,7 +93,7 @@ export function signup(username: string, password: string) {
                 break;
         }
     }).catch(function (e) {
-        if (e.code !== 0) {
+        if (e.code !== 0 && e.code !== 503) {
             showMessage("Server error");
         } else {
             showMessage("Failed to reach server - please check your internet connection and try again");

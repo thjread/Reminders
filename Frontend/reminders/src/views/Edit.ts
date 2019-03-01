@@ -110,7 +110,6 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                     m("input#deadline-check[type=checkbox]", {
                         checked: !hide_until_done,
                         oninput: (e: Event) => {
-                            console.log(e);
                             if (e.target && (e.target as HTMLInputElement).checked !== null) {
                                 hide_until_done = !(e.target as HTMLInputElement).checked;
                             }

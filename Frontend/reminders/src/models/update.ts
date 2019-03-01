@@ -80,7 +80,7 @@ export function serverUpdate(actions: ActionDummy[]
                 }
 
             }).catch(function (e) {
-                if (e.code !== 0) {// got a response from server
+                if (e.code !== 0 && e.code !== 503) {// got a response from server
                     if (actions.length > 0) {
                         showMessage("Server error - offline actions not saved (you may need to close and reopen the webpage)");
                     } else {

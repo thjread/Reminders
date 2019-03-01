@@ -489,7 +489,7 @@ body {
 /* Message */
 
 .message {
-    position: absolute;
+    position: fixed;
     bottom: 0;
     text-align: center;
     font-size: 1.2rem;
@@ -680,7 +680,7 @@ body {
     align-items: center;
     padding-top: 0.7rem;
     padding-bottom: 0.7rem;
-    padding-left: 0.5rem;
+    padding-left: 0.7rem;
     padding-right: 0.4rem;
     position: relative;
 }
