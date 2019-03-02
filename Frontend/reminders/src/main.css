@@ -111,6 +111,10 @@ textarea:focus
 {
 	outline:0;
 }
+button
+{
+	  -webkit-tap-highlight-color: transparent;
+}
 
 /* Box Sizing Reset
 -----------------------------------------------*/
@@ -487,6 +491,7 @@ body {
     background-color: transparent;
     transition: background-color 0.1s;
     cursor: pointer;
+    outline: none;
 }
 
 .menu-icon:hover {
