@@ -57,11 +57,11 @@ const Item: m.Component<Attrs> = {
                          displayTime ? m("h3.item-deadline", formatDateTime(displayTime)) : undefined
                      ]),
             m("div.item-options", [
-                  m("button.pill-button.on-primary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
+                  m("button.pill-button.on-secondary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
                       toggleSelect(id);
                       edit(id);
                   }}, "Edit"),
-                  m("button.pill-button.on-primary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
+                  m("button.pill-button.on-secondary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
                       toggleSelect(id);
                       store.dispatch(deleteTodo(id));
                   }}, "Delete")

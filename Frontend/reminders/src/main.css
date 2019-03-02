@@ -242,7 +242,9 @@ button::-moz-focus-inner {
     --secondary-light: #b670fa;
     --secondary-lighter: #c7aae5;
     --secondary-lightest: #e1d1f1;
+    --secondary-darkish: #6422a8;
     --secondary-dark: #500e94;
+    --secondary-dark-90: #500e9490;
     --secondary-darker: #371955;
     --on-primary: #332b2f;
     --on-secondary: #ffffff;
@@ -363,42 +365,41 @@ body {
 }
 
 .pill-button {
-    border: 1.5px solid var(--outline-faint);
-    box-shadow: 0px 1px 3px 0px var(--shadow);
     border-radius: 999rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.5em 1em;
-    margin: 0.5em 0.3em;
+    padding: 0.6em 0.7em;
+    margin: 0.5em 0.0em;
     transition: background-color 0.1s;
     outline: none;
+    cursor: pointer;
 }
 
 .pill-button.on-secondary {
     color: var(--on-secondary);
-    background-color: var(--secondary-dark);
 }
 
 .pill-button.on-primary {
-    color: var(--on-secondary);
-    background-color: var(--secondary);
+    color: var(--on-primary);
 }
 
-.pill-button:focus {
-    border: 1.5px solid var(--outline-focus-light);
+.pill-button:hover.on-secondary {
+    background-color: var(--secondary-dark-90);
 }
 
-.pill-button:active {
-    border: 1.5px solid var(--outline-faint);
+.pill-button:hover.on-primary {
+    background-color: var(--primary-dark-90);
 }
 
-.pill-button.on-secondary:active {
-    background-color: var(--secondary-darker);
-}
-
-.pill-button.on-primary:active {
+.pill-button:focus.on-secondary,
+.pill-button:active.on-secondary {
     background-color: var(--secondary-dark);
+}
+
+.pill-button:focus.on-primary,
+.pill-button:active.on-primary {
+    background-color: var(--primary-dark);
 }
 
 /*.pill-button {
@@ -442,10 +443,10 @@ body {
 
 .text-button {
     color: var(--on-secondary);
-    text-shadow: 1px 0px 3px var(--shadow);
     text-decoration: underline;
     padding: 0.1rem;
     border: 1px solid transparent;
+    cursor: pointer;
 }
 
 .text-button:focus {
@@ -467,7 +468,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0.6rem;
     background: var(--primary);
     /*box-shadow: 0 1px 3px 0 var(--shadow-faint);*/
     border-bottom: 1.5px solid var(--primary-dark);
@@ -482,13 +483,14 @@ body {
 }
 
 .menu-icon {
-    width: 2.6rem;
-    height: 2.6rem;
+    width: 2.8rem;
+    height: 2.8rem;
     margin-right: 0.8rem;
     border-radius: 50%;
     padding: 0.4rem;
     background-color: transparent;
     transition: background-color 0.1s;
+    cursor: pointer;
 }
 
 .menu-icon:hover {
@@ -507,7 +509,7 @@ body {
 }
 
 .cloud {
-    margin-right: 1rem;
+    margin-right: 0.5rem;
     width: 1.8rem;
     height: 1.8rem;
     opacity: 1;
@@ -640,14 +642,19 @@ body {
     transition: background-color 0.1s;
 }
 
+.main-nav-item:focus,
+.main-nav-item:hover {
+    background-color: var(--background);
+}
+
+.main-nav-item:focus.selected,
 .main-nav-item.selected {
     color: var(--secondary-dark);
     background-color: var(--secondary-lightest);
 }
 
-.main-nav-item:focus {
-    border-top: 1px solid var(--secondary);
-    border-bottom: 1px solid var(--secondary);
+.main-nav-item.selected:hover {
+    background-color: var(--secondary-lighter);
 }
 
 .main-nav-item:active {
@@ -869,7 +876,7 @@ input[type=checkbox]:checked + .css-check::after {
 }
 
 .selected .item-options {
-    height: 3rem;
+    height: 2.5rem;
 }
 
 .option-button {
@@ -893,11 +900,16 @@ input[type=checkbox]:checked + .css-check::after {
     bottom: 1.5rem;
     z-index: 10000;
     transition: background-color 0.1s;
+    cursor: pointer;
 }
 
 .fab:focus {
     border: 1.5px solid var(--outline-focus-light);
     outline: none;
+}
+
+.fab:hover {
+    background-color: var(--secondary-darkish);
 }
 
 .fab:active {
