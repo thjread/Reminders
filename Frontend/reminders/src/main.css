@@ -355,10 +355,6 @@ body {
     padding: 0.5rem 0.3rem;
 }
 
-.css-check.on-secondary {
-    background: var(--on-secondary);
-}
-
 .deadline-check-label {
     color: var(--on-secondary);
     font-size: 1.3rem;
@@ -839,6 +835,10 @@ input[type=checkbox] {
     align-self: center;
 }
 
+.css-check.on-secondary {
+    background: var(--on-secondary);
+}
+
 input[type=checkbox] + .css-check::after {
     font-size: 1.2rem;
     content: '✓';
@@ -852,6 +852,10 @@ input[type=checkbox] + .css-check::after {
 
 input[type=checkbox]:focus + .css-check {
     box-shadow: 0 0 3px 0 var(--shadow);
+}
+input[type=checkbox]:focus + .css-check.on-secondary {
+    box-shadow: none;
+    background-color: var(--background-medium);
 }
 
 input[type=checkbox]:checked + .css-check {
