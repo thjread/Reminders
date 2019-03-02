@@ -88,7 +88,7 @@ const TodoPage = function (): m.Component<Attrs> {
                     ]),
                     m("div.header-last", [
                         m("div.cloud", { class: showSynced ? undefined : "cloud-hidden" }, m.trust(CLOUD_SVG)),
-                        m("button.pill-button.on-primary", {onclick: logout}, "Log out")
+                        m("button.pill-button.on-primary.outline", {onclick: logout}, "Log out")
                     ])
                 ]),
                 m("div.menu-container", {class: showMenu ? "menu-show" : undefined}, [

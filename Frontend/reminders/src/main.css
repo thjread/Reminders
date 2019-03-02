@@ -300,6 +300,7 @@ body {
     border-radius: 0.5rem;
     width: 90%;
     max-width: 23rem;
+    padding-bottom: 1.4rem;
 }
 
 .edit-form {
@@ -344,7 +345,8 @@ body {
     background: var(--background);
     margin: 0;
     width: 100%;
-    margin: 1rem 0;
+    margin-top: 1rem;
+    margin-bottom: 0.7rem;
     padding: 0 0.7rem;
     border-radius: 0.3rem;
     height: 2.15rem;
@@ -355,7 +357,7 @@ body {
 .show-in-deadlines {
     display: flex;
     align-items: center;
-    margin: 1rem 0;
+    margin: 0.6rem 0;
     padding: 0.5rem 0.3rem;
 }
 
@@ -369,8 +371,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0.6em 0.7em;
-    margin: 0.5em 0.0em;
+    padding: 0.3em 0.7em;
     transition: background-color 0.1s;
     outline: none;
     cursor: pointer;
@@ -382,6 +383,14 @@ body {
 
 .pill-button.on-primary {
     color: var(--on-primary);
+}
+
+.pill-button.on-secondary.outline {
+    border: 0.12em solid var(--secondary-dark-90);
+}
+
+.pill-button.on-primary.outline {
+    border: 0.12em solid var(--primary-dark-90);
 }
 
 .pill-button:hover.on-secondary {
@@ -468,7 +477,8 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 0.6rem;
+    padding: 0.1rem 0.6rem;
+    padding-left: 0.1rem;
     background: var(--primary);
     /*box-shadow: 0 1px 3px 0 var(--shadow-faint);*/
     border-bottom: 1.5px solid var(--primary-dark);
@@ -510,7 +520,7 @@ body {
 }
 
 .cloud {
-    margin-right: 0.5rem;
+    margin-right: 0.8rem;
     width: 1.8rem;
     height: 1.8rem;
     opacity: 1;
@@ -641,6 +651,7 @@ body {
     color: black;
     text-decoration: none;
     transition: background-color 0.1s;
+    outline: none;
 }
 
 .main-nav-item:focus,
@@ -674,10 +685,36 @@ body {
 .todo-section {
     flex-basis: 100%;
     overflow: hidden;
+    animation: section-enter 0.5s;
+}
+@keyframes section-enter {
+    from {
+        max-height: 0vh;
+        opacity: 0;
+    }
+    to {
+        max-height: 100vh;
+        opacity: 1;
+    }
+}
+
+.section-exit {
+    animation: section-exit 0.5s linear;
+    will-change: max-width, opacity;
+}
+@keyframes section-exit {
+    from {
+        max-height: 100vh;
+        opacity: 1;
+    }
+    to {
+        max-height: 0vh;
+        opacity: 0;
+    }
 }
 
 .section-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     padding: 1.5rem 2rem 1rem 2rem;
     background: var(--background);
     color: var(--primary-dark);
@@ -707,7 +744,7 @@ body {
     background: var(--background-light);
     color: var(--on-primary);
     font-size: 1.1rem;
-    animation: expand-in 0.3s ease-in;
+    animation: expand-in 0.3s ease-out;
     will-change: transform;
 }
 @keyframes expand-in {
@@ -759,7 +796,7 @@ body {
 .selected .item-first {
     max-height: 20em;
     overflow-y: auto;
-    animation: enlarge 0.3s ease-in;
+    animation: enlarge 0.3s ease-out;
 }
 @keyframes enlarge {
     0% {
@@ -978,7 +1015,7 @@ input[type=checkbox]:checked + .css-check::after {
     }
 
     .header-first {
-        font-size: 1.9rem;
+        font-size: 1.6rem;
     }
 
     .todo-container {
@@ -987,7 +1024,35 @@ input[type=checkbox]:checked + .css-check::after {
 
     .todo-section {
         padding: 0 1rem;
+        will-change: max-width, opacity;
+        animation: section-enter 0.5s;
     }
+    @keyframes section-enter {
+        from {
+            max-width: 0vw;
+            opacity: 0;
+        }
+        to {
+            max-width: 100vw;
+            opacity: 1;
+        }
+    }
+
+    .section-exit {
+        animation: section-exit 0.5s linear;
+        will-change: max-width, opacity;
+    }
+    @keyframes section-exit {
+        from {
+            max-width: 100vw;
+            opacity: 1;
+        }
+        to {
+            max-width: 0vw;
+            opacity: 0;
+        }
+    }
+
 
     .edit-form {
         border: 0.5px solid var(--outline-faint);
