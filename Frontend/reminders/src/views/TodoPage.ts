@@ -11,14 +11,14 @@ import { CLOUD_SVG, MENU_SVG } from "./Icons";
 const UNDO_SHOW_TIME = 10*1000;// 10 seconds
 const SYNC_DISPLAY_TIME = 10*1000;// 10 seconds
 
-export enum Show {
+export enum TodoContext {
     Normal,
     Upcoming,
     Completed
 }
 
 interface Attrs {
-    show: Show;
+    context: TodoContext;
 }
 
 const TodoPage = function (): m.Component<Attrs> {
@@ -51,10 +51,10 @@ const TodoPage = function (): m.Component<Attrs> {
 
             let todoSections: (m.Vnode | undefined)[] = [];
             function section(ids: string[], title: string) {
-                return ids.length > 0 ? m(TodoSection, {title: title, key: title}, m(TodoList, {todoIds: ids})) : undefined;
+                return ids.length > 0 ? m(TodoSection, {title: title, key: title}, m(TodoList, {todoIds: ids, context: vnode.attrs.context})) : undefined;
             }
-            switch (vnode.attrs.show) {
-                case Show.Normal: {
+            switch (vnode.attrs.context) {
+                case TodoContext.Normal: {
                     const due = dueTodos();
                     const deadline = deadlineTodos();
                     const other = otherTodos();
@@ -65,14 +65,14 @@ const TodoPage = function (): m.Component<Attrs> {
                     ];
                     break;
                 }
-                case Show.Upcoming: {
+                case TodoContext.Upcoming: {
                     const upcoming = upcomingTodos();
                     todoSections = [
                         section(upcoming, "Upcoming")
                     ];
                     break;
                 }
-                case Show.Completed: {
+                case TodoContext.Completed: {
                     const completed = completedTodos();
                     todoSections = [
                         section(completed, "Completed")
@@ -83,7 +83,7 @@ const TodoPage = function (): m.Component<Attrs> {
             return [
                 m("header.header", [
                     m("div.header-first", [
-                        m("div.menu-icon", { onclick: () => {showMenu = true;}}, m.trust(MENU_SVG)),
+                        m("button.menu-icon", { onclick: () => {showMenu = true;}}, m.trust(MENU_SVG)),
                         "Reminders"
                     ]),
                     m("div.header-last", [
@@ -98,9 +98,9 @@ const TodoPage = function (): m.Component<Attrs> {
                             m("div.menu-logo", "Reminders")
                         ]),
                         m("ul.menu-list", [
-                            ["Reminders", "", vnode.attrs.show === Show.Normal],
-                            ["Upcoming", "upcoming", vnode.attrs.show === Show.Upcoming],
-                            ["Completed", "completed", vnode.attrs.show === Show.Completed]
+                            ["Reminders", "", vnode.attrs.context === TodoContext.Normal],
+                            ["Upcoming", "upcoming", vnode.attrs.context === TodoContext.Upcoming],
+                            ["Completed", "completed", vnode.attrs.context === TodoContext.Completed]
                         ].map(([title, path, selected]) => {
                             return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {showMenu = false;}}, title));
                         }))

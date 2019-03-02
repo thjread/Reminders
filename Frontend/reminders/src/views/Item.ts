@@ -1,4 +1,5 @@
 import m from "mithril";
+import { TodoContext } from "./TodoPage";
 import {store, getTodo} from "../models/store";
 import {deleteTodo, toggleDone} from "../models/actions";
 import {edit} from "../models/ui";;
@@ -8,6 +9,7 @@ interface Attrs {
     id: string;
     selectCallback: (id: string) => void;
     selected: boolean;
+    context: TodoContext;
 }
 
 const Item: m.Component<Attrs> = {
@@ -24,6 +26,24 @@ const Item: m.Component<Attrs> = {
         const toggleSelect = vnode.attrs.selectCallback;
         const selected = vnode.attrs.selected;
 
+        let displayTime = null;
+        switch (vnode.attrs.context) {
+            case TodoContext.Normal: {
+                if (!item.hide_until_done) {
+                    displayTime = item.deadline;
+                }
+                break;
+            }
+            case TodoContext.Completed: {
+                displayTime = item.done_time;
+                break;
+            }
+            case TodoContext.Upcoming: {
+                displayTime = item.deadline;
+                break;
+            }
+        }
+
         return m("li.item", {class: selected ? "selected" : undefined}, [
                      m("div.item-main", { onclick: () => toggleSelect(id) }, [
                          m("div.item-first", [
@@ -34,7 +54,7 @@ const Item: m.Component<Attrs> = {
                              m("label.css-check", {for: id}),
                              m("h2.item-title", item.title),
                          ]),
-                         item.deadline ? m("h3.item-deadline", formatDateTime(item.deadline)) : undefined
+                         displayTime ? m("h3.item-deadline", formatDateTime(displayTime)) : undefined
                      ]),
             m("div.item-options", [
                   m("button.pill-button.on-primary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {

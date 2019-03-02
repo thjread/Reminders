@@ -237,6 +237,7 @@ button::-moz-focus-inner {
     --primary: #9ed36a;
     --primary-light: #d1ff9a;
     --primary-dark: #6da13c;
+    --primary-dark-90: #6da13c90;
     --secondary: #8341c6;
     --secondary-light: #b670fa;
     --secondary-lighter: #c7aae5;
@@ -400,6 +401,45 @@ body {
     background-color: var(--secondary-dark);
 }
 
+/*.pill-button {
+    border: 1.5px solid var(--outline-faint);
+    box-shadow: 0px 1px 3px 0px var(--shadow);
+    border-radius: 999rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.5em 1em;
+    margin: 0.5em 0.3em;
+    transition: background-color 0.1s;
+    outline: none;
+}
+
+.pill-button.on-secondary {
+    color: var(--on-secondary);
+    background-color: var(--secondary-dark);
+}
+
+.pill-button.on-primary {
+    color: var(--on-secondary);
+    background-color: var(--secondary);
+}
+
+.pill-button:focus {
+    border: 1.5px solid var(--outline-focus-light);
+}
+
+.pill-button:active {
+    border: 1.5px solid var(--outline-faint);
+}
+
+.pill-button.on-secondary:active {
+    background-color: var(--secondary-darker);
+}
+
+.pill-button.on-primary:active {
+    background-color: var(--secondary-dark);
+}*/
+
 .text-button {
     color: var(--on-secondary);
     text-shadow: 1px 0px 3px var(--shadow);
@@ -442,9 +482,23 @@ body {
 }
 
 .menu-icon {
-    width: 1.8rem;
-    height: 1.8rem;
+    width: 2.6rem;
+    height: 2.6rem;
     margin-right: 0.8rem;
+    border-radius: 50%;
+    padding: 0.4rem;
+    background-color: transparent;
+    transition: background-color 0.1s;
+}
+
+.menu-icon:hover {
+    background-color: var(--primary-dark-90);
+}
+.menu-icon:focus {
+    background-color: var(--primary-dark-90);
+}
+.menu-icon:active {
+    background-color: var(--primary-dark);
 }
 
 .header-last {
@@ -715,6 +769,7 @@ body {
 
 .item-deadline {
     font-style: italic;
+    font-size: 0.9rem;
     color: var(--secondary-dark);
     line-height: 1.2em;
     margin-left: 0.5rem;

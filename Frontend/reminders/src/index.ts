@@ -5,7 +5,7 @@ import { loadFonts, sugarDateTime } from "./utils";
 import { handleShortcuts } from "./models/ui";
 import { swInit } from "./models/sw-manager";
 import App from "./views/App";
-import {Show} from "./views/TodoPage";
+import {TodoContext} from "./views/TodoPage";
 import TodoPage from "./views/TodoPage";
 import Login from "./views/Login";
 import { loggedIn } from "./models/auth";
@@ -38,7 +38,7 @@ m.route(document.body, "/", {
             }
         },
         render: function() {
-            return m(App, m(TodoPage, {show: Show.Normal}))
+            return m(App, m(TodoPage, {context: TodoContext.Normal}))
         }
     },
     "/upcoming": {
@@ -48,7 +48,7 @@ m.route(document.body, "/", {
             }
         },
         render: function() {
-            return m(App, m(TodoPage, {show: Show.Upcoming}));
+            return m(App, m(TodoPage, {context: TodoContext.Upcoming}));
         }
     },
     "/completed": {
@@ -58,7 +58,7 @@ m.route(document.body, "/", {
             }
         },
         render: function() {
-            return m(App, m(TodoPage, {show: Show.Completed}));
+            return m(App, m(TodoPage, {context: TodoContext.Completed}));
         }
     }
 });
