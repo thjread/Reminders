@@ -685,7 +685,11 @@ body {
 .todo-section {
     flex-basis: 100%;
     overflow: hidden;
+}
+
+.section-enter {
     animation: section-enter 0.5s;
+    will-change: max-height, opacity;
 }
 @keyframes section-enter {
     from {
@@ -700,7 +704,7 @@ body {
 
 .section-exit {
     animation: section-exit 0.5s linear;
-    will-change: max-width, opacity;
+    will-change: max-height, opacity;
 }
 @keyframes section-exit {
     from {
@@ -744,10 +748,13 @@ body {
     background: var(--background-light);
     color: var(--on-primary);
     font-size: 1.1rem;
-    animation: expand-in 0.3s ease-out;
-    will-change: transform;
 }
-@keyframes expand-in {
+
+.item-enter {
+    animation: item-enter 0.3s ease-out;
+    will-change: opacity, transform;
+}
+@keyframes item-enter {
     from {
         transform: scaleY(0);
         opacity: 0;
@@ -755,6 +762,24 @@ body {
     to {
         transform: scaleY(1);
         opacity: 1;
+    }
+}
+
+.item-exit {
+    animation: item-exit 0.5s;
+    overflow: hidden;
+    position: relative;
+    border: 0px solid transparent;
+    will-change: left, max-height;
+}
+@keyframes item-exit {
+    from {
+        left: 0;
+        max-height: 6rem;
+    }
+    to {
+        left: 100%;
+        max-height: 0;
     }
 }
 
@@ -831,24 +856,6 @@ body {
     overflow-y: auto;
 }
 
-.item-exit {
-    animation: slide-out 0.5s;
-    overflow: hidden;
-    position: relative;
-    border: 0px solid transparent;
-}
-@keyframes slide-out {
-    from {
-        left: 0;
-        max-height: 6rem;
-    }
-    to {
-        left: 100%;
-        max-height: 0;
-    }
-}
-
-
 .item-title {
     font-weight: bold;
     line-height: 1.2em;
@@ -913,7 +920,6 @@ input[type=checkbox]:checked + .css-check::after {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding: 0 0.3rem;
     box-shadow: 0 0 2px 0 var(--shadow) inset;
     height: 0;
     overflow: hidden;
@@ -923,6 +929,7 @@ input[type=checkbox]:checked + .css-check::after {
 
 .selected .item-options {
     height: 2.5rem;
+    padding: 0.3rem 0.3rem;
 }
 
 .option-button {
@@ -1024,8 +1031,11 @@ input[type=checkbox]:checked + .css-check::after {
 
     .todo-section {
         padding: 0 1rem;
-        will-change: max-width, opacity;
+    }
+
+    .section-enter {
         animation: section-enter 0.5s;
+        will-change: max-width, opacity;
     }
     @keyframes section-enter {
         from {

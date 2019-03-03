@@ -12,6 +12,11 @@ const TodoSection = function (): m.Component<Attrs> {
             route = m.route.get();
         },
 
+        oncreate: function(vnode: any) {
+            vnode.dom.classList.add("section-enter");
+            vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("section-enter"));
+        },
+
         onbeforeremove: function(vnode: any) {
             if (m.route.get() === route) {// only animate when not changing page
                 vnode.dom.classList.add("section-exit");

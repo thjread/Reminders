@@ -13,6 +13,11 @@ interface Attrs {
 }
 
 const Item: m.Component<Attrs> = {
+    oncreate: function(vnode: any) {
+        vnode.dom.classList.add("item-enter");
+        vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("item-enter"));
+    },
+
     onbeforeremove: function(vnode: any) {
         vnode.dom.classList.add("item-exit");
         return new Promise(function(resolve: any) {
