@@ -103,11 +103,15 @@ const TodoPage = function (): m.Component<Attrs> {
                         m("button.menu-icon", { onclick: () => {showMenu = !showMenu;}}, m.trust(MENU_SVG)),
                     ]),
                     m("div.header-last", [
-                        m("div.cloud", { class: showSynced ? undefined : "cloud-hidden" }, m.trust(CLOUD_SVG)),
-                        m("button.pill-button.on-primary.outline", {onclick: logout}, "Log out")
+                        m("div.cloud", { class: showSynced ? undefined : "cloud-hidden" }, m.trust(CLOUD_SVG))
                     ])
                 ]);
 
+            const loginDetails = store.getState().loginDetails;
+            let username = "";
+            if (loginDetails) {
+                username = loginDetails.username;
+            }
             const menu =
                 m("div.menu-container", {class: showMenu ? "menu-show" : undefined}, [
                     m("div.menu-shadow", {onclick: () => {showMenu = false;}}),
@@ -119,7 +123,12 @@ const TodoPage = function (): m.Component<Attrs> {
                             ["Completed", "completed", vnode.attrs.context === TodoContext.Completed]
                         ].map(([title, path, selected]) => {
                             return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {showMenu = showMenuDefault;}}, title));
-                        }))
+                        })),
+                        m("h4.menu-username", [
+                            "Logged in as ", m("span.username", username)
+                        ]),
+                        m("div.menu-logout", 
+                          m("button.text-button.on-background", {onclick: logout}, "Log out"))
                     ])
                 ]);
 

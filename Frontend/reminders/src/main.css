@@ -411,45 +411,6 @@ body {
     background-color: var(--primary-dark);
 }
 
-/*.pill-button {
-    border: 1.5px solid var(--outline-faint);
-    box-shadow: 0px 1px 3px 0px var(--shadow);
-    border-radius: 999rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.5em 1em;
-    margin: 0.5em 0.3em;
-    transition: background-color 0.1s;
-    outline: none;
-}
-
-.pill-button.on-secondary {
-    color: var(--on-secondary);
-    background-color: var(--secondary-dark);
-}
-
-.pill-button.on-primary {
-    color: var(--on-secondary);
-    background-color: var(--secondary);
-}
-
-.pill-button:focus {
-    border: 1.5px solid var(--outline-focus-light);
-}
-
-.pill-button:active {
-    border: 1.5px solid var(--outline-faint);
-}
-
-.pill-button.on-secondary:active {
-    background-color: var(--secondary-darker);
-}
-
-.pill-button.on-primary:active {
-    background-color: var(--secondary-dark);
-}*/
-
 .text-button {
     color: var(--on-secondary);
     text-decoration: underline;
@@ -458,12 +419,16 @@ body {
     cursor: pointer;
 }
 
+.text-button.on-background {
+    color: var(--on-primary);
+}
+
 .text-button:focus {
     border: 1px dashed var(--outline-focus-light);
 }
 
-.text-button:active {
-    text-shadow: 1px 0px 3px var(--shadow-dark);
+.text-button.on-background:focus {
+    border: 1px dashed var(--secondary);
 }
 
 .button-text {
@@ -603,6 +568,7 @@ body {
 }
 
 .menu {
+    color: var(--on-primary);
     background-color: var(--background-light);
     width: 80vw;
     height: 100%;
@@ -642,7 +608,7 @@ body {
     display: block;
     padding: 1rem;
     padding-left: 2rem;
-    color: black;
+    color: var(--on-primary);
     text-decoration: none;
     transition: background-color 0.1s;
     outline: none;
@@ -665,6 +631,24 @@ body {
 
 .main-nav-item:active {
     background-color: var(--secondary-light);
+}
+
+.menu-username {
+    font-size: 1rem;
+    padding: 1rem;
+    padding-left: 2rem;
+    padding-bottom: 0.7rem;
+    text-decoration: none;
+    transition: background-color 0.1s;
+    outline: none;
+}
+
+.username {
+    font-weight: bold;
+}
+
+.menu-logout {
+    padding-left: 1.9rem;
 }
 
 /* Main styles */
@@ -1036,6 +1020,7 @@ input[type=checkbox]:checked + .css-check::after {
         transition: left 0.2s ease-out, opacity 0.01s linear 0.2s;
         will-change: left, opacity;
         position: auto;
+        z-index: auto;
     }
 
     .menu-show .menu {
