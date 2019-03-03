@@ -923,8 +923,9 @@ input[type=checkbox]:checked + .css-check::after {
     box-shadow: 0 0 2px 0 var(--shadow) inset;
     height: 0;
     overflow: hidden;
-    transition: height 0.3s;
-    will-change: height;
+    transition: height 0.3s, padding 0.3s;
+    will-change: height, padding;
+    padding: 0 0.3rem;
 }
 
 .selected .item-options {
