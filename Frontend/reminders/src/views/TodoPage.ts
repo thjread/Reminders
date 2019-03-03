@@ -138,7 +138,9 @@ const TodoPage = function (): m.Component<Attrs> {
                     menu,
                     m("main.todo-container", todoSections)
                 ]),
-                m("div.undo", {tabinput: showUndo ? 0 : -1, class: showUndo ? undefined : "undo-hidden" }, [m("button.undo-button", {onclick: undo}, "Undo"), m("button.dismiss-button", {onclick: dismissUndo}, "✕")]),
+                m("div.undo", {class: showUndo ? undefined : "undo-hidden" }, [
+                    m("button.undo-button", {onclick: undo, tabindex: showUndo ? 0 : -1}, "Undo"),
+                    m("button.dismiss-button", {onclick: dismissUndo, tabindex: showUndo ? 0 : -1}, "✕")]),
                 m("button.fab", {onclick: create}, "+")
             ]}
     }

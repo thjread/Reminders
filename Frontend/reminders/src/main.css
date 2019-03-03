@@ -417,6 +417,7 @@ body {
     padding: 0.1rem;
     border: 1px solid transparent;
     cursor: pointer;
+    outline: none;
 }
 
 .text-button.on-background {
@@ -424,11 +425,19 @@ body {
 }
 
 .text-button:focus {
-    border: 1px dashed var(--outline-focus-light);
+    border: 1.3px dashed var(--outline-focus-light);
 }
 
 .text-button.on-background:focus {
-    border: 1px dashed var(--secondary);
+    border: 1.3px dashed var(--secondary);
+}
+
+.text-button:active {
+    border: 1.3px solid var(--outline-focus-light);
+}
+
+.text-button.on-background:active {
+    border: 1.3px solid var(--secondary);
 }
 
 .button-text {
@@ -625,6 +634,7 @@ body {
     background-color: var(--secondary-lightest);
 }
 
+.main-nav-item.selected:focus, 
 .main-nav-item.selected:hover {
     background-color: var(--secondary-lighter);
 }
