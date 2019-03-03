@@ -118,7 +118,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                     m("label.css-check.on-secondary", {for: "deadline-check"}),
                     m("label.deadline-check-label", {for: "deadline-check"}, "Show in Deadlines")
                 ]),
-                m("button[type=submit].pill-button.on-secondary.outline",
+                m("button[type=submit].pill-button.on-secondary.fill",
                   m("div.button-text", "Submit"))
             ]))
         }

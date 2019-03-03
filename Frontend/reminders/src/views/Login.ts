@@ -51,7 +51,7 @@ export default function () {
                    value: password
                   }),
                 m("div.login-signup", [
-                    m("button[type=submit].pill-button.on-secondary.outline",
+                    m("button[type=submit].pill-button.on-secondary.fill",
                       m("div.button-text", isLogin ? "Log in" : "Sign up")),
                     m("button[type=button].text-button",
                       { onclick: function() { isLogin = !isLogin } },

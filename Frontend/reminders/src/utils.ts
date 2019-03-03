@@ -33,14 +33,13 @@ export function urlBase64ToUint8Array(base64String: string) {
 }
 
 export function loadFonts() {
-    const lora = new FontFaceObserver('Lora', {
+    const quattro = new FontFaceObserver('Quattrocento Sans', {
         weight: 400,
-        style: 'italic'
     });
     const raleway = new FontFaceObserver('Raleway', {
         weight: 400
     });
-    const fontObservers = [lora, raleway].map((obs) => obs.load());
+    const fontObservers = [quattro, raleway].map((obs) => obs.load());
 
     return Promise.all(fontObservers);
 }

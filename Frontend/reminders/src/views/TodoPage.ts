@@ -10,6 +10,9 @@ import { CLOUD_SVG, MENU_SVG } from "./Icons";
 
 const UNDO_SHOW_TIME = 10*1000;// 10 seconds
 const SYNC_DISPLAY_TIME = 10*1000;// 10 seconds
+const MENU_SWIPE_MARGIN = 30;
+const MENU_SWIPE_OUT_DISTANCE = 70;
+const MENU_SWIPE_IN_DISTANCE = 90;
 
 export enum TodoContext {
     Normal,
@@ -37,6 +40,38 @@ const TodoPage = function (): m.Component<Attrs> {
         m.redraw();
     }
 
+    let swipingMenuOut = false;
+    let startX = 0;
+
+    function menuTouchStart(e: TouchEvent) {
+        if (e.changedTouches.length == 1) {
+            const touch = e.changedTouches[0];
+            startX = touch.pageX;
+            if (touch.pageX < MENU_SWIPE_MARGIN) {
+                swipingMenuOut = true;
+            }
+        }
+    }
+
+    function menuTouchMove(e: TouchEvent) {
+        if (e.changedTouches.length == 1) {
+            const touch = e.changedTouches[0];
+            const diff = touch.pageX - startX;
+            if (diff > MENU_SWIPE_OUT_DISTANCE && swipingMenuOut) {
+                swipingMenuOut = false;
+                showMenu = true;
+                m.redraw();
+            } else if (diff < -MENU_SWIPE_IN_DISTANCE) {
+                showMenu = false;
+                m.redraw();
+            }
+        }
+    }
+
+    function menuTouchEnd(e: TouchEvent) {
+        swipingMenuOut = false;
+    }
+
     return {
         oninit: function() {
             store.dispatch(addShortcut("Enter 000", {
@@ -46,11 +81,18 @@ const TodoPage = function (): m.Component<Attrs> {
             }));
             desktopQueryHandle(desktopQuery);
             desktopQuery.addListener(desktopQueryHandle);
+
+            window.addEventListener("touchstart", menuTouchStart, false);
+            window.addEventListener("touchmove", menuTouchMove, false);
+            window.addEventListener("touchend",menuTouchEnd, false);
         },
 
         onremove: function() {
             store.dispatch(removeShortcut("Enter 000"));
             desktopQuery.removeListener(desktopQueryHandle);
+            window.removeEventListener("touchstart", menuTouchStart, false);
+            window.removeEventListener("touchmove", menuTouchMove, false);
+            window.removeEventListener("touchend", menuTouchEnd, false);
         },
 
         view: function(vnode) {
@@ -75,23 +117,23 @@ const TodoPage = function (): m.Component<Attrs> {
                     const deadline = deadlineTodos();
                     const other = otherTodos();
                     todoSections = [
-                        section(due, "Due"),
-                        section(other, "Tasks"),
-                        section(deadline, "Deadlines")
+                        section(due, "DUE"),
+                        section(other, "TASKS"),
+                        section(deadline, "DEADLINES")
                     ];
                     break;
                 }
                 case TodoContext.Upcoming: {
                     const upcoming = upcomingTodos();
                     todoSections = [
-                        section(upcoming, "Upcoming")
+                        section(upcoming, "UPCOMING")
                     ];
                     break;
                 }
                 case TodoContext.Completed: {
                     const completed = completedTodos();
                     todoSections = [
-                        section(completed, "Completed")
+                        section(completed, "COMPLETED")
                     ];
                     break;
                 }
@@ -127,7 +169,7 @@ const TodoPage = function (): m.Component<Attrs> {
                         m("h4.menu-username", [
                             "Logged in as ", m("span.username", username)
                         ]),
-                        m("div.menu-logout", 
+                        m("div.menu-logout",
                           m("button.text-button.on-background", {onclick: logout}, "Log out"))
                     ])
                 ]);
