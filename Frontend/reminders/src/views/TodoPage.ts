@@ -23,6 +23,19 @@ interface Attrs {
 
 const TodoPage = function (): m.Component<Attrs> {
     let showMenu = false;
+    let showMenuDefault = false;
+    const desktopQuery = window.matchMedia("only screen and (min-width: 700px)");// move this to global state if we want to use it anywhere else
+
+    function desktopQueryHandle (q: MediaQueryListEvent | MediaQueryList) {
+        if (q.matches) {
+            showMenu = true;
+            showMenuDefault = true;
+        } else {
+            showMenu = false;
+            showMenuDefault = false;
+        }
+        m.redraw();
+    }
 
     return {
         oninit: function() {
@@ -31,10 +44,13 @@ const TodoPage = function (): m.Component<Attrs> {
                 anywhere: false,
                 preventDefault: true
             }));
+            desktopQueryHandle(desktopQuery);
+            desktopQuery.addListener(desktopQueryHandle);
         },
 
         onremove: function() {
             store.dispatch(removeShortcut("Enter 000"));
+            desktopQuery.removeListener(desktopQueryHandle);
         },
 
         view: function(vnode) {
@@ -80,33 +96,39 @@ const TodoPage = function (): m.Component<Attrs> {
                     break;
                 }
             }
-            return [
+
+            const header =
                 m("header.header", [
                     m("div.header-first", [
-                        m("button.menu-icon", { onclick: () => {showMenu = true;}}, m.trust(MENU_SVG)),
-                        "Reminders"
+                        m("button.menu-icon", { onclick: () => {showMenu = !showMenu;}}, m.trust(MENU_SVG)),
                     ]),
                     m("div.header-last", [
                         m("div.cloud", { class: showSynced ? undefined : "cloud-hidden" }, m.trust(CLOUD_SVG)),
                         m("button.pill-button.on-primary.outline", {onclick: logout}, "Log out")
                     ])
-                ]),
+                ]);
+
+            const menu =
                 m("div.menu-container", {class: showMenu ? "menu-show" : undefined}, [
                     m("div.menu-shadow", {onclick: () => {showMenu = false;}}),
+                    m("div.menu-spacer"),
                     m("nav.menu", [
-                        m("div.menu-header", [
-                            m("div.menu-logo", "Reminders")
-                        ]),
                         m("ul.menu-list", [
                             ["Reminders", "", vnode.attrs.context === TodoContext.Normal],
                             ["Upcoming", "upcoming", vnode.attrs.context === TodoContext.Upcoming],
                             ["Completed", "completed", vnode.attrs.context === TodoContext.Completed]
                         ].map(([title, path, selected]) => {
-                            return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {showMenu = false;}}, title));
+                            return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {showMenu = showMenuDefault;}}, title));
                         }))
                     ])
+                ]);
+
+            return [
+                header,
+                m("div.page-container", [
+                    menu,
+                    m("main.todo-container", todoSections)
                 ]),
-                m("main.todo-container", todoSections),
                 m("div.undo", {tabinput: showUndo ? 0 : -1, class: showUndo ? undefined : "undo-hidden" }, [m("button.undo-button", {onclick: undo}, "Undo"), m("button.dismiss-button", {onclick: dismissUndo}, "✕")]),
                 m("button.fab", {onclick: create}, "+")
             ]}

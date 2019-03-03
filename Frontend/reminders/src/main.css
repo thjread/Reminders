@@ -479,6 +479,7 @@ body {
     align-items: center;
     padding: 0.1rem 0.6rem;
     padding-left: 0.1rem;
+    height: 3.1rem;
     background: var(--primary);
     /*box-shadow: 0 1px 3px 0 var(--shadow-faint);*/
     border-bottom: 1.5px solid var(--primary-dark);
@@ -488,8 +489,6 @@ body {
 .header-first {
     display: flex;
     align-items: center;
-    font-size: 0rem;
-    color: var(--secondary-dark);
 }
 
 .menu-icon {
@@ -576,12 +575,16 @@ body {
 
 /* Menu */
 
+.menu-container {
+    height: 100%;
+    min-height: calc(100vh - 3.1rem);
+}
+
 .menu-shadow {
-    position: fixed;
-    top: 0;
+    position: absolute;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    height: 100%;
     z-index: 99999;
     background-color: black;
     opacity: 0;
@@ -595,15 +598,18 @@ body {
     opacity: 0.2;
 }
 
+.menu-spacer {
+    display: none;
+}
+
 .menu {
     background-color: var(--background-light);
-    border-right: 1px solid var(--outline);
-    position: fixed;
     width: 80vw;
-    height: 100vh;
+    height: 100%;
     z-index: 100000;
+    position: absolute;
     top: 0;
-    left: -100vw;
+    left: -80vw;
     opacity: 0;
     pointer-events: none;
     transition: left 0.3s ease-out, opacity 0.01s linear 0.3s;
@@ -625,21 +631,8 @@ body {
     }
 }
 
-.menu-header {
-    display: flex;
-    align-items: center;
-    padding-left: 1rem;
-    background-color: var(--primary-light);
-    min-height: 4rem;
-    border-bottom: 1.5px solid var(--primary);
-}
-
-.menu-logo {
-    color: var(--primary-dark);
-    font-size: 1.9rem;
-}
-
 .menu-list {
+    padding: 1rem 0;
     border-top: 1px solid var(--outline-faint);
     border-bottom: 1px solid var(--outline-faint);
     font-size: 1.3rem;
@@ -648,6 +641,7 @@ body {
 .main-nav-item {
     display: block;
     padding: 1rem;
+    padding-left: 2rem;
     color: black;
     text-decoration: none;
     transition: background-color 0.1s;
@@ -675,11 +669,20 @@ body {
 
 /* Main styles */
 
-.todo-container {
+.page-container {
     background: var(--background);
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.todo-container {
     display: flex;
     flex-direction: column;
     padding-bottom: 6.5rem;
+    min-width: 100vw;
 }
 
 .todo-section {
@@ -1011,23 +1014,38 @@ input[type=checkbox]:checked + .css-check::after {
 /* Desktop layout */
 
 @media only screen and (min-width: 700px) {
+    .menu-shadow {
+        display: none;
+    }
+
+    .menu-spacer {
+        display: block;
+        width: 0;
+        height: 100%;
+        transition: width 0.2s ease-out;
+        will-change: width;
+    }
+
+    .menu-show .menu-spacer {
+        width: 14rem;
+    }
+
     .menu {
-        width: 20rem;
-        left: -20rem;
+        width: 14rem;
+        left: -14rem;
         transition: left 0.2s ease-out, opacity 0.01s linear 0.2s;
         will-change: left, opacity;
+        position: auto;
     }
 
     .menu-show .menu {
         transition: left 0.2s ease-out, opacity 0.01s linear;
     }
 
-    .header-first {
-        font-size: 1.6rem;
-    }
-
     .todo-container {
         flex-direction: row;
+        width: 100vw;
+        min-width: auto;
     }
 
     .todo-section {
