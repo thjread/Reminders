@@ -109,7 +109,6 @@ const TodoPage = function (): m.Component<Attrs> {
             const timeIn = e.timeStamp - swipingMenuInTime;
             const speedIn = -diff / timeIn;
             const multiplierIn = 1 + speedBonus(speedIn) + slowPenalty(timeIn);
-            console.log(multiplierIn);
             if (swipingMenuIn && multiplierIn*diff < -MENU_SWIPE_IN_DISTANCE) {
                 doShowMenu(false);
                 m.redraw();

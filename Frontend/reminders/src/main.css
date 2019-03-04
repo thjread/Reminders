@@ -584,7 +584,7 @@ body {
     left: -80vw;
     opacity: 0;
     pointer-events: none;
-    transition: left 0.3s ease-out, opacity 0.01s linear 0.3s;
+    transition: left 0.2s ease-out, opacity 0.01s linear 0.2s;
     will-change: left, opacity;
 }
 
@@ -592,7 +592,7 @@ body {
     left: 0;
     opacity: 1;
     pointer-events: auto;
-    transition: left 0.3s ease-out, opacity 0.01s linear;
+    transition: left 0.2s ease-out, opacity 0.01s linear;
 }
 @keyframes slide-in {
     from {
@@ -618,6 +618,7 @@ body {
     text-decoration: none;
     transition: background-color 0.1s;
     outline: none;
+	  -webkit-tap-highlight-color: transparent;
 }
 
 .main-nav-item:focus,
