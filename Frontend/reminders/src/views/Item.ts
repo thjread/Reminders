@@ -10,12 +10,15 @@ interface Attrs {
     selectCallback: (id: string) => void;
     selected: boolean;
     context: TodoContext;
+    animate_enter: boolean;
 }
 
 const Item: m.Component<Attrs> = {
     oncreate: function(vnode: any) {
-        vnode.dom.classList.add("item-enter");
-        vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("item-enter"));
+        if (vnode.attrs.animate_enter) {
+            vnode.dom.classList.add("item-enter");
+            vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("item-enter"));
+        }
     },
 
     onbeforeremove: function(vnode: any) {

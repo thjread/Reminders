@@ -23,7 +23,8 @@
 .content-font {
     font-family: 'Arial', sans-serif;
 }
-.fonts-loaded.content-font {
+.fonts-loaded.content-font,
+.fonts-loaded .content-font {
     font-family: 'Raleway', sans-serif;
 }
 
@@ -639,6 +640,10 @@ body {
     background-color: var(--secondary-light);
 }
 
+.username {
+    font-weight: bold;
+}
+
 .menu-username {
     font-size: 1rem;
     padding: 1rem;
@@ -647,10 +652,6 @@ body {
     text-decoration: none;
     transition: background-color 0.1s;
     outline: none;
-}
-
-.username {
-    font-weight: bold;
 }
 
 .menu-logout {
@@ -743,16 +744,18 @@ body {
 }
 
 .item-enter {
-    animation: item-enter 0.3s ease-out;
+    animation: item-enter 0.3s ease-in;
 }
 @keyframes item-enter {
     from {
-        transform: scaleY(0);
         opacity: 0;
+        max-height: 0;
+        overflow-y: hidden;
+        z-index: -1;
     }
     to {
-        transform: scaleY(1);
         opacity: 1;
+        max-height: 6rem;
     }
 }
 
@@ -847,10 +850,10 @@ body {
 }
 
 .item-title {
-    font-weight: bold;
     line-height: 1.2em;
     white-space: pre-wrap;
     margin-left: 0.2rem;
+    font-weight: bold;
 }
 
 input[type=checkbox] {
