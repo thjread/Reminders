@@ -493,6 +493,7 @@ body {
     height: 1.8rem;
     opacity: 1;
     transition: opacity 2s ease-in;
+    will-change: opacity;
 }
 
 .cloud-hidden {
@@ -681,7 +682,6 @@ body {
 
 .section-enter {
     animation: section-enter 0.5s;
-    will-change: max-height, opacity;
 }
 @keyframes section-enter {
     from {
@@ -696,7 +696,6 @@ body {
 
 .section-exit {
     animation: section-exit 0.5s linear;
-    will-change: max-height, opacity;
 }
 @keyframes section-exit {
     from {
@@ -745,7 +744,6 @@ body {
 
 .item-enter {
     animation: item-enter 0.3s ease-out;
-    will-change: opacity, transform;
 }
 @keyframes item-enter {
     from {
@@ -763,7 +761,6 @@ body {
     overflow: hidden;
     position: relative;
     border: 0px solid transparent;
-    will-change: left, max-height;
 }
 @keyframes item-exit {
     from {
@@ -908,6 +905,10 @@ input[type=checkbox]:checked + .css-check::after {
     opacity: 1;
 }
 
+.item:hover .item-options {
+    will-change: height, padding;
+}
+
 .item-options {
     background-color: var(--secondary-light);
     display: flex;
@@ -917,7 +918,6 @@ input[type=checkbox]:checked + .css-check::after {
     height: 0;
     overflow: hidden;
     transition: height 0.3s, padding 0.3s;
-    will-change: height, padding;
     padding: 0 0.3rem;
 }
 
@@ -1045,7 +1045,6 @@ input[type=checkbox]:checked + .css-check::after {
 
     .section-enter {
         animation: section-enter 0.5s;
-        will-change: max-width, opacity;
     }
     @keyframes section-enter {
         from {
@@ -1060,7 +1059,6 @@ input[type=checkbox]:checked + .css-check::after {
 
     .section-exit {
         animation: section-exit 0.5s linear;
-        will-change: max-width, opacity;
     }
     @keyframes section-exit {
         from {
