@@ -1026,7 +1026,6 @@ input[type=checkbox]:checked + .css-check::after {
         left: -14rem;
         transition: left 0.2s ease-out, opacity 0.01s linear 0.2s;
         will-change: left, opacity;
-        position: auto;
         z-index: auto;
     }
 

@@ -30,13 +30,24 @@ const TodoPage = function (): m.Component<Attrs> {
     let desktopLayout = false;
     const desktopQuery = window.matchMedia("only screen and (min-width: 700px)");// move this to global state if we want to use it anywhere else
 
-    function desktopQueryHandle (q: MediaQueryListEvent | MediaQueryList) {
-        if (q.matches) {
+    function doShowMenu(show: boolean) {
+        if (show) {
             showMenu = true;
-            desktopLayout = true;
+            if (!desktopLayout) {
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            }
         } else {
             showMenu = false;
+        }
+    }
+
+    function desktopQueryHandle (q: MediaQueryListEvent | MediaQueryList) {
+        if (q.matches) {
+            desktopLayout = true;
+            doShowMenu(true);
+        } else {
             desktopLayout = false;
+            doShowMenu(false);
         }
         m.redraw();
     }
@@ -89,7 +100,7 @@ const TodoPage = function (): m.Component<Attrs> {
             const multiplierOut = 1 + speedBonus(speedOut) + slowPenalty(timeOut);
             if (swipingMenuOut && multiplierOut*diff > MENU_SWIPE_OUT_DISTANCE) {
                 swipingMenuOut = false;
-                showMenu = true;
+                doShowMenu(true);
                 m.redraw();
             }
 
@@ -98,7 +109,7 @@ const TodoPage = function (): m.Component<Attrs> {
             const multiplierIn = 1 + speedBonus(speedIn) + slowPenalty(timeIn);
             console.log(multiplierIn);
             if (swipingMenuIn && multiplierIn*diff < -MENU_SWIPE_IN_DISTANCE) {
-                showMenu = false;
+                doShowMenu(false);
                 m.redraw();
             }
         }
@@ -179,7 +190,7 @@ const TodoPage = function (): m.Component<Attrs> {
             const header =
                 m("header.header", [
                     m("div.header-first", [
-                        m("button.menu-icon", { onclick: () => {showMenu = !showMenu;}}, m.trust(MENU_SVG)),
+                        m("button.menu-icon", { onclick: () => {doShowMenu(!showMenu);}}, m.trust(MENU_SVG)),
                     ]),
                     m("div.header-last", [
                         m("div.cloud", { class: showSynced ? undefined : "cloud-hidden" }, m.trust(CLOUD_SVG))
@@ -193,7 +204,7 @@ const TodoPage = function (): m.Component<Attrs> {
             }
             const menu =
                 m("div.menu-container", {class: showMenu ? "menu-show" : undefined}, [
-                    m("div.menu-shadow", {onclick: () => {showMenu = false;}}),
+                    m("div.menu-shadow", {onclick: () => {doShowMenu(false);}}),
                     m("div.menu-spacer"),
                     m("nav.menu", [
                         m("ul.menu-list", [
@@ -201,7 +212,7 @@ const TodoPage = function (): m.Component<Attrs> {
                             ["Upcoming", "upcoming", vnode.attrs.context === TodoContext.Upcoming],
                             ["Completed", "completed", vnode.attrs.context === TodoContext.Completed]
                         ].map(([title, path, selected]) => {
-                            return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {showMenu = desktopLayout;}}, title));
+                            return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {doShowMenu(desktopLayout);}}, title));
                         })),
                         m("h4.menu-username", [
                             "Logged in as ", m("span.username", username)
