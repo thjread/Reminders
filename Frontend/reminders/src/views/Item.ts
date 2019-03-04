@@ -53,17 +53,27 @@ const Item: m.Component<Attrs> = {
         }
 
         return m("li.item", {class: selected ? "selected" : undefined}, [
-                     m("div.item-main", { onclick: () => toggleSelect(id) }, [
-                         m("div.item-first", [
-                             m("input[type=checkbox]",
-                               {checked: item.done,
-                                id: id,
-                                oninput: (e: any) => store.dispatch(toggleDone(id, e.target.checked))}),
-                             m("label.css-check", {for: id}),
-                             m("h2.item-title", item.title),
-                         ]),
-                         displayTime ? m("h3.item-deadline", formatDateTime(displayTime)) : undefined
-                     ]),
+            m("div.item-main", {
+                onclick: () => {
+                    if (selected) {
+                        const item_first = document.getElementById(id+"-item-first");
+                        if (item_first) {
+                            item_first.scrollTop = 0;
+                        }
+                    }
+                    toggleSelect(id);
+                }
+            }, [
+                m("div.item-first", {id: id+"-item-first"}, [
+                    m("input[type=checkbox]",
+                      {checked: item.done,
+                       id: id+"-check",
+                       oninput: (e: any) => store.dispatch(toggleDone(id, e.target.checked))}),
+                    m("label.css-check", {for: id+"-check"}),
+                    m("h2.item-title", item.title),
+                ]),
+                displayTime ? m("h3.item-deadline", formatDateTime(displayTime)) : undefined
+            ]),
             m("div.item-options", [
                   m("button.pill-button.on-secondary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
                       toggleSelect(id);
