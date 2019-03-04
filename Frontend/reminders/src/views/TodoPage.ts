@@ -30,6 +30,8 @@ const TodoPage = function (): m.Component<Attrs> {
     let desktopLayout = false;
     const desktopQuery = window.matchMedia("only screen and (min-width: 700px)");// move this to global state if we want to use it anywhere else
 
+    let oldContext: null | TodoContext = null;
+
     function doShowMenu(show: boolean) {
         if (show) {
             showMenu = true;
@@ -121,7 +123,7 @@ const TodoPage = function (): m.Component<Attrs> {
     }
 
     return {
-        oninit: function() {
+        oninit: function(vnode) {
             store.dispatch(addShortcut("Enter 000", {
                 callback: create,
                 anywhere: false,
@@ -133,6 +135,8 @@ const TodoPage = function (): m.Component<Attrs> {
             window.addEventListener("touchstart", menuTouchStart, false);
             window.addEventListener("touchmove", menuTouchMove, false);
             window.addEventListener("touchend",menuTouchEnd, false);
+
+            oldContext = null;// ensure contextChanged=true on first draw
         },
 
         onremove: function() {
@@ -155,9 +159,12 @@ const TodoPage = function (): m.Component<Attrs> {
                 showSynced = true;
             }
 
+            // only animate todo section enter if not just switched context
+            const contextChanged = vnode.attrs.context !== oldContext;
+            oldContext = vnode.attrs.context;
             let todoSections: (m.Vnode | undefined)[] = [];
             function section(ids: string[], title: string) {
-                return ids.length > 0 ? m(TodoSection, {title: title, key: title}, m(TodoList, {todoIds: ids, context: vnode.attrs.context})) : undefined;
+                return ids.length > 0 ? m(TodoSection, {title: title, key: title, animate_enter: !contextChanged}, m(TodoList, {todoIds: ids, context: vnode.attrs.context})) : undefined;
             }
             switch (vnode.attrs.context) {
                 case TodoContext.Normal: {

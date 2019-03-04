@@ -2,6 +2,7 @@ import m from "mithril";
 
 interface Attrs {
     title: string;
+    animate_enter: boolean;
 }
 
 const TodoSection = function (): m.Component<Attrs> {
@@ -12,9 +13,11 @@ const TodoSection = function (): m.Component<Attrs> {
             route = m.route.get();
         },
 
-        oncreate: function(vnode: any) {
-            vnode.dom.classList.add("section-enter");
-            vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("section-enter"));
+        oncreate: function(vnode) {
+            if (vnode.attrs.animate_enter) {
+                vnode.dom.classList.add("section-enter");
+                vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("section-enter"));
+            }
         },
 
         onbeforeremove: function(vnode: any) {
