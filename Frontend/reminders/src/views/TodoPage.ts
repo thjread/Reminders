@@ -10,9 +10,10 @@ import { CLOUD_SVG, MENU_SVG } from "./Icons";
 
 const UNDO_SHOW_TIME = 10*1000;// 10 seconds
 const SYNC_DISPLAY_TIME = 10*1000;// 10 seconds
-const MENU_SWIPE_MARGIN = 30;
-const MENU_SWIPE_OUT_DISTANCE = 70;
-const MENU_SWIPE_IN_DISTANCE = 90;
+const MENU_SWIPE_OUT_MARGIN = 50;
+const MENU_SWIPE_OUT_DISTANCE = 60;
+const MENU_SWIPE_IN_EXTRA_MARGIN = 50;
+const MENU_SWIPE_IN_DISTANCE = 60;
 
 export enum TodoContext {
     Normal,
@@ -26,29 +27,54 @@ interface Attrs {
 
 const TodoPage = function (): m.Component<Attrs> {
     let showMenu = false;
-    let showMenuDefault = false;
+    let desktopLayout = false;
     const desktopQuery = window.matchMedia("only screen and (min-width: 700px)");// move this to global state if we want to use it anywhere else
 
     function desktopQueryHandle (q: MediaQueryListEvent | MediaQueryList) {
         if (q.matches) {
             showMenu = true;
-            showMenuDefault = true;
+            desktopLayout = true;
         } else {
             showMenu = false;
-            showMenuDefault = false;
+            desktopLayout = false;
         }
         m.redraw();
     }
 
+    function getREM () {
+        const s = getComputedStyle(document.documentElement).fontSize;
+        return s ? parseFloat(s) : 16;
+    }
+
     let swipingMenuOut = false;
+    let swipingMenuOutTime = 0;
+    let swipingMenuIn = false;
+    let swipingMenuInTime = 0;
     let startX = 0;
+
+    function speedBonus(speed: number) {
+        return Math.max(0, Math.min(1, speed-1));
+    }
+
+    function slowPenalty(time: number) {
+        return Math.max(-1, Math.min(0, -(time-300.0)/700.0))
+    }
+
 
     function menuTouchStart(e: TouchEvent) {
         if (e.changedTouches.length == 1) {
             const touch = e.changedTouches[0];
             startX = touch.pageX;
-            if (touch.pageX < MENU_SWIPE_MARGIN) {
+            /* Only allow swipes starting at the left margin to open the menu */
+            if (touch.pageX < MENU_SWIPE_OUT_MARGIN) {
                 swipingMenuOut = true;
+                swipingMenuOutTime = e.timeStamp;
+            }
+            /* In mobile, happy with any swipes, but on desktop only want swipes starting
+               on the menu to close it */
+            if (!desktopLayout || touch.pageX < 14*getREM() + MENU_SWIPE_IN_EXTRA_MARGIN) {
+                swipingMenuIn = true;
+                swipingMenuInTime = e.timeStamp;
             }
         }
     }
@@ -57,11 +83,21 @@ const TodoPage = function (): m.Component<Attrs> {
         if (e.changedTouches.length == 1) {
             const touch = e.changedTouches[0];
             const diff = touch.pageX - startX;
-            if (diff > MENU_SWIPE_OUT_DISTANCE && swipingMenuOut) {
+
+            const timeOut = e.timeStamp - swipingMenuOutTime;
+            const speedOut = diff / timeOut;
+            const multiplierOut = 1 + speedBonus(speedOut) + slowPenalty(timeOut);
+            if (swipingMenuOut && multiplierOut*diff > MENU_SWIPE_OUT_DISTANCE) {
                 swipingMenuOut = false;
                 showMenu = true;
                 m.redraw();
-            } else if (diff < -MENU_SWIPE_IN_DISTANCE) {
+            }
+
+            const timeIn = e.timeStamp - swipingMenuInTime;
+            const speedIn = -diff / timeIn;
+            const multiplierIn = 1 + speedBonus(speedIn) + slowPenalty(timeIn);
+            console.log(multiplierIn);
+            if (swipingMenuIn && multiplierIn*diff < -MENU_SWIPE_IN_DISTANCE) {
                 showMenu = false;
                 m.redraw();
             }
@@ -70,6 +106,7 @@ const TodoPage = function (): m.Component<Attrs> {
 
     function menuTouchEnd(e: TouchEvent) {
         swipingMenuOut = false;
+        swipingMenuIn = false;
     }
 
     return {
@@ -164,7 +201,7 @@ const TodoPage = function (): m.Component<Attrs> {
                             ["Upcoming", "upcoming", vnode.attrs.context === TodoContext.Upcoming],
                             ["Completed", "completed", vnode.attrs.context === TodoContext.Completed]
                         ].map(([title, path, selected]) => {
-                            return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {showMenu = showMenuDefault;}}, title));
+                            return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {showMenu = desktopLayout;}}, title));
                         })),
                         m("h4.menu-username", [
                             "Logged in as ", m("span.username", username)
