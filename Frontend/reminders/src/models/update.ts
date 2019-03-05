@@ -117,14 +117,14 @@ export function serverRowToTodo(t: ServerTodoRow) {
     let todo: Todo = {
         title: t.title,
         done: t.done,
-        create_time: new Date(t.create_time),
+        create_time: new Date(t.create_time+"Z"),
         hide_until_done: t.hide_until_done
     }
     if (t.deadline) {
-        todo.deadline = new Date(t.deadline);
+        todo.deadline = new Date(t.deadline+"Z");
     }
     if (t.done_time) {
-        todo.done_time = new Date(t.done_time);
+        todo.done_time = new Date(t.done_time+"Z");
     }
     return todo;
 }
