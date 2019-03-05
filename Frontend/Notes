@@ -1,0 +1,1 @@
+sugar.js file comes from https://sugarjs.com/download/, selecting Date (addLocale, create, format, isDay, isThisUnit, isValid, unitsUntil) and Date Locales. sugar.d.ts comes from the npm sugar module

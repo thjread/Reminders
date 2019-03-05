@@ -19,7 +19,6 @@
     "mithril": "^2.0.0-rc.4",
     "redux": "^4.0.1",
     "seamless-immutable": "^7.1.4",
-    "sugar-date": "^2.0.6",
     "typesafe-actions": "^3.2.1",
     "uuid": "^3.3.2"
   },
@@ -29,7 +28,6 @@
     "@types/node": "^10.12.27",
     "@types/seamless-immutable": "^7.1.7",
     "@types/service_worker_api": "0.0.9",
-    "@types/sugar": "^2.0.2",
     "@types/uuid": "^3.4.4",
     "clean-webpack-plugin": "^1.0.1",
     "copy-webpack-plugin": "^4.6.0",

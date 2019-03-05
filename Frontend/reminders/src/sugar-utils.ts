@@ -1,4 +1,4 @@
-import {Date as SDate} from "sugar";
+const Sugar = require("./sugar");
 
 export const sugarFormatDateTime = (d: Date) => {
     // TODO rewrite this to not use sugar
@@ -7,30 +7,36 @@ export const sugarFormatDateTime = (d: Date) => {
         format_time = '';
     }
     let format_day = '{Weekday} {do} {Mon}';
-    if (SDate.isYesterday(d)) {
+    if (Sugar.Date.isYesterday(d)) {
         format_day = 'Yesterday';
-    } else if (SDate.isToday(d)) {
+    } else if (Sugar.Date.isToday(d)) {
         format_day = 'Today';
-    } else if (SDate.isTomorrow(d)) {
+    } else if (Sugar.Date.isTomorrow(d)) {
         format_day = 'Tomorrow';
-    } else if (d.getTime() > Date.now() && SDate.daysUntil(SDate.create('today'), d) < 7) {
+    } else if (d.getTime() > Date.now() && Sugar.Date.daysUntil(Sugar.Date.create('today'), d) < 7) {
         format_day = '{Weekday}';
     }
     let format_year = '{year} '
-    if (SDate.isThisYear(d)) {
+    if (Sugar.Date.isThisYear(d)) {
         format_year = '';
     }
-    return SDate.format(d, format_year + format_day + format_time);
+    return Sugar.Date.format(d, format_year + format_day + format_time);
 }
 
 export const sugarParseDate = (s: string) => {
-    SDate.setLocale('en-GB');
-    const date = SDate.create(s, {future: true});
-    if (SDate.isValid(date)) {
+    const locale = navigator.language;
+    try {
+        Sugar.Date.setLocale(locale);
+    }
+    catch (err) {
+        console.log("Locale " + locale + " not supported, reverting to 'en'")
+    }
+    const date = Sugar.Date.create(s, {future: true});
+    if (Sugar.Date.isValid(date)) {
         return date;
     } else {
-        const inDate = SDate.create("in " + s, {future: true});
-        if (SDate.isValid(inDate)) {
+        const inDate = Sugar.Date.create("in " + s, {future: true});
+        if (Sugar.Date.isValid(inDate)) {
             return inDate;
         } else {
             return null;
