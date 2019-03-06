@@ -20,7 +20,6 @@ const Item = function (): m.Component<Attrs> {
     let swipingRight = false;
     let swipingRightTime = 0;
     let startX = 0;
-    let startY = 0;
 
     function speedBonus(speed: number) {
         return Math.max(0, Math.min(1, speed-1));

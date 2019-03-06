@@ -38,7 +38,6 @@ function itemCompare(id_a: string, id_b: string) {
 function completedCompare(id_a: string, id_b: string) {
     const ta = getTodo(id_a);
     const tb = getTodo(id_b);
-    console.log(ta);
     let comp1 = dateCompare(ta.done_time, tb.done_time, false);
     if (comp1 === 0) {
         if (id_a < id_b) {// stable tie break
