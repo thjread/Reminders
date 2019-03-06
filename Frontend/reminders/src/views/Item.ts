@@ -75,6 +75,7 @@ const Item = function (): m.Component<Attrs> {
                 const todo = getTodo(id);
                 if (!todo.done) {
                     store.dispatch(toggleDone(id, true))
+                    m.redraw();
                 }
             }), false);
             vnode.dom.addEventListener("touchend", touchEnd, false);
