@@ -56,21 +56,21 @@ const Item: m.Component<Attrs> = {
             m("div.item-main", {
                 onclick: () => {
                     if (selected) {
-                        const item_first = document.getElementById(id+"-item-first");
-                        if (item_first) {
-                            item_first.scrollTop = 0;
+                        const item_title = document.getElementById(id+"-item-title");
+                        if (item_title) {
+                            item_title.scrollTop = 0;
                         }
                     }
                     toggleSelect(id);
                 }
             }, [
-                m("div.item-first", {id: id+"-item-first"}, [
+                m("div.item-first", [
                     m("input[type=checkbox]",
                       {checked: item.done,
                        id: id+"-check",
                        oninput: (e: any) => store.dispatch(toggleDone(id, e.target.checked))}),
                     m("label.css-check", {for: id+"-check"}),
-                    m("h2.item-title", item.title),
+                    m("h2.item-title", {id: id+"-item-title"}, item.title),
                 ]),
                 displayTime ? m("h3.item-deadline", formatDateTime(displayTime)) : undefined
             ]),

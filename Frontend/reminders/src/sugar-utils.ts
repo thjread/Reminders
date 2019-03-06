@@ -6,7 +6,7 @@ export const sugarFormatDateTime = (d: Date) => {
     if (d.getHours() === 0 && d.getMinutes() === 0) {
         format_time = '';
     }
-    let format_day = '{Weekday} {do} {Mon}';
+    let format_day = '{Dow} {do} {Mon}';
     if (Sugar.Date.isYesterday(d)) {
         format_day = 'Yesterday';
     } else if (Sugar.Date.isToday(d)) {
@@ -14,7 +14,7 @@ export const sugarFormatDateTime = (d: Date) => {
     } else if (Sugar.Date.isTomorrow(d)) {
         format_day = 'Tomorrow';
     } else if (d.getTime() > Date.now() && Sugar.Date.daysUntil(Sugar.Date.create('today'), d) < 7) {
-        format_day = '{Weekday}';
+        format_day = '{Dow}';
     }
     let format_year = '{year} '
     if (Sugar.Date.isThisYear(d)) {

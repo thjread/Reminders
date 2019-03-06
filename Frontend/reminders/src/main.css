@@ -784,7 +784,7 @@ body {
     position: absolute;
     left: 0;
     top: 0;
-    background: linear-gradient(transparent 2.8em, white 4.3em);
+    background: linear-gradient(transparent 3.95em, white 5.2em);
     transition: opacity 0.3s;
     pointer-events: none;
 }
@@ -807,12 +807,20 @@ body {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
-    overflow: hidden;
-    max-height: 3.75em;/* line up with 2 regular items */
-    transition: max-height 0.3s;
 }
 
-.selected .item-first {
+.item-title {
+    line-height: 1.2em;
+    white-space: pre-wrap;
+    margin-left: 0.2rem;
+    font-weight: bold;
+    overflow: hidden;
+    max-height: 4.55em;
+    transition: max-height 0.3s;
+    word-wrap: anywhere;
+}
+
+.selected .item-title {
     max-height: 20em;
     overflow-y: auto;
     animation: enlarge 0.3s ease-out;
@@ -831,6 +839,7 @@ body {
     }
 }
 
+
 .item-deadline {
     font-style: italic;
     font-size: 0.9rem;
@@ -839,7 +848,7 @@ body {
     margin-left: 0.5rem;
     text-align: right;
     min-width: 5rem;
-    max-height: 3.75em;
+    max-height: 4.55em;
     padding-right: 0.4rem;/* stop weird clipping */
     overflow-y: hidden;
     overflow-x: hidden;/*seems to be necessary to avoid scrollbar*/
@@ -848,13 +857,6 @@ body {
 .selected .item-deadline {
     max-height: 20rem;
     overflow-y: auto;
-}
-
-.item-title {
-    line-height: 1.2em;
-    white-space: pre-wrap;
-    margin-left: 0.2rem;
-    font-weight: bold;
 }
 
 input[type=checkbox] {
