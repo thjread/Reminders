@@ -73,7 +73,6 @@ const TodoPage = function (): m.Component<Attrs> {
         return Math.max(-1, Math.min(0, -(time-300.0)/700.0))
     }
 
-
     function menuTouchStart(e: TouchEvent) {
         if (e.changedTouches.length == 1) {
             const touch = e.changedTouches[0];
@@ -122,7 +121,7 @@ const TodoPage = function (): m.Component<Attrs> {
     }
 
     return {
-        oninit: function(vnode) {
+        oninit: function() {
             store.dispatch(addShortcut("Enter 000", {
                 callback: create,
                 anywhere: false,
