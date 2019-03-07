@@ -275,9 +275,11 @@ button::-moz-focus-inner {
     --upcoming: #6be1ea;
     --upcoming-90: #6be1ea90;
     --upcoming-dark: #22a7b0;
+    --upcoming-dark-90: #22a7b090;
     --completed: #eabc5a;
     --completed-90: #eabc5a90;
     --completed-dark: #b28a27;
+    --completed-dark-90: #b28a2790;
 }
 
 /* Body */
@@ -512,14 +514,26 @@ body {
     outline: none;
 }
 
-.menu-icon:hover {
+.normal .menu-icon:hover,
+.normal .menu-icon:focus {
     background-color: var(--primary-dark-90);
 }
-.menu-icon:focus {
-    background-color: var(--primary-dark-90);
-}
-.menu-icon:active {
+.normal .menu-icon:active {
     background-color: var(--primary-dark);
+}
+.upcoming .menu-icon:hover,
+.upcoming .menu-icon:focus {
+    background-color: var(--upcoming-dark-90);
+}
+.upcoming .menu-icon:active {
+    background-color: var(--upcoming-dark);
+}
+.completed .menu-icon:hover,
+.completed .menu-icon:focus {
+    background-color: var(--completed-dark-90);
+}
+.completed .menu-icon:active {
+    background-color: var(--completed-dark);
 }
 
 .header-last {
@@ -636,7 +650,7 @@ body {
     left: -80vw;
     opacity: 0;
     pointer-events: none;
-    transition: left 0.2s ease-out, opacity 0.01s linear 0.2s;
+    transition: left 0.25s ease-in-out, opacity 0.01s linear 0.25s;
     will-change: left, opacity;
 }
 
@@ -644,11 +658,11 @@ body {
     left: 0;
     opacity: 1;
     pointer-events: auto;
-    transition: left 0.2s ease-out, opacity 0.01s linear;
+    transition: left 0.25s ease-out, opacity 0.01s linear;
 }
 @keyframes slide-in {
     from {
-        left: -100vw;
+        left: -80vw;
     }
     to {
         left: 0;
