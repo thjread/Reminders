@@ -239,6 +239,7 @@ button::-moz-focus-inner {
 
 :root {
     --primary: #9ed36a;
+    --primary-90: #9ed36a90;
     --primary-light: #d1ff9a;
     --primary-dark: #6da13c;
     --primary-dark-90: #6da13c90;
@@ -272,8 +273,10 @@ button::-moz-focus-inner {
     --warning: #f4c242;
 
     --upcoming: #6be1ea;
+    --upcoming-90: #6be1ea90;
     --upcoming-dark: #22a7b0;
     --completed: #eabc5a;
+    --completed-90: #eabc5a90;
     --completed-dark: #b28a27;
 }
 
@@ -681,7 +684,7 @@ body {
     background-color: var(--secondary-lightest);
 }
 
-.main-nav-item.selected:focus, 
+.main-nav-item.selected:focus,
 .main-nav-item.selected:hover {
     background-color: var(--secondary-lighter);
 }
@@ -791,6 +794,17 @@ body {
 .todo-list {
     position: relative;
     z-index: 1000;
+    overflow-x: hidden;
+}
+
+.normal .todo-list {
+    background-color: var(--primary-90);
+}
+.upcoming .todo-list {
+    background-color: var(--upcoming-90);
+}
+.completed .todo-list {
+    background-color: var(--completed-90);
 }
 
 .item {
