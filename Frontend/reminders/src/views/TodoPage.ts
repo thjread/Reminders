@@ -10,7 +10,7 @@ import { CLOUD_SVG, MENU_SVG } from "./Icons";
 
 const UNDO_SHOW_TIME = 10*1000;// 10 seconds
 const SYNC_DISPLAY_TIME = 10*1000;// 10 seconds
-const MENU_SWIPE_OUT_MARGIN = 50;
+export const MENU_SWIPE_OUT_MARGIN = 50;
 const MENU_SWIPE_OUT_DISTANCE = 60;
 const MENU_SWIPE_IN_EXTRA_MARGIN = 50;
 const MENU_SWIPE_IN_DISTANCE = 60;

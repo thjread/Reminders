@@ -1,10 +1,11 @@
 import m from "mithril";
-import { TodoContext } from "./TodoPage";
+import { TodoContext, MENU_SWIPE_OUT_MARGIN } from "./TodoPage";
 import {store, getTodo} from "../models/store";
 import {deleteTodo, toggleDone} from "../models/actions";
 import {edit} from "../models/ui";;
 import {formatDateTime} from "../utils";
 
+const MENU_SWIPE_OUT_EXTRA_MARGIN = 10;
 const SWIPE_DONE_DISTANCE = 95;
 const SWIPE_DONE_Y_MARGIN = 0;
 
@@ -33,8 +34,13 @@ const Item = function (): m.Component<Attrs> {
         if (e.changedTouches.length == 1) {
             const touch = e.changedTouches[0];
             startX = touch.pageX;
-            swipingRight = true;
-            swipingRightTime = e.timeStamp;
+
+            if (startX > MENU_SWIPE_OUT_MARGIN + MENU_SWIPE_OUT_EXTRA_MARGIN) {
+                swipingRight = true;
+                swipingRightTime = e.timeStamp;
+            } else {
+                swipingRight = false;
+            }
         }
     }
 
