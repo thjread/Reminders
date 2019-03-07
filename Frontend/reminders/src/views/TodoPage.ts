@@ -21,6 +21,17 @@ export enum TodoContext {
     Completed
 }
 
+function contextClass(c: TodoContext) {
+    switch (c) {
+        case TodoContext.Normal:
+            return "normal";
+        case TodoContext.Upcoming:
+            return "upcoming";
+        case TodoContext.Completed:
+            return "completed";
+    }
+}
+
 interface Attrs {
     context: TodoContext;
 }
@@ -193,7 +204,7 @@ const TodoPage = function (): m.Component<Attrs> {
             }
 
             const header =
-                m("header.header", [
+                m("header.header", {class: contextClass(vnode.attrs.context)}, [
                     m("div.header-first", [
                         m("button.menu-icon", { onclick: () => {doShowMenu(!showMenu);}}, m.trust(MENU_SVG)),
                     ]),
@@ -229,7 +240,7 @@ const TodoPage = function (): m.Component<Attrs> {
 
             return [
                 header,
-                m("div.page-container", [
+                m("div.page-container", {class: contextClass(vnode.attrs.context)}, [
                     menu,
                     m("main.todo-container", todoSections)
                 ]),

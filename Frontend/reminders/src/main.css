@@ -270,6 +270,11 @@ button::-moz-focus-inner {
     --outline-focus-dark: #000;
 
     --warning: #f4c242;
+
+    --upcoming: #6be1ea;
+    --upcoming-dark: #22a7b0;
+    --completed: #eabc5a;
+    --completed-dark: #b28a27;
 }
 
 /* Body */
@@ -378,6 +383,16 @@ body {
     cursor: pointer;
 }
 
+
+.pill-button.large {
+    padding: 0.8rem 2rem;
+}
+
+.pill-button.large-fixed {
+    padding: 0.8rem 0.8rem;
+    min-width: 12rem;
+}
+
 .pill-button.on-secondary {
     color: var(--on-secondary);
 }
@@ -406,6 +421,12 @@ body {
 
 .pill-button:active.on-primary {
     background-color: var(--primary-dark);
+}
+
+.pill-button.fill.processing,
+.pill-button:focus.fill.processing {
+    opacity: 0.8;
+    background-color: var(--shadow-faint);
 }
 
 .text-button {
@@ -451,10 +472,24 @@ body {
     padding: 0.1rem 0.6rem;
     padding-left: 0.1rem;
     height: 3.1rem;
-    background: var(--primary);
     /*box-shadow: 0 1px 3px 0 var(--shadow-faint);*/
-    border-bottom: 1.5px solid var(--primary-dark);
+    transition: background-color 0.5s;
     z-index: 1000;
+}
+
+.header.normal {
+    background: var(--primary);
+    border-bottom: 1.5px solid var(--primary-dark);
+}
+
+.header.upcoming {
+    background: var(--upcoming);
+    border-bottom: 1.5px solid var(--upcoming-dark);
+}
+
+.header.completed {
+    background: var(--completed);
+    border-bottom: 1.5px solid var(--completed-dark);
 }
 
 .header-first {
@@ -500,6 +535,19 @@ body {
 
 .cloud-hidden {
     opacity: 0;
+}
+
+.cloud-path {
+    transition: fill 0.5s;
+}
+.normal .cloud-path {
+    fill: var(--primary-dark);
+}
+.upcoming .cloud-path {
+    fill: var(--upcoming-dark);
+}
+.completed .cloud-path {
+    fill: var(--completed-dark);
 }
 
 .logout-button {
@@ -715,8 +763,17 @@ body {
     font-size: 1.15rem;
     padding: 1rem 0 0.4rem 0.8rem;
     background: var(--background);
-    color: var(--primary-dark);
     text-transform: capitalize;
+}
+
+.normal .section-title {
+    color: var(--primary-dark);
+}
+.upcoming .section-title {
+    color: var(--upcoming-dark);
+}
+.completed .section-title {
+    color: var(--completed-dark);
 }
 
 .section-before {
@@ -740,7 +797,7 @@ body {
     display: flex;
     flex-direction: column;
     border-top: 0.5px solid var(--outline-faint);
-    background: var(--background-light);
+    background-color: var(--background-light);
     color: var(--on-primary);
     font-size: 1.1rem;
 }
@@ -988,7 +1045,7 @@ input[type=checkbox]:checked + .css-check::after {
     font-size: 1.4rem;
     color: var(--on-secondary);
     margin: 0.1rem;
-    padding: 0.5rem 0.25rem;
+    padding: 0.5rem 0.3rem;
     border-radius: 0.3rem;
 }
 

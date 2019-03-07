@@ -27,7 +27,7 @@ function doLogin(loginDetails: LoginDetails) {
 
 export function login(username: string, password: string) {
     logout();
-    m.request({
+    return m.request({
         method: "POST",
         url: API_URI+"/login",
         data: {username, password}
@@ -68,10 +68,10 @@ export function logout(unsubscribe: boolean = true) {
 export function signup(username: string, password: string) {
     if (password.length == 0) {
         showMessage("Please enter a password");
-        return;
+        return Promise.resolve();
     }
     logout();
-    m.request({
+    return m.request({
         method: "POST",
         url: API_URI+"/signup",
         data: {username, password}

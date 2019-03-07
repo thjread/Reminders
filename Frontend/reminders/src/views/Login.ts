@@ -5,14 +5,17 @@ export default function () {
     let username = "";
     let password = "";
 
-    var isLogin = true;
+    let isLogin = true;
+    let pending = false;
 
     const login = function() {
-        auth.login(username, password)
+        pending = true;
+        auth.login(username, password).then(() => {pending = false});
     }
 
     const signup = function() {
-        auth.signup(username, password)
+        pending = true;
+        auth.signup(username, password).then(() => {pending = false});
     }
 
     return {
@@ -51,8 +54,13 @@ export default function () {
                    value: password
                   }),
                 m("div.login-signup", [
-                    m("button[type=submit].pill-button.on-secondary.fill",
-                      m("div.button-text", isLogin ? "Log in" : "Sign up")),
+                    m("button[type=submit].pill-button.large-fixed.on-secondary.fill",
+                      {class: pending ? "processing" : undefined},
+                      m("div.button-text",
+                        isLogin ?
+                        (pending ? "Logging in..." : "Log in") :
+                        (pending ? "Signing up..." : "Sign up")
+                       )),
                     m("button[type=button].text-button",
                       { onclick: function() { isLogin = !isLogin } },
                       isLogin ? "Sign up" : "Log in")
