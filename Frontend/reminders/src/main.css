@@ -390,20 +390,20 @@ body {
     background-color: var(--secondary-medium);
 }
 
+.pill-button:focus.on-secondary,
 .pill-button:hover.on-secondary {
     background-color: var(--secondary-dark-90);
 }
 
+.pill-button:focus.on-primary,
 .pill-button:hover.on-primary {
     background-color: var(--primary-dark-90);
 }
 
-.pill-button:focus.on-secondary,
 .pill-button:active.on-secondary {
     background-color: var(--secondary-dark);
 }
 
-.pill-button:focus.on-primary,
 .pill-button:active.on-primary {
     background-color: var(--primary-dark);
 }

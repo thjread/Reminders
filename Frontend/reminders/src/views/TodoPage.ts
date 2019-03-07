@@ -234,8 +234,20 @@ const TodoPage = function (): m.Component<Attrs> {
                     m("main.todo-container", todoSections)
                 ]),
                 m("div.undo", {class: showUndo ? undefined : "undo-hidden" }, [
-                    m("button.undo-button", {onclick: undo, tabindex: showUndo ? 0 : -1}, "Undo"),
-                    m("button.dismiss-button", {onclick: dismissUndo, tabindex: showUndo ? 0 : -1}, "✕")]),
+                    m("button.undo-button#undo-button", {onclick: () => {
+                        const elem = document.getElementById("undo-button");
+                        if (elem) {
+                            elem.blur();
+                        }
+                        undo();
+                    }, tabindex: showUndo ? 0 : -1}, "Undo"),
+                    m("button.dismiss-button#dismiss-button", {onclick: () => {
+                        const elem = document.getElementById("dismiss-button");
+                        if (elem) {
+                            elem.blur();
+                        }
+                        dismissUndo();
+                    }, tabindex: showUndo ? 0 : -1}, "✕")]),
                 m("button.fab", {onclick: create}, "+")
             ]}
     }
