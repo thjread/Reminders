@@ -257,6 +257,7 @@ button::-moz-focus-inner {
     --background: #eeeeee;
     --background-medium: #bbb;
     --background-dark: #888888;
+    --background-darkish: #6b6b6b;
     --background-darker: #555555;
     --shadow: #0007;
     --shadow-dark: #000a;
@@ -975,7 +976,7 @@ input[type=checkbox]:checked + .css-check::after {
     box-shadow: 0px 1px 5px 0px var(--shadow-dark);
     border-radius: 0.5rem;
     position: fixed;
-    padding: 0.2rem;
+    padding: 0.1rem;
     left: 1.5rem;
     bottom: 1.5rem;
     z-index: 10000;
@@ -987,18 +988,18 @@ input[type=checkbox]:checked + .css-check::after {
     font-size: 1.4rem;
     color: var(--on-secondary);
     margin: 0.1rem;
-    padding: 0.07rem;
+    padding: 0.5rem 0.25rem;
     border-radius: 0.3rem;
-    border: 1.5px solid transparent;
 }
 
 .dismiss-button:focus,
 .undo-button:focus {
-    border: 1.5px solid var(--outline-focus-light);
     outline: none;
+    background-color: var(--background-darkish);
 }
 
-.undo:active {
+.dismiss-button:active,
+.undo-button:active {
     background-color: var(--background-darker);
 }
 
