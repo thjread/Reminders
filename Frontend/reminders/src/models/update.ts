@@ -5,6 +5,7 @@ import { Action } from "./reducer";
 import { dateTimeReviver } from "../utils";
 import { logout, LoginDetails } from "./auth";
 import { showMessage } from "./ui";
+import { hash, serializeTodos } from "./serialize";
 
 declare var API_URI: boolean;//provided by webpack
 
@@ -133,4 +134,5 @@ function updateWithServerTodos(todos: ServerTodoRow[]) {
     store.dispatch(setServerTodos(todos));
     store.getState().syncActions.forEach(a => store.dispatch(a as Action));
     store.dispatch(setOnlineAsOf(new Date()));
+    console.log(hash(store.getState().todos.asMutable()));
 }

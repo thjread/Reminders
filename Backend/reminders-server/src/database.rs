@@ -31,8 +31,9 @@ pub fn establish_connection() -> r2d2::Pool<ConnectionManager<PgConnection>> {
 fn get_todos(connection: &PgConnection, userid: Uuid) -> Result<Vec<Todo>, Error> {
     todos_dsl::todos
         .filter(todos_dsl::userid.eq(userid))
+        .order(todos_dsl::id)// so that serialization is reproducible
         .load::<Todo>(connection)
-        .map_err(|e| e.into()) //TODO limit total number?
+        .map_err(|e| e.into())// TODO limit total number?
 }
 
 fn toggle_done(

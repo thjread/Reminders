@@ -19,6 +19,7 @@ extern crate failure;
 extern crate diesel_migrations;
 extern crate tokio;
 extern crate web_push;
+extern crate twox_hash;
 
 use actix::prelude::*;
 use actix_web::{
@@ -40,6 +41,7 @@ mod database;
 mod models;
 mod push;
 mod schema;
+mod serialize;
 
 use auth::{CheckHash, Hash, HashExecutor, JWTVerifyError};
 use database::{DbExecutor, GetUser, Signup, Subscribe, Unsubscribe, UpdateAction, UpdateBatch};
@@ -93,6 +95,7 @@ fn update(
                         if len > 0 {
                             println!("[RUST] {} update actions from user {}", len, userid);
                         }
+                        println!("{}", serialize::hash(&todos));
                         Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS { todos }))
                     }
                     Err(e) => {
