@@ -24,6 +24,7 @@ export function undo() {
     if (undo) {
         store.dispatch(undo.redoAction() as Action);
         store.dispatch(setUndoAction(null));
+        serverUpdate();
     }
 }
 
