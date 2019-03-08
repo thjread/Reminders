@@ -4,6 +4,7 @@ import { LoginDetails } from "./auth";
 import reducer from "./reducer";
 import { setState } from "./actions";
 import { stateFromStorage } from "./update";
+import { hash } from "./serialize";
 
 export interface Todo {
     title: string,
@@ -98,7 +99,7 @@ export type ShortcutMap = { [key: string]: Shortcut};
 
 interface StateI {
     todos: TodoMap;
-    hash?: number;
+    hash: number;
     syncActions: ActionDummy[];
     undoAction?: UndoInfo;
     loginDetails?: LoginDetails;
@@ -111,6 +112,7 @@ export type State = Immutable.Immutable<StateI>;
 
 const s: StateI = {
     todos: {},
+    hash: hash({}),
     syncActions: [],
     modal: null,
     shortcuts: {}

@@ -27,7 +27,7 @@ pub struct User {
     pub username: String,
     pub hash: String,
     pub signup: NaiveDateTime,
-    pub todo_hash: Option<BigDecimal>,
+    pub todo_hash: BigDecimal,
 }
 
 #[derive(Debug, Serialize, Insertable, Deserialize, Queryable, AsChangeset)]

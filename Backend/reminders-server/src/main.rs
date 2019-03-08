@@ -36,6 +36,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
 use web_push::SubscriptionInfo;
+use bigdecimal::Zero;
 
 mod auth;
 mod database;
@@ -45,7 +46,7 @@ mod schema;
 mod serialize;
 
 use auth::{CheckHash, Hash, HashExecutor, JWTVerifyError};
-use database::{DbExecutor, GetUser, Signup, Subscribe, Unsubscribe, UpdateAction, UpdateBatch, GetTodos};
+use database::{DbExecutor, GetUser, GetTodos, Signup, Subscribe, Unsubscribe, UpdateAction, UpdateBatch};
 use push::Push;
 
 const DEFAULT_DB_THREADS: usize = 2;
@@ -62,6 +63,7 @@ struct AppState {
 pub struct UpdateRequest {
     jwt: String,
     batch: Vec<UpdateAction>,
+    expected_hash: u64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -70,7 +72,8 @@ pub struct UpdateRequest {
 pub enum UpdateResult {
     INVALID_TOKEN,
     EXPIRED_TOKEN,
-    SUCCESS { hash: Option<u64> }
+    SUCCESS,
+    HASH_MISMATCH { todos: Vec<models::Todo>, hash: u64 }
 }
 
 fn update(
@@ -86,68 +89,41 @@ fn update(
         }
         Ok(userid) => {
             let actions = data.0.batch;
+            let expected_hash = data.0.expected_hash;
             let len = actions.len();
             req.state()
                 .db
                 .send(UpdateBatch(userid, actions))
                 .from_err()
                 .and_then(move |res| match res {
-                    Ok(hash) => {
+                    Ok(hash) => Either::A({
                         if len > 0 {
                             println!("[RUST] {} update actions from user {}", len, userid);
                         }
-                        Ok(HttpResponse::Ok().json(UpdateResult::SUCCESS { hash }))
-                    }
+                        if hash == expected_hash {
+                            Either::A(futures::future::ok(HttpResponse::Ok().json(UpdateResult::SUCCESS)))
+                        } else {
+                            Either::B(req.state()
+                                .db
+                                .send(GetTodos(userid))
+                                .from_err()
+                                .and_then(move |res| match res {
+                                    Ok(todos) => {
+                                        Ok(HttpResponse::Ok().json(UpdateResult::HASH_MISMATCH {
+                                            todos,
+                                            hash,
+                                        }))
+                                    }
+                                    Err(e) => {
+                                        println!("[RUST] Error fetching todos {:?}", e);
+                                        Ok(HttpResponse::InternalServerError().into())
+                                    }
+                                }))
+                        }
+                    }),
                     Err(e) => {
                         println!("[RUST] Error performing update {:?}", e);
-                        Ok(HttpResponse::InternalServerError().into())
-                    }
-                })
-                .responder()
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct TodoRequest {
-    jwt: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(tag = "type")]
-#[allow(non_camel_case_types)]
-pub enum TodoResult {
-    INVALID_TOKEN,
-    EXPIRED_TOKEN,
-    SUCCESS {
-        todos: Vec<models::Todo>,
-        hash: Option<u64>
-    },
-}
-
-fn get_todos(
-    (req, data): (HttpRequest<AppState>, Json<TodoRequest>),
-) -> Box<Future<Item = HttpResponse, Error = Error>> {
-    let jwt_result = auth::verify_jwt(&data.0.jwt);
-    match jwt_result {
-        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
-            futures::future::ok(HttpResponse::Ok().json(TodoResult::INVALID_TOKEN)).responder()
-        }
-        Err(JWTVerifyError::Expired { .. }) => {
-            futures::future::ok(HttpResponse::Ok().json(TodoResult::EXPIRED_TOKEN)).responder()
-        }
-        Ok(userid) => {
-            req.state()
-                .db
-                .send(GetTodos(userid))
-                .from_err()
-                .and_then(move |res| match res {
-                    Ok((todos, hash)) => {
-                        Ok(HttpResponse::Ok().json(TodoResult::SUCCESS { todos, hash }))
-                    }
-                    Err(e) => {
-                        println!("[RUST] Error looking up todos {:?}", e);
-                        Ok(HttpResponse::InternalServerError().into())
+                        Either::B(futures::future::ok(HttpResponse::InternalServerError().into()))
                     }
                 })
                 .responder()
@@ -278,7 +254,7 @@ fn signup(
                                             username: details.0.username.clone(),
                                             hash,
                                             signup: Utc::now().naive_utc(),
-                                            todo_hash: None,
+                                            todo_hash: Zero::zero(),
                                         }))
                                         .from_err()
                                         .and_then(move |res| match res {
@@ -452,9 +428,6 @@ fn main() {
                     .resource("/update", |r| {
                         r.method(http::Method::PUT).with_async(update)
                     })
-                    .resource("/todos", |r| {
-                        r.method(http::Method::PUT).with_async(get_todos)
-                    })
                     .resource("/login", |r| r.method(http::Method::POST).with_async(login))
                     .resource("/signup", |r| {
                         r.method(http::Method::POST).with_async(signup)
@@ -470,9 +443,6 @@ fn main() {
         } else {
             app.resource("/update", |r| {
                 r.method(http::Method::PUT).with_async(update)
-            })
-            .resource("/todos", |r| {
-                r.method(http::Method::PUT).with_async(get_todos)
             })
             .resource("/login", |r| r.method(http::Method::POST).with_async(login))
             .resource("/signup", |r| {

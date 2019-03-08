@@ -39,15 +39,17 @@ fn get_todos(connection: &PgConnection, userid: Uuid) -> Result<Vec<Todo>, Error
         .map_err(|e| e.into())// TODO limit total number?
 }
 
-fn get_todo_hash(connection: &PgConnection, userid: Uuid) -> Result<Option<u64>, Error> {
+fn get_todo_hash(connection: &PgConnection, userid: Uuid) -> Result<u64, Error> {
     users_dsl::users.select(users_dsl::todo_hash)
         .find(userid)
-        .get_result::<Option<BigDecimal>>(connection)
+        .get_result::<BigDecimal>(connection)
         .map_err(|e| e.into())
-        .map(|m| m.and_then(|d| d.to_u64()))
+        .map(|d| d.to_u64())
+        .transpose()
+        .unwrap_or(Err(failure::err_msg("Failed to convert hash to u64")))
 }
 
-fn set_todo_hash(connection: &PgConnection, userid: Uuid, todo_hash: Option<BigDecimal>) -> Result<usize, Error> {
+fn set_todo_hash(connection: &PgConnection, userid: Uuid, todo_hash: BigDecimal) -> Result<usize, Error> {
     diesel::update(
         users_dsl::users
             .find(userid),
@@ -147,11 +149,11 @@ pub enum UpdateAction {
 pub struct UpdateBatch(pub Uuid, pub Vec<UpdateAction>);
 
 impl Message for UpdateBatch {
-    type Result = Result<Option<u64>, Error>;
+    type Result = Result<u64, Error>;
 }
 
 impl Handler<UpdateBatch> for DbExecutor {
-    type Result = Result<Option<u64>, Error>;
+    type Result = Result<u64, Error>;
 
     fn handle(
         &mut self,
@@ -160,94 +162,90 @@ impl Handler<UpdateBatch> for DbExecutor {
     ) -> Self::Result {
         let conn = self.0.get()?;
 
-        let len = actions.len();
-        for action in actions {
-            let result = match action.clone() {
-                // note clone is only so we can print in error message
-                UpdateAction::CREATE_TODO {
-                    id,
-                    title,
-                    deadline,
-                    done,
-                    done_time,
-                    create_time,
-                    hide_until_done,
-                    ..
-                } => {
-                    let todo = Todo {
+        if actions.len() > 0 {
+            for action in actions {
+                let result = match action.clone() {
+                    // note clone is only so we can print in error message
+                    UpdateAction::CREATE_TODO {
                         id,
-                        userid,
                         title,
-                        deadline: deadline.map(|date| date.naive_utc()),
+                        deadline,
                         done,
-                        done_time: done_time.map(|date| date.naive_utc()),
-                        create_time: create_time.naive_utc(),
+                        done_time,
+                        create_time,
                         hide_until_done,
-                    };
-                    create_todo(&conn, todo)
+                        ..
+                    } => {
+                        let todo = Todo {
+                            id,
+                            userid,
+                            title,
+                            deadline: deadline.map(|date| date.naive_utc()),
+                            done,
+                            done_time: done_time.map(|date| date.naive_utc()),
+                            create_time: create_time.naive_utc(),
+                            hide_until_done,
+                        };
+                        create_todo(&conn, todo)
+                    }
+                    UpdateAction::EDIT_TODO {
+                        id,
+                        title,
+                        deadline,
+                        hide_until_done,
+                        ..
+                    } => edit_todo(
+                        &conn,
+                        userid,
+                        id,
+                        title,
+                        deadline.map(|date| date.naive_utc()),
+                        hide_until_done,
+                    ),
+                    UpdateAction::TOGGLE_DONE {
+                        id,
+                        done,
+                        done_time,
+                        ..
+                    } => toggle_done(
+                        &conn,
+                        userid,
+                        id,
+                        done,
+                        done_time.map(|date| date.naive_utc()),
+                    ),
+                    UpdateAction::DELETE_TODO { id, .. } => delete(&conn, userid, id),
+                };
+                if let Err(e) = result {
+                    println!(
+                        "[RUST] Database error while performing update {:?}: {}",
+                        action, e
+                    );
                 }
-                UpdateAction::EDIT_TODO {
-                    id,
-                    title,
-                    deadline,
-                    hide_until_done,
-                    ..
-                } => edit_todo(
-                    &conn,
-                    userid,
-                    id,
-                    title,
-                    deadline.map(|date| date.naive_utc()),
-                    hide_until_done,
-                ),
-                UpdateAction::TOGGLE_DONE {
-                    id,
-                    done,
-                    done_time,
-                    ..
-                } => toggle_done(
-                    &conn,
-                    userid,
-                    id,
-                    done,
-                    done_time.map(|date| date.naive_utc()),
-                ),
-                UpdateAction::DELETE_TODO { id, .. } => delete(&conn, userid, id),
-            };
-            if let Err(e) = result {
-                println!(
-                    "[RUST] Database error while performing update {:?}: {}",
-                    action, e
-                );
             }
-        }
-        let hash = if len > 0 {
             let todos = get_todos(&conn, userid)?;
             let hash = hash(&todos);
             println!("[RUST] New hash {} for user {}", hash.0, userid);
-            set_todo_hash(&conn, userid, Some(BigDecimal::from(hash.0)))?;
-            Some(hash.0)
+            set_todo_hash(&conn, userid, BigDecimal::from(hash.0))?;
+            Ok(hash.0)
         } else {
-            get_todo_hash(&conn, userid)?
-        };
-        Ok(hash)
+            get_todo_hash(&conn, userid)
+        }
     }
 }
 
 pub struct GetTodos(pub Uuid);
 
 impl Message for GetTodos {
-    type Result = Result<(Vec<Todo>, Option<u64>), Error>;
+    type Result = Result<Vec<Todo>, Error>;
 }
 
 impl Handler<GetTodos> for DbExecutor {
-    type Result = Result<(Vec<Todo>, Option<u64>), Error>;
+    type Result = Result<Vec<Todo>, Error>;
 
     fn handle(&mut self, GetTodos(userid): GetTodos, _: &mut Self::Context) -> Self::Result {
         let conn = self.0.get()?;
-        let todos = get_todos(&conn, userid)?;
-        let hash = get_todo_hash(&conn, userid)?;
-        Ok((todos, hash))
+        get_todos(&conn, userid)
     }
 }
 

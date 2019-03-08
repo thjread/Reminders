@@ -5,7 +5,7 @@ import { Action } from "./reducer";
 import { dateTimeReviver } from "../utils";
 import { logout, LoginDetails } from "./auth";
 import { showMessage } from "./ui";
-import { hash, serializeTodos } from "./serialize";
+import { hash } from "./serialize";
 
 declare var API_URI: boolean;//provided by webpack
 
@@ -41,6 +41,7 @@ export function stateFromStorage(loginDetails: LoginDetails | null = null) {
         if (stateJSON) {
             const state = JSON.parse(stateJSON, dateTimeReviver);
             is = is.set("todos", state.todos);
+            is = is.set("hash", hash(state.todos));
             is = is.set("syncActions", state.syncActions);
         }
     }
@@ -58,72 +59,20 @@ export function serverUpdate(actions: ActionDummy[]
                 url: API_URI+"/update",
                 data: {
                     jwt: state.loginDetails.jwt,
-                    batch: actions
+                    batch: actions,
+                    expected_hash: state.hash
                 }
             }).then(function (response: any) {
                 switch (response.type) {
                     case "SUCCESS": {
+                        actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        break;
+                    }
+                    case "HASH_MISMATCH": {
                         const hash = response.hash;
-                        if (hash === state.hash) {
-                            actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
-                            console.log("Hashes match!");
-                        } else {
-                            console.log("Local hash " + state.hash + " does not match hash " + hash + " from server");
-                            askServerForTodos();
-                        }
-                        break;
-                    }
-                    case "INVALID_TOKEN":
-                        showMessage("Authentication error");
-                        logout();
-                        break;
-                    case "EXPIRED_TOKEN":
-                        showMessage("Saved login details expired - please log in again");
-                        logout(false);
-                        break;
-                    default:
-                        showMessage("Server error");
-                }
-
-            }).catch(function (e) {
-                if (e.code !== 0 && e.code !== 503) {// got a response from server
-                    if (actions.length > 0) {
-                        showMessage("Server error - offline actions not saved (you may need to close and reopen the webpage)");
-                    } else {
-                        showMessage("Server error (you may need to close and reopen the webpage)");
-                    }
-                    // give up on actions
-                    actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
-                    setTimeout(askServerForTodos, 500);// try to reset to server state
-                    // TODO do we really want this? or logout on error
-                }
-                setOnlineAsOf(undefined);
-            })
-        } else {
-            m.redraw();// make sure other UI elements refresh e.g. todos that have reached their deadline
-        }
-    }
-}
-
-export function askServerForHash() {
-    serverUpdate([]);
-}
-
-export function askServerForTodos() {
-    const state = store.getState();
-    if (state.loginDetails) {
-        if (navigator.onLine !== false) {
-            return m.request({
-                method: "PUT",
-                url: API_URI+"/todos",
-                data: {
-                    jwt: state.loginDetails.jwt,
-                }
-            }).then(function (response: any) {
-                switch (response.type) {
-                    case "SUCCESS": {
                         const todos = response.todos;
-                        const hash = response.hash;
+                        actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        console.log("Local hash " + state.hash + " does not match hash " + hash + " from server - updating");
                         updateWithServerTodos(todos as ServerTodoRow[], hash);
                         break;
                     }
@@ -138,10 +87,16 @@ export function askServerForTodos() {
                     default:
                         showMessage("Server error");
                 }
-
             }).catch(function (e) {
                 if (e.code !== 0 && e.code !== 503) {// got a response from server
-                    showMessage("Server error (you may need to close and reopen the webpage)");
+                    if (actions.length > 0) {
+                        showMessage("Server error - offline actions not saved (you may need to close and reopen the webpage)");
+                        // give up on actions
+                        actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        setTimeout(serverUpdate, 500);// try to reset to server state
+                    } else {
+                        showMessage("Server error (you may need to close and reopen the webpage)");
+                    }
                 }
                 setOnlineAsOf(undefined);
             })

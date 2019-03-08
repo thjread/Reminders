@@ -1,6 +1,6 @@
 import m from "mithril";
 import { store } from "./models/store"; // initialise store
-import { storeState, askServerForTodos, serverUpdate } from "./models/update";
+import { storeState, serverUpdate } from "./models/update";
 import { loadFonts, sugarDateTime } from "./utils";
 import { handleShortcuts } from "./models/ui";
 import { swInit } from "./models/sw-manager";
@@ -9,6 +9,8 @@ import {TodoContext} from "./views/TodoPage";
 import TodoPage from "./views/TodoPage";
 import Login from "./views/Login";
 import { loggedIn } from "./models/auth";
+
+const SERVER_SYNC_INTERVAL = 2000;
 
 loadFonts()
     .then(function() {
@@ -63,8 +65,8 @@ m.route(document.body, "/", {
     }
 });
 
-askServerForTodos();
-const syncInterval = setInterval(serverUpdate, 5000);
+serverUpdate();
+const syncInterval = setInterval(serverUpdate, SERVER_SYNC_INTERVAL);
 window.addEventListener("online", _ => serverUpdate());
 window.addEventListener("offline", _ => m.redraw());// make sure sync indicator redraws
 window.addEventListener("keydown", e => handleShortcuts(e));
