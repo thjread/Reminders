@@ -46,7 +46,7 @@ fn get_todo_hash(connection: &PgConnection, userid: Uuid) -> Result<u64, Error> 
         .map_err(|e| e.into())
         .map(|d| d.to_u64())
         .transpose()
-        .unwrap_or(Err(failure::err_msg("Failed to convert hash to u64")))
+        .unwrap_or_else(|| Err(failure::err_msg("Failed to convert hash to u64")))
 }
 
 fn set_todo_hash(connection: &PgConnection, userid: Uuid, todo_hash: BigDecimal) -> Result<usize, Error> {
@@ -162,7 +162,7 @@ impl Handler<UpdateBatch> for DbExecutor {
     ) -> Self::Result {
         let conn = self.0.get()?;
 
-        if actions.len() > 0 {
+        if !actions.is_empty() {
             for action in actions {
                 let result = match action.clone() {
                     // note clone is only so we can print in error message

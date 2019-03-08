@@ -66,6 +66,7 @@ export function serverUpdate(actions: ActionDummy[]
                 switch (response.type) {
                     case "SUCCESS": {
                         actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        store.dispatch(setOnlineAsOf(new Date()));
                         break;
                     }
                     case "HASH_MISMATCH": {
@@ -74,6 +75,7 @@ export function serverUpdate(actions: ActionDummy[]
                         actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
                         console.log("Local hash " + state.hash + " does not match hash " + hash + " from server - updating");
                         updateWithServerTodos(todos as ServerTodoRow[], hash);
+                        store.dispatch(setOnlineAsOf(new Date()));
                         break;
                     }
                     case "INVALID_TOKEN":
@@ -135,5 +137,4 @@ export function serverRowToTodo(t: ServerTodoRow) {
 function updateWithServerTodos(todos: ServerTodoRow[], hash: number) {
     store.dispatch(setServerTodos(todos, hash));
     store.getState().syncActions.forEach(a => store.dispatch(a as Action));
-    store.dispatch(setOnlineAsOf(new Date()));
 }
