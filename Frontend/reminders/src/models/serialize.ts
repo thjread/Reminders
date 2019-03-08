@@ -1,4 +1,4 @@
-import {xxHash32} from "js-xxhash";
+import XXH from "xxhashjs";
 
 import { Todo, TodoMap } from "./store";
 
@@ -31,5 +31,5 @@ export function serializeTodos(todos: TodoMap) {
 
 export function hash(todos: TodoMap) {
     let s = serializeTodos(todos);
-    return xxHash32(Buffer.from(s, 'utf8'), 42);
+    return parseInt(XXH.h32(s, 42).toString(10));
 }
