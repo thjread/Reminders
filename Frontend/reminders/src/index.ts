@@ -10,7 +10,7 @@ import TodoPage from "./views/TodoPage";
 import Login from "./views/Login";
 import { loggedIn } from "./models/auth";
 
-const SERVER_SYNC_INTERVAL = 2000;
+const SERVER_SYNC_INTERVAL = 5000;
 
 loadFonts()
     .then(function() {
