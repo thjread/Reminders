@@ -26,6 +26,7 @@ table! {
         username -> Varchar,
         hash -> Bpchar,
         signup -> Timestamp,
+        todo_hash -> Nullable<Numeric>,
     }
 }
 

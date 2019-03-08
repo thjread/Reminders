@@ -63,9 +63,14 @@ export function serverUpdate(actions: ActionDummy[]
             }).then(function (response: any) {
                 switch (response.type) {
                     case "SUCCESS": {
-                        const todos = response.todos;
-                        actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
-                        updateWithServerTodos(todos as ServerTodoRow[]);
+                        const hash = response.hash;
+                        if (hash === state.hash) {
+                            actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+                            console.log("Hashes match!");
+                        } else {
+                            console.log("Local hash " + state.hash + " does not match hash " + hash + " from server");
+                            askServerForTodos();
+                        }
                         break;
                     }
                     case "INVALID_TOKEN":
@@ -100,8 +105,50 @@ export function serverUpdate(actions: ActionDummy[]
     }
 }
 
-export function askServerForTodos() {
+export function askServerForHash() {
     serverUpdate([]);
+}
+
+export function askServerForTodos() {
+    const state = store.getState();
+    if (state.loginDetails) {
+        if (navigator.onLine !== false) {
+            return m.request({
+                method: "PUT",
+                url: API_URI+"/todos",
+                data: {
+                    jwt: state.loginDetails.jwt,
+                }
+            }).then(function (response: any) {
+                switch (response.type) {
+                    case "SUCCESS": {
+                        const todos = response.todos;
+                        const hash = response.hash;
+                        updateWithServerTodos(todos as ServerTodoRow[], hash);
+                        break;
+                    }
+                    case "INVALID_TOKEN":
+                        showMessage("Authentication error");
+                        logout();
+                        break;
+                    case "EXPIRED_TOKEN":
+                        showMessage("Saved login details expired - please log in again");
+                        logout(false);
+                        break;
+                    default:
+                        showMessage("Server error");
+                }
+
+            }).catch(function (e) {
+                if (e.code !== 0 && e.code !== 503) {// got a response from server
+                    showMessage("Server error (you may need to close and reopen the webpage)");
+                }
+                setOnlineAsOf(undefined);
+            })
+        } else {
+            m.redraw();// make sure other UI elements refresh e.g. todos that have reached their deadline
+        }
+    }
 }
 
 export interface ServerTodoRow {
@@ -130,9 +177,8 @@ export function serverRowToTodo(t: ServerTodoRow) {
     return todo;
 }
 
-function updateWithServerTodos(todos: ServerTodoRow[]) {
-    store.dispatch(setServerTodos(todos));
+function updateWithServerTodos(todos: ServerTodoRow[], hash: number) {
+    store.dispatch(setServerTodos(todos, hash));
     store.getState().syncActions.forEach(a => store.dispatch(a as Action));
     store.dispatch(setOnlineAsOf(new Date()));
-    console.log(hash(store.getState().todos.asMutable()));
 }

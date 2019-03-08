@@ -1,4 +1,5 @@
 import { ActionType, getType } from "typesafe-actions";
+import { hash } from "./serialize";
 
 import { State, initState, Todo, ActionDummy, getTodo } from "./store";
 import * as actions from "./actions";
@@ -30,9 +31,10 @@ export default (state: State, action: Action) => {
             if (done_time) {
                 new_todo.done_time = done_time;
             }
-            return state.set("todos", state.todos.merge({
+            let s = state.set("todos", state.todos.merge({
                 [id]: new_todo
             }))
+            return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.editTodo): {
             const id = action.payload.id;
@@ -52,20 +54,23 @@ export default (state: State, action: Action) => {
             if (old_todo.done_time) {
                 new_todo.done_time = new Date(old_todo.done_time.getTime());
             }
-            return state.set("todos", state.todos.merge({
+            let s = state.set("todos", state.todos.merge({
                 [id]: new_todo
             }))
+            return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.toggleDone): {
             const id = action.payload.id;
             const done = action.payload.done;
             const done_time = action.payload.done_time;
-            return state.setIn(["todos", id, "done"], done)
+            let s = state.setIn(["todos", id, "done"], done)
                 .setIn(["todos", id, "done_time"], done_time);
+            return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.deleteTodo): {
             const id = action.payload.id;
-            return state.set("todos", state.todos.without(id));
+            let s = state.set("todos", state.todos.without(id));
+            return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.syncAction):
             const sync_action = action.payload.action;
@@ -81,9 +86,12 @@ export default (state: State, action: Action) => {
                              ));
         case getType(actions.setState):
             return action.payload.state;
-        case getType(actions.setServerTodos):
+        case getType(actions.setServerTodos): {
             const todos = action.payload.todos;
-            return state.set("todos", todos);
+            const hash = action.payload.hash;
+            let s = state.set("todos", todos);
+            return s.set("hash", hash);
+        }
         case getType(actions.setMessage):
             const message = action.payload.message;
             return state.set("message", message);

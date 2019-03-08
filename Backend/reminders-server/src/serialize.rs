@@ -4,7 +4,10 @@ use std::hash::Hasher;
 
 use crate::models::*;
 
-pub struct Fmt<F>(pub F) where F: Fn(&mut fmt::Formatter) -> fmt::Result;
+#[derive(Debug)]
+pub struct Hash(pub u64);
+
+struct Fmt<F>(pub F) where F: Fn(&mut fmt::Formatter) -> fmt::Result;
 
 impl<F> fmt::Display for Fmt<F>
 where F: Fn(&mut fmt::Formatter) -> fmt::Result
@@ -32,9 +35,9 @@ pub fn serialize(todos: &Vec<Todo>) -> String {
 }
 
 // Todos must be sorted by id
-pub fn hash(todos: &Vec<Todo>) -> u64 {
+pub fn hash(todos: &Vec<Todo>) -> Hash {
     let s = serialize(todos);
     let mut h = XxHash32::with_seed(42);
     h.write(s.as_bytes());
-    h.finish()
+    Hash(h.finish())
 }

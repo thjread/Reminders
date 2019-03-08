@@ -3,6 +3,7 @@ use crate::schema;
 use crate::schema::subscriptions::dsl as subscriptions_dsl;
 use crate::schema::todos::dsl as todos_dsl;
 use crate::schema::users::dsl as users_dsl;
+use crate::serialize::hash;
 use actix::prelude::*;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -11,6 +12,8 @@ use failure::Error;
 use serde_derive::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
+use bigdecimal::BigDecimal;
+use bigdecimal::ToPrimitive;
 
 pub struct DbExecutor(pub Pool<ConnectionManager<PgConnection>>);
 
@@ -34,6 +37,24 @@ fn get_todos(connection: &PgConnection, userid: Uuid) -> Result<Vec<Todo>, Error
         .order(todos_dsl::id)// so that serialization is reproducible
         .load::<Todo>(connection)
         .map_err(|e| e.into())// TODO limit total number?
+}
+
+fn get_todo_hash(connection: &PgConnection, userid: Uuid) -> Result<Option<u64>, Error> {
+    users_dsl::users.select(users_dsl::todo_hash)
+        .find(userid)
+        .get_result::<Option<BigDecimal>>(connection)
+        .map_err(|e| e.into())
+        .map(|m| m.and_then(|d| d.to_u64()))
+}
+
+fn set_todo_hash(connection: &PgConnection, userid: Uuid, todo_hash: Option<BigDecimal>) -> Result<usize, Error> {
+    diesel::update(
+        users_dsl::users
+            .find(userid),
+    )
+        .set(users_dsl::todo_hash.eq(todo_hash))
+        .execute(connection)
+        .map_err(|e| e.into())
 }
 
 fn toggle_done(
@@ -126,11 +147,11 @@ pub enum UpdateAction {
 pub struct UpdateBatch(pub Uuid, pub Vec<UpdateAction>);
 
 impl Message for UpdateBatch {
-    type Result = Result<Vec<Todo>, Error>;
+    type Result = Result<Option<u64>, Error>;
 }
 
 impl Handler<UpdateBatch> for DbExecutor {
-    type Result = Result<Vec<Todo>, Error>;
+    type Result = Result<Option<u64>, Error>;
 
     fn handle(
         &mut self,
@@ -139,6 +160,7 @@ impl Handler<UpdateBatch> for DbExecutor {
     ) -> Self::Result {
         let conn = self.0.get()?;
 
+        let len = actions.len();
         for action in actions {
             let result = match action.clone() {
                 // note clone is only so we can print in error message
@@ -199,7 +221,33 @@ impl Handler<UpdateBatch> for DbExecutor {
                 );
             }
         }
-        get_todos(&conn, userid)
+        let hash = if len > 0 {
+            let todos = get_todos(&conn, userid)?;
+            let hash = hash(&todos);
+            println!("[RUST] New hash {} for user {}", hash.0, userid);
+            set_todo_hash(&conn, userid, Some(BigDecimal::from(hash.0)))?;
+            Some(hash.0)
+        } else {
+            get_todo_hash(&conn, userid)?
+        };
+        Ok(hash)
+    }
+}
+
+pub struct GetTodos(pub Uuid);
+
+impl Message for GetTodos {
+    type Result = Result<(Vec<Todo>, Option<u64>), Error>;
+}
+
+impl Handler<GetTodos> for DbExecutor {
+    type Result = Result<(Vec<Todo>, Option<u64>), Error>;
+
+    fn handle(&mut self, GetTodos(userid): GetTodos, _: &mut Self::Context) -> Self::Result {
+        let conn = self.0.get()?;
+        let todos = get_todos(&conn, userid)?;
+        let hash = get_todo_hash(&conn, userid)?;
+        Ok((todos, hash))
     }
 }
 

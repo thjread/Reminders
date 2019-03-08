@@ -10,7 +10,7 @@ listenfd = "0.3"
 serde_derive = "1.0.85"
 serde = "1.0.85"
 env_logger = "0.6.0"
-diesel = { version = "1.4.1", features = ["postgres", "chrono", "uuid", "r2d2"] }
+diesel = { version = "1.4.1", features = ["postgres", "chrono", "uuid", "r2d2", "numeric"] }
 uuid = { version = ">=0.2.0, <0.7.0", features = ["serde", "use_std", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 r2d2 = { version = ">= 0.8, < 0.9"}
@@ -25,3 +25,4 @@ diesel_migrations = "1.4.0"
 web-push = "0.4.1"
 tokio = "0.1.15"
 twox-hash = "1.1.2"
+bigdecimal = { version = ">= 0.0.10, < 0.0.15" }

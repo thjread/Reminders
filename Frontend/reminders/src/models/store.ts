@@ -98,7 +98,7 @@ export type ShortcutMap = { [key: string]: Shortcut};
 
 interface StateI {
     todos: TodoMap;
-    currentDate: Date;
+    hash?: number;
     syncActions: ActionDummy[];
     undoAction?: UndoInfo;
     loginDetails?: LoginDetails;
@@ -111,7 +111,6 @@ export type State = Immutable.Immutable<StateI>;
 
 const s: StateI = {
     todos: {},
-    currentDate: new Date("2019-01-29T13:00:00.000Z"),
     syncActions: [],
     modal: null,
     shortcuts: {}

@@ -3,6 +3,7 @@ import { setModal, editTodo, createTodo, addShortcut, removeShortcut } from "../
 import { showMessage, clearMessage } from "../models/ui";
 import {store, getTodo} from "../models/store";
 import {formatDateTime} from "../utils";
+import { serverUpdate } from "../models/update";
 
 export default function (dateParseFunction: (s: string) => Date | null, editId: string | null = null) {
     let title = "";
@@ -35,12 +36,14 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
         clearMessage();
         if (editId) {
             store.dispatch(editTodo(editId, title, deadline, hide_until_done));
+            serverUpdate();
         } else {
             let done_time = undefined;
             if (done) {
                 done_time = new Date();
             }
             store.dispatch(createTodo(title, deadline, done, done_time, new Date(), hide_until_done));
+            serverUpdate();
         }
         store.dispatch(setModal(null));
     }

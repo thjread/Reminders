@@ -4,6 +4,7 @@ import {store, getTodo} from "../models/store";
 import {deleteTodo, toggleDone} from "../models/actions";
 import {edit} from "../models/ui";;
 import {formatDateTime} from "../utils";
+import { serverUpdate } from "../models/update";
 
 const MENU_SWIPE_OUT_EXTRA_MARGIN = 10;
 const SWIPE_DONE_DISTANCE = 95;
@@ -134,7 +135,10 @@ const Item = function (): m.Component<Attrs> {
                         m("input[type=checkbox]",
                           {checked: item.done,
                            id: id+"-check",
-                           oninput: (e: any) => store.dispatch(toggleDone(id, e.target.checked))}),
+                           oninput: (e: any) => {
+                               store.dispatch(toggleDone(id, e.target.checked));
+                               serverUpdate();
+                           }}),
                         m("label.css-check", {for: id+"-check"}),
                         m("h2.item-title", {id: id+"-item-title"}, item.title),
                     ]),
@@ -148,6 +152,7 @@ const Item = function (): m.Component<Attrs> {
                     m("button.pill-button.on-secondary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
                         toggleSelect(id);
                         store.dispatch(deleteTodo(id));
+                        serverUpdate();
                     }}, "Delete")
                 ])
             ]);

@@ -1,6 +1,7 @@
 use uuid::Uuid;
 use chrono::NaiveDateTime;
 use serde_derive::{Serialize, Deserialize};
+use bigdecimal::BigDecimal;
 
 use super::schema::todos;
 use super::schema::users;
@@ -19,13 +20,14 @@ pub struct Todo {
     pub hide_until_done: bool,
 }
 
-#[derive(Debug, Serialize, Insertable, Deserialize, Queryable)]
+#[derive(Debug, Insertable, Queryable)]
 #[table_name="users"]
 pub struct User {
     pub userid: Uuid,
     pub username: String,
     pub hash: String,
     pub signup: NaiveDateTime,
+    pub todo_hash: Option<BigDecimal>,
 }
 
 #[derive(Debug, Serialize, Insertable, Deserialize, Queryable, AsChangeset)]
