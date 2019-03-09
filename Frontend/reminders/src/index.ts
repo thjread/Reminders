@@ -73,6 +73,7 @@ function handleVisibilityChange() {
     if (document.hidden) {
         syncInterval = setInterval(serverUpdate, SERVER_SYNC_HIDDEN_INTERVAL);
     } else {
+        serverUpdate();
         syncInterval = setInterval(serverUpdate, SERVER_SYNC_INTERVAL);
     }
 }
