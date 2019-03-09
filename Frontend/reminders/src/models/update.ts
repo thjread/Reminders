@@ -60,9 +60,9 @@ export function serverUpdate(actions: ActionDummy[]
                 data: {
                     jwt: state.loginDetails.jwt,
                     batch: actions,
-                    expected_hash: state.hash,
-                    timeout: 5000
-                }
+                    expected_hash: state.hash
+                },
+                timeout: 5000
             }).then(function (response: any) {
                 switch (response.type) {
                     case "SUCCESS": {
