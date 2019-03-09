@@ -10,7 +10,8 @@ import TodoPage from "./views/TodoPage";
 import Login from "./views/Login";
 import { loggedIn } from "./models/auth";
 
-const SERVER_SYNC_INTERVAL = 5000;
+const SERVER_SYNC_INTERVAL = 1500;
+const SERVER_SYNC_HIDDEN_INTERVAL = 30000;
 
 loadFonts()
     .then(function() {
@@ -65,8 +66,21 @@ m.route(document.body, "/", {
     }
 });
 
+let syncInterval = setInterval(serverUpdate, SERVER_SYNC_INTERVAL);
+
+function handleVisibilityChange() {
+    clearInterval(syncInterval);
+    if (document.hidden) {
+        syncInterval = setInterval(serverUpdate, SERVER_SYNC_HIDDEN_INTERVAL);
+    } else {
+        syncInterval = setInterval(serverUpdate, SERVER_SYNC_INTERVAL);
+    }
+}
+
 serverUpdate();
-const syncInterval = setInterval(serverUpdate, SERVER_SYNC_INTERVAL);
+handleVisibilityChange();
+document.addEventListener("visibilitychange", handleVisibilityChange, false);
+
 window.addEventListener("online", _ => serverUpdate());
 window.addEventListener("offline", _ => m.redraw());// make sure sync indicator redraws
 window.addEventListener("keydown", e => handleShortcuts(e));
