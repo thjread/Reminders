@@ -280,6 +280,8 @@ button::-moz-focus-inner {
     --completed-90: #eabc5a90;
     --completed-dark: #b28a27;
     --completed-dark-90: #b28a2790;
+
+    --login-animation-length: 0.3s;
 }
 
 /* Body */
@@ -305,10 +307,46 @@ body {
     padding: 0 1rem;
 }
 
+.login-exit .login-header {
+    animation: login-header-exit var(--login-animation-length);
+    animation-fill-mode: forwards;
+}
+@keyframes login-header-exit {
+    from {
+        min-height: 12rem;
+        max-height: 35vh;
+        background-color: var(--primary-light);
+        overflow: hidden;
+        border-bottom: 1.5px solid transparent;
+        box-shadow: 0px 1px 5px 0px var(--shadow);
+    }
+    to {
+        min-height: 0;
+        max-height: 3.1rem;
+        background-color: var(--primary);
+        overflow: hidden;
+        border-bottom: 1.5px solid var(--primary-dark);
+        box-shadow: 0px 1px 5px 0px transparent;
+    }
+}
+
 .login-title-container {
     display: flex;
     align-items: center;
     padding: 0.3rem;
+}
+
+.login-exit .login-header-inner {
+    animation: login-header-inner-exit var(--login-animation-length);
+    animation-fill-mode: forwards;
+}
+@keyframes login-header-inner-exit {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }
 
 .login-logo {
@@ -350,6 +388,19 @@ body {
 .login-modal-container {
     height: 65vh;
     min-height: 16rem;
+}
+
+.login-exit .login-modal-container {
+    animation: login-modal-container-exit var(--login-animation-length);
+    animation-fill-mode: forwards;
+}
+@keyframes login-modal-container-exit {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }
 
 .modal-form {

@@ -17,7 +17,7 @@ export function loggedIn(state: State = store.getState()) {
     return store.getState().loginDetails ? true : false;
 }
 
-function doLogin(loginDetails: LoginDetails) {
+export function doLogin(loginDetails: LoginDetails) {
     store.dispatch(setState(stateFromStorage(loginDetails)));
     serverUpdate([]);
     clearMessage();
@@ -39,8 +39,8 @@ export function login(username: string, password: string) {
                     userid: response.userid,
                     jwt: response.jwt
                 }
-                doLogin(loginDetails);
-                break;
+                return loginDetails;
+                //doLogin(loginDetails);
             case "UsernameNotFound":
                 showMessage("User \"" + username + "\" not found");
                 break;
@@ -83,8 +83,8 @@ export function signup(username: string, password: string) {
                     userid: response.userid,
                     jwt: response.jwt
                 }
-                doLogin(loginDetails);
-                break;
+                return loginDetails;
+                //doLogin(loginDetails);
             case "UsernameTooLong":
                 showMessage("Username \"" + username + "\" is too long (max 100 characters)");
                 break;
