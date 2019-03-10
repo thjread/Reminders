@@ -10,13 +10,20 @@
         <link rel='shortcut icon' type='image/x-icon' href='favicon.ico'>
 </head>
 <body class="content-font fonts-loaded">
-    <main class="modal-container">
-        <h1 class="login-form-title">Reminders</h1>
+    <header class="login-header" >
+        <div class="login-title-container" >
+            <img class="login-logo" src="../Frontend/reminders/src/images/logo.svg">
+            <h1 class="login-title">Reminders</h1>
+        </div>
+        <p class="login-description">A todo list that syncs across multiple devices and works offline</p>
+    </header>
+    <main class="modal-container login-modal-container">
         <form class="modal-form login-form">
+            <h2 class="form-title" >LOGIN</h2>
             <input name="username" placeholder="Username" aria-label="Username" type="text" id="username" class="text-input">
             <input name="password" placeholder="Password" aria-label="Password" type="password" class="text-input">
             <div class="login-signup">
-                <button type="submit" class="pill-button on-secondary"><div class="button-text">Log in</div></button>
+                <button type="submit" class="pill-button on-secondary fill large-fixed"><div class="button-text">Log in</div></button>
                 <button type="button" class="text-button">Sign up</button>
             </div>
         </form>

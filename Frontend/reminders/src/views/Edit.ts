@@ -86,8 +86,11 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
                     submit();
                 }
             }, [
-                m("button[type=button].text-button.on-secondary", {
-                    onclick: cancel }, "Cancel"),
+                m("div.form-top-bar", [
+                    m("h2.form-title", editId ? "EDIT" : "NEW"),
+                    m("button[type=button].text-button.on-secondary", {
+                        onclick: cancel }, "Cancel")
+                ]),
                 m("textarea.text-input#title",// make text-area with rows=several, max-height=small, transition max-height to expand when more than one line of text input
                   {name: "title", placeholder: "Title", "aria-label": "Title",
                    oninput: function (e: any) {title = e.currentTarget.value;},
