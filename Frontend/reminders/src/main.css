@@ -344,6 +344,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    padding: 0 0.5rem;
 }
 
 .login-modal-container {
@@ -367,7 +368,11 @@ body {
 }
 
 .edit-form {
-    padding: 0.8rem 0.6rem;
+    /*padding: 0.8rem 0.6rem;*/
+    border: 0.5px solid var(--outline-faint);
+    border-radius: 0.5rem;
+    max-width: 35rem;
+    padding: 0.8rem 1rem;
 }
 
 .form-top-bar {
@@ -1157,9 +1162,30 @@ input[type=checkbox]:checked + .css-check::after {
     pointer-events: none;
 }
 
+/* Mobile, keyboard open layout */
+
+@media only screen and (max-height: 450px) and (max-width: 900px) {
+    .login-header {
+        display: none;
+    }
+
+    .modal-container {
+        background-color: var(--secondary);
+    }
+
+    .login-modal-container {
+        height: 100vh;
+    }
+
+    .modal-form {
+        box-shadow: none;
+        border: none;
+    }
+}
+
 /* Desktop layout */
 
-@media only screen and (min-width: 700px) {
+@media only screen and (min-width: 900px) {
     .menu-shadow {
         display: none;
     }
@@ -1228,12 +1254,12 @@ input[type=checkbox]:checked + .css-check::after {
     }
 
 
-    .edit-form {
+    /*.edit-form {
         border: 0.5px solid var(--outline-faint);
         border-radius: 0.5rem;
         max-width: 35rem;
         padding: 0.8rem 1rem;
-    }
+    }*/
 
     .login-title {
         font-size: 3.2rem;

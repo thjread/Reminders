@@ -39,7 +39,7 @@ interface Attrs {
 const TodoPage = function (): m.Component<Attrs> {
     let showMenu = false;
     let desktopLayout = false;
-    const desktopQuery = window.matchMedia("only screen and (min-width: 700px)");// move this to global state if we want to use it anywhere else
+    const desktopQuery = window.matchMedia("only screen and (min-width: 900px)");// move this to global state if we want to use it anywhere else
 
     let oldContext: null | TodoContext = null;
 
