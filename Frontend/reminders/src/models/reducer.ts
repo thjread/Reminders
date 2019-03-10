@@ -1,9 +1,10 @@
 import { ActionType, getType } from "typesafe-actions";
 import { hash } from "./serialize";
 
-import { State, initState, Todo, ActionDummy, getTodo } from "./store";
+import { State, initState, Todo, ActionDummy, ShortcutMap } from "./store";
 import * as actions from "./actions";
 export type Action = ActionType<typeof actions>;
+import Immutable from "seamless-immutable"
 
 export default (state: State, action: Action) => {
     switch (action.type) {
@@ -98,16 +99,26 @@ export default (state: State, action: Action) => {
         case getType(actions.setOnlineAsOf):
             const time = action.payload.time;
             return state.set("onlineAsOf", time);
+        case getType(actions.createShortcutContext): {
+            return state.set("shortcutStack", Immutable([{}]).concat(state.shortcutStack));
+        }
+        case getType(actions.popShortcutContext): {
+            return state.set("shortcutStack", state.shortcutStack.slice(1, state.shortcutStack.length));
+        }
         case getType(actions.addShortcut): {
             const code = action.payload.code;
             const shortcut = action.payload.shortcut;
-            return state.set("shortcuts", state.shortcuts.merge({
-                [code]: shortcut
-            }));
+            if (state.shortcutStack.length > 0) {
+                const shortcuts = Immutable(state.shortcutStack[0]);
+                return state.setIn(["shortcutStack", 0], shortcuts.merge({
+                    [code]: shortcut
+                }));
+            }
         }
         case getType(actions.removeShortcut): {
             const code = action.payload.code;
-            return state.set("shortcuts", state.shortcuts.without(code));
+            const shortcuts = Immutable(state.shortcutStack[0]);
+            return state.setIn(["shortcutStack", 0], shortcuts.without(code));
         }
         default:
             return state;

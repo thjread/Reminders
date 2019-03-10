@@ -112,6 +112,17 @@ export const setOnlineAsOf = createAction("SET_ONLINE_AS_OF", resolve => {
     }
 })
 
+export const createShortcutContext = createAction("CREATE_SHORTCUT_CONTEXT", resolve => {
+    return () => {
+        return resolve()
+    }
+})
+
+export const popShortcutContext = createAction("POP_SHORTCUT_CONTEXT", resolve => {
+    return () => {
+        return resolve()
+    }
+})
 
 export const addShortcut = createAction("ADD_SHORTCUT", resolve => {
     return (code: string, shortcut: Shortcut) => {

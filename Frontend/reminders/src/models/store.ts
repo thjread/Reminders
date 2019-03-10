@@ -106,7 +106,7 @@ interface StateI {
     modal: any;
     message?: Message;
     onlineAsOf?: Date
-    shortcuts: ShortcutMap;
+    shortcutStack: ShortcutMap[];
 }
 export type State = Immutable.Immutable<StateI>;
 
@@ -115,7 +115,7 @@ const s: StateI = {
     hash: hash({}),
     syncActions: [],
     modal: null,
-    shortcuts: {}
+    shortcutStack: []
 }
 export const initState: State = Immutable(s);
 

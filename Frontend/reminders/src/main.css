@@ -283,6 +283,7 @@ button::-moz-focus-inner {
 
     --login-animation-length: 0.3s;
     --modal-animation-length: 0.3s;
+    --modal-exit-animation-length: 0.2s;
 }
 
 /* Body */
@@ -395,6 +396,18 @@ body {
     }
 }
 
+.modal-exit .modal-shadow {
+    animation: shadow-exit var(--modal-exit-animation-length);
+}
+ @keyframes shadow-exit {
+     from {
+         opacity: 1;
+     }
+     to {
+         opacity: 0;
+     }
+ }
+
 .modal-container {
     position: fixed;
     bottom: 0;
@@ -407,16 +420,21 @@ body {
     align-items: center;
     padding: 0 0.5rem;
     z-index: 10001;
-    animation: modal-container-enter var(--modal-animation-length);
     overflow: hidden;
+    pointer-events: none;
 }
-@keyframes modal-container-enter {
+
+.modal-container.create {
+    animation: modal-container-enter-create var(--modal-animation-length);
+}
+@keyframes modal-container-enter-create {
     from {
         width: 3.5rem;
         height: 3.5rem;
         border-radius: 1.75rem;
         right: 1.5rem;
         bottom: 1.5rem;
+        padding: 0;
     }
     to {
         width: 100vw;
@@ -424,6 +442,7 @@ body {
         border-radius: 0;
         right: 0;
         bottom: 0;
+        padding: 0 0.5rem;
     }
 }
 
@@ -456,12 +475,44 @@ body {
     padding: 0.8rem 1.5rem;
     background-color: var(--secondary);
     width: 100%;
+    pointer-events: auto;
 }
 
-.modal-form-contents {
-    animation: modal-form-contents-enter var(--modal-animation-length);
+.edit .modal-form {
+    animation: modal-form-enter-edit var(--modal-animation-length);
 }
-@keyframes modal-form-contents-enter {
+@keyframes modal-form-enter-edit {
+    from {
+        overflow: hidden;
+        max-width: 0;
+        max-height: 0;
+        opacity: 0;
+    }
+    to {
+        overflow: hidden;
+        max-width: 35rem;
+        max-height: 30rem;
+        opacity: 1;
+    }
+}
+
+.modal-exit .modal-form {
+    animation: modal-form-exit var(--modal-exit-animation-length);
+}
+@keyframes modal-form-exit {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+
+.create .modal-form-contents {
+    animation: modal-form-contents-enter-create var(--modal-animation-length);
+}
+@keyframes modal-form-contents-enter-create {
     from {
         opacity: 0;
     }

@@ -46,8 +46,9 @@ export function clearMessage() {
 }
 
 export function handleShortcuts(e: KeyboardEvent) {
-    if (e.code) {
-        const shortcuts = store.getState().shortcuts;
+    const state = store.getState();
+    if (e.code && state.shortcutStack.length > 0) {
+        const shortcuts = state.shortcutStack[0];
         const shortcut = shortcuts[e.code.toString() + " " + (+e.ctrlKey) + (+e.shiftKey) + (+e.altKey)]
         if (shortcut) {
             const tag = (e.target as HTMLElement).tagName;

@@ -1,5 +1,5 @@
 import m from "mithril";
-import { setModal, editTodo, createTodo, addShortcut, removeShortcut } from "../models/actions";
+import { setModal, editTodo, createTodo, addShortcut, removeShortcut, createShortcutContext, popShortcutContext } from "../models/actions";
 import { showMessage, clearMessage } from "../models/ui";
 import {store, getTodo} from "../models/store";
 import {formatDateTime} from "../utils";
@@ -55,6 +55,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
 
     return {
         oninit: function() {
+            store.dispatch(createShortcutContext());
             store.dispatch(addShortcut("Escape 000", {
                 callback: cancel,
                 anywhere: true,
@@ -68,7 +69,7 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
         },
 
         onremove: function() {
-            store.dispatch(removeShortcut("Escape 000"));
+            store.dispatch(popShortcutContext());
         },
 
         oncreate: function() {
@@ -78,60 +79,69 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
             }
         },
 
+        onbeforeremove: function(vnode: any) {
+            vnode.dom.classList.add("modal-exit");
+            return new Promise(function(resolve: any) {
+                vnode.dom.addEventListener("animationend", resolve);
+            })
+        },
+
         view: function() {
-            return [
+            return m("div.modal", [
                 m("div.modal-shadow", {
                     onclick: cancel
                 }),
-                m("main.modal-container", m("form.modal-form.edit-form", {
-                    autocomplete: "off",
-                    onsubmit: function (e: any) {
-                        e.preventDefault();
-                        submit();
-                    }
-                }, m("div.modal-form-contents", [
-                    m("div.form-top-bar", [
-                        m("h2.form-title", editId ? "EDIT" : "NEW"),
-                        m("button[type=button].text-button.on-secondary", {
-                            onclick: cancel }, "Cancel")
-                    ]),
-                    m("textarea.text-input#title",// make text-area with rows=several, max-height=small, transition max-height to expand when more than one line of text input
-                      {name: "title", placeholder: "Title", "aria-label": "Title",
-                       oninput: function (e: any) {title = e.currentTarget.value;},
-                       value: title,
-                       rows: 7,
-                       class: (title.length > 27 || title.indexOf("\n") > -1) ? "expand" : undefined
-                      }),
-                    m("input[type=text].text-input",
-                      {name: "deadline", placeholder: "Time", "aria-label": "time",
-                       oninput: function (e: any) {
-                           deadlineInputText = e.currentTarget.value;
-                           deadline = dateParseFunction(deadlineInputText);
-                           if (deadlineInputText !== "" && deadline === null) {
-                               invalidDeadline = true;
-                           } else {
-                               invalidDeadline = false;
-                           }
-                       },
-                       value: deadlineInputText
-                      }),
-                    m("h3.item-deadline.on-edit-form", deadline ? formatDateTime(deadline) : (invalidDeadline ? "Invalid time" : "No time")),
-                    m("div.show-in-deadlines", [
-                        m("input#deadline-check[type=checkbox]", {
-                            checked: !hide_until_done,
-                            oninput: (e: Event) => {
-                                if (e.target && (e.target as HTMLInputElement).checked !== null) {
-                                    hide_until_done = !(e.target as HTMLInputElement).checked;
-                                }
-                            }
+                m("main.modal-container",
+                  { class: editId ? "edit" : "create" },
+                  m("form.modal-form.edit-form", {
+                      autocomplete: "off",
+                      onsubmit: function (e: any) {
+                          e.preventDefault();
+                          submit();
+                      }
+                  }, m("div.modal-form-contents", [
+                      m("div.form-top-bar", [
+                          m("h2.form-title", editId ? "EDIT" : "NEW"),
+                          m("button[type=button].text-button.on-secondary", {
+                              onclick: cancel }, "Cancel")
+                      ]),
+                      m("textarea.text-input#title",// make text-area with rows=several, max-height=small, transition max-height to expand when more than one line of text input
+                        {name: "title", placeholder: "Title", "aria-label": "Title",
+                         oninput: function (e: any) {title = e.currentTarget.value;},
+                         value: title,
+                         rows: 7,
+                         class: (title.length > 27 || title.indexOf("\n") > -1) ? "expand" : undefined
                         }),
-                        m("label.css-check.on-secondary", {for: "deadline-check"}),
-                        m("label.deadline-check-label", {for: "deadline-check"}, "Show in Deadlines")
-                    ]),
-                    m("button[type=submit].pill-button.on-secondary.large.fill",
-                      m("div.button-text", "Submit"))
-                ])))
-            ]
+                      m("input[type=text].text-input",
+                        {name: "deadline", placeholder: "Time", "aria-label": "time",
+                         oninput: function (e: any) {
+                             deadlineInputText = e.currentTarget.value;
+                             deadline = dateParseFunction(deadlineInputText);
+                             if (deadlineInputText !== "" && deadline === null) {
+                                 invalidDeadline = true;
+                             } else {
+                                 invalidDeadline = false;
+                             }
+                         },
+                         value: deadlineInputText
+                        }),
+                      m("h3.item-deadline.on-edit-form", deadline ? formatDateTime(deadline) : (invalidDeadline ? "Invalid time" : "No time")),
+                      m("div.show-in-deadlines", [
+                          m("input#deadline-check[type=checkbox]", {
+                              checked: !hide_until_done,
+                              oninput: (e: Event) => {
+                                  if (e.target && (e.target as HTMLInputElement).checked !== null) {
+                                      hide_until_done = !(e.target as HTMLInputElement).checked;
+                                  }
+                              }
+                          }),
+                          m("label.css-check.on-secondary", {for: "deadline-check"}),
+                          m("label.deadline-check-label", {for: "deadline-check"}, "Show in Deadlines")
+                      ]),
+                      m("button[type=submit].pill-button.on-secondary.large.fill",
+                        m("div.button-text", "Submit"))
+                  ])))
+            ]);
         }
     }
 }

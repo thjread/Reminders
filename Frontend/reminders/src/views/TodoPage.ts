@@ -3,7 +3,7 @@ import TodoSection from "./TodoSection";
 import TodoList from "./TodoList";
 
 import {store, dueTodos, deadlineTodos, otherTodos, completedTodos, upcomingTodos, pendingUndo} from "../models/store";
-import {addShortcut, removeShortcut} from "../models/actions";
+import { addShortcut, createShortcutContext, popShortcutContext} from "../models/actions";
 import {logout} from "../models/auth";
 import {undo, dismissUndo, create} from "../models/ui";
 import { CLOUD_SVG, MENU_SVG } from "./Icons";
@@ -133,6 +133,7 @@ const TodoPage = function (): m.Component<Attrs> {
 
     return {
         oninit: function() {
+            store.dispatch(createShortcutContext());
             store.dispatch(addShortcut("Enter 000", {
                 callback: create,
                 anywhere: false,
@@ -149,7 +150,7 @@ const TodoPage = function (): m.Component<Attrs> {
         },
 
         onremove: function() {
-            store.dispatch(removeShortcut("Enter 000"));
+            store.dispatch(popShortcutContext());
             desktopQuery.removeListener(desktopQueryHandle);
             window.removeEventListener("touchstart", menuTouchStart, false);
             window.removeEventListener("touchmove", menuTouchMove, false);
