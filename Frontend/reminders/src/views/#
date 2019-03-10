@@ -32,6 +32,11 @@ export default function () {
             }
         },
 
+        onbeforeremove: function(vnode: any) {
+            console.log(vnode.dom);
+            vnode.dom.classList.add("login-exit");
+        }
+
         view: function() {
             return [
                 m("header.login-header", [
