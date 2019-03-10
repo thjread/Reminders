@@ -54,15 +54,16 @@ export function serverUpdate(actions: ActionDummy[]
     const state = store.getState();
     if (state.loginDetails) {
         if (navigator.onLine !== false) {
+            // @ts-ignore - TODO remove when @types/mithril is updated for v2.0
             return m.request({
                 method: "PUT",
                 url: API_URI+"/update",
+                timeout: 5000,
                 data: {
                     jwt: state.loginDetails.jwt,
                     batch: actions,
                     expected_hash: state.hash
-                },
-                timeout: 5000
+                }
             }).then(function (response: any) {
                 switch (response.type) {
                     case "SUCCESS": {
@@ -90,7 +91,7 @@ export function serverUpdate(actions: ActionDummy[]
                     default:
                         showMessage("Server error");
                 }
-            }).catch(function (e) {
+            }).catch(function (e: any) {
                 if (e.code !== 0 && e.code !== 503) {// got a response from server
                     if (actions.length > 0) {
                         showMessage("Server error - offline actions not saved (you may need to close and reopen the webpage)");

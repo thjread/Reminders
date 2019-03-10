@@ -109,6 +109,7 @@ fn update(
                                 .from_err()
                                 .and_then(move |res| match res {
                                     Ok(todos) => {
+                                        println!("[RUST] Sending todos with hash {} (user {})", hash, userid);
                                         Ok(HttpResponse::Ok().json(UpdateResult::HASH_MISMATCH {
                                             todos,
                                             hash,
