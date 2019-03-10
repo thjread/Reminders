@@ -259,7 +259,7 @@ const TodoPage = function (): m.Component<Attrs> {
                         }
                         dismissUndo();
                     }, tabindex: showUndo ? 0 : -1}, "✕")]),
-                m("button.fab", {onclick: create}, "+")
+                state.modal ? undefined : m("button.fab", {onclick: create}, "+")
             ]}
     }
 }

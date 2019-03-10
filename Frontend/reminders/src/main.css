@@ -282,6 +282,7 @@ button::-moz-focus-inner {
     --completed-dark-90: #b28a2790;
 
     --login-animation-length: 0.3s;
+    --modal-animation-length: 0.3s;
 }
 
 /* Body */
@@ -305,6 +306,7 @@ body {
     box-shadow: 0px 1px 5px 0px var(--shadow);
     position: relative;
     padding: 0 1rem;
+    will-change: min-height, max-height, background-color, border-bottom, box-shadow;
 }
 
 .login-exit .login-header {
@@ -374,27 +376,73 @@ body {
 
 /* Login and edit forms */
 
+.modal-shadow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background-color: var(--shadow-dark);
+    z-index: 10000;
+    animation: shadow-enter var(--modal-animation-length);
+}
+@keyframes shadow-enter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .modal-container {
-    /*background-color: var(--primary-light);*/
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 0.5rem;
+    z-index: 10001;
+    animation: modal-container-enter var(--modal-animation-length);
+    overflow: hidden;
+}
+@keyframes modal-container-enter {
+    from {
+        width: 3.5rem;
+        height: 3.5rem;
+        border-radius: 1.75rem;
+        right: 1.5rem;
+        bottom: 1.5rem;
+    }
+    to {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+.login-container {
     background-color: var(--background);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 65vh;
+    min-height: 16rem;
     padding: 0 0.5rem;
 }
 
-.login-modal-container {
-    height: 65vh;
-    min-height: 16rem;
-}
-
-.login-exit .login-modal-container {
-    animation: login-modal-container-exit var(--login-animation-length);
+.login-exit .login-container {
+    animation: login-container-exit var(--login-animation-length);
     animation-fill-mode: forwards;
 }
-@keyframes login-modal-container-exit {
+@keyframes login-container-exit {
     from {
         opacity: 1;
     }
@@ -408,6 +456,18 @@ body {
     padding: 0.8rem 1.5rem;
     background-color: var(--secondary);
     width: 100%;
+}
+
+.modal-form-contents {
+    animation: modal-form-contents-enter var(--modal-animation-length);
+}
+@keyframes modal-form-contents-enter {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .login-form {
@@ -1224,7 +1284,8 @@ input[type=checkbox]:checked + .css-check::after {
         background-color: var(--secondary);
     }
 
-    .login-modal-container {
+    .login-container {
+        background-color: var(--secondary);
         height: 100vh;
     }
 

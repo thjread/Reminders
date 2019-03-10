@@ -51,7 +51,7 @@ export default function () {
                     ]),
                     m("p.login-description", "A todo list that syncs across multiple devices and works offline")
                 ])),
-                m("main.modal-container.login-modal-container", m("form.modal-form.login-form", {
+                m("main.login-container", m("form.modal-form.login-form", {
                     onsubmit: function (e: any) {
                         e.preventDefault();
                         if (isLogin) {

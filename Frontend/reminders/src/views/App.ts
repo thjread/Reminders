@@ -6,14 +6,9 @@ import {store} from "../models/store";
 const App: m.Component = {
     view: function(vnode) {
         const state = store.getState();
-        var main;
-        if (state.modal) {
-            main = m(state.modal);
-        } else {
-            main = vnode.children;
-        }
         return [
-            main,
+            vnode.children,
+            state.modal ? m(state.modal) : undefined,
             m(Message)
         ]
     }
