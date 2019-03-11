@@ -34,6 +34,7 @@ function contextClass(c: TodoContext) {
 
 interface Attrs {
     context: TodoContext;
+    modal: m.Vnode | undefined;
 }
 
 const TodoPage = function (): m.Component<Attrs> {
@@ -204,6 +205,8 @@ const TodoPage = function (): m.Component<Attrs> {
                 }
             }
 
+            const modal = vnode.attrs.modal;
+
             const header =
                 m("header.header", {class: contextClass(vnode.attrs.context)}, [
                     m("div.header-first", [
@@ -260,7 +263,8 @@ const TodoPage = function (): m.Component<Attrs> {
                         }
                         dismissUndo();
                     }, tabindex: showUndo ? 0 : -1}, "✕")]),
-                state.modal ? undefined : m("button.fab", {onclick: create}, "+")
+                modal ? undefined : m("button.fab", {onclick: create}, "+"),
+                modal
             ]}
     }
 }

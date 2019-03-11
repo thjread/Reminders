@@ -8,6 +8,7 @@ import App from "./views/App";
 import {TodoContext} from "./views/TodoPage";
 import TodoPage from "./views/TodoPage";
 import Login from "./views/Login";
+import Edit from "./views/Edit";
 import { loggedIn } from "./models/auth";
 
 const SERVER_SYNC_INTERVAL = 2000;
@@ -23,6 +24,20 @@ loadFonts()
 store.subscribe(storeState);
 sugarDateTime();
 
+function todoPageQueryHandle(path: string, params: any) {
+    if (params.hasOwnProperty("create")) {
+        return import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils").then(({sugarParseDate}) => {
+            return Edit(path, sugarParseDate);
+        })
+    } else if (params.hasOwnProperty("edit")) {
+        if (store.getState().todos[params.edit]) {
+            return import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils").then(({sugarParseDate}) => {
+                return Edit(path, sugarParseDate, params.edit);
+            })
+        }
+    }
+}
+
 m.route(document.body, "/", {
     "/login": {
         onmatch: function() {
@@ -35,33 +50,54 @@ m.route(document.body, "/", {
         }
     },
     "/": {
-        onmatch: function() {
+        onmatch: function(params) {
             if (!loggedIn()) {
                 m.route.set("/login");
             }
+            return todoPageQueryHandle("/", params);
         },
-        render: function() {
-            return m(App, m(TodoPage, {context: TodoContext.Normal}))
+        render: function(vnode) {
+            let modal;
+            if (vnode.tag === "div") {
+                modal = undefined;
+            } else {
+                modal = m(vnode.tag as m.Component);
+            }
+            return m(App, m(TodoPage, {context: TodoContext.Normal, modal}))
         }
     },
     "/upcoming": {
-        onmatch: function() {
+        onmatch: function(params) {
             if (!loggedIn()) {
                 m.route.set("/login");
             }
+            return todoPageQueryHandle("/upcoming", params);
         },
-        render: function() {
-            return m(App, m(TodoPage, {context: TodoContext.Upcoming}));
+        render: function(vnode) {
+            let modal;
+            if (vnode.tag === "div") {
+                modal = undefined;
+            } else {
+                modal = m(vnode.tag as m.Component);
+            }
+            return m(App, m(TodoPage, {context: TodoContext.Upcoming, modal}))
         }
     },
     "/completed": {
-        onmatch: function() {
+        onmatch: function(params) {
             if (!loggedIn()) {
                 m.route.set("/login");
             }
+            return todoPageQueryHandle("/completed", params);
         },
-        render: function() {
-            return m(App, m(TodoPage, {context: TodoContext.Completed}));
+        render: function(vnode) {
+            let modal;
+            if (vnode.tag === "div") {
+                modal = undefined;
+            } else {
+                modal = m(vnode.tag as m.Component);
+            }
+            return m(App, m(TodoPage, {context: TodoContext.Completed, modal}))
         }
     }
 });

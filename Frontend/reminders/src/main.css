@@ -483,15 +483,11 @@ body {
 }
 @keyframes modal-form-enter-edit {
     from {
-        overflow: hidden;
-        max-width: 0;
-        max-height: 0;
+        transform: scale(0);
         opacity: 0;
     }
     to {
-        overflow: hidden;
-        max-width: 35rem;
-        max-height: 30rem;
+        transform: scale(1);
         opacity: 1;
     }
 }

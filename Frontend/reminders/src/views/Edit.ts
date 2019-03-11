@@ -1,11 +1,11 @@
 import m from "mithril";
-import { setModal, editTodo, createTodo, addShortcut, removeShortcut, createShortcutContext, popShortcutContext } from "../models/actions";
+import { editTodo, createTodo, addShortcut, removeShortcut, createShortcutContext, popShortcutContext } from "../models/actions";
 import { showMessage, clearMessage } from "../models/ui";
 import {store, getTodo} from "../models/store";
 import {formatDateTime} from "../utils";
 import { serverUpdate } from "../models/update";
 
-export default function (dateParseFunction: (s: string) => Date | null, editId: string | null = null) {
+export default function (redirect: string, dateParseFunction: (s: string) => Date | null, editId: string | null = null) {
     let title = "";
     let deadlineInputText = "";
     let deadline: Date | null = null;
@@ -45,12 +45,12 @@ export default function (dateParseFunction: (s: string) => Date | null, editId: 
             store.dispatch(createTodo(title, deadline, done, done_time, new Date(), hide_until_done));
             serverUpdate();
         }
-        store.dispatch(setModal(null));
+        m.route.set(redirect);
     }
 
     function cancel() {
         clearMessage();
-        store.dispatch(setModal(null));
+        m.route.set(redirect);
     }
 
     return {
