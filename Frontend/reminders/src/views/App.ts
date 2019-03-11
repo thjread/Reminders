@@ -2,12 +2,12 @@ import m from "mithril";
 import Message from "./Message";
 
 const App: m.Component = {
-    view: function(vnode) {
+    view(vnode) {
         return [
             vnode.children,
-            m(Message)
-        ]
-    }
-}
+            m(Message),
+        ];
+    },
+};
 
 export default App;
