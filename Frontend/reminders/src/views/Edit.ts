@@ -72,6 +72,7 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
 
         onremove() {
             store.dispatch(popShortcutContext());
+            document.body.classList.remove("noscroll");
         },
 
         oncreate() {
@@ -79,6 +80,7 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
             if (t) {
                 t.focus();
             }
+            document.body.classList.add("noscroll");
         },
 
         onbeforeremove(vnode: any) {

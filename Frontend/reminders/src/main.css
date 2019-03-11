@@ -292,6 +292,10 @@ body {
     background-color: var(--background);
 }
 
+body.noscroll {
+    overflow: hidden;
+}
+
 /* Login page */
 
 .login-header {
@@ -299,7 +303,6 @@ body {
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    /*background-color: var(--background-light);*/
     background-color: var(--primary-light);
     width: 100%;
     height: 35vh;
@@ -424,28 +427,6 @@ body {
     pointer-events: none;
 }
 
-.modal-container.create {
-    animation: modal-container-enter-create var(--modal-animation-length);
-}
-@keyframes modal-container-enter-create {
-    from {
-        width: 3.5rem;
-        height: 3.5rem;
-        border-radius: 1.75rem;
-        right: 1.5rem;
-        bottom: 1.5rem;
-        padding: 0;
-    }
-    to {
-        width: 100vw;
-        height: 100vh;
-        border-radius: 0;
-        right: 0;
-        bottom: 0;
-        padding: 0 0.5rem;
-    }
-}
-
 .login-container {
     background-color: var(--background);
     display: flex;
@@ -478,10 +459,11 @@ body {
     pointer-events: auto;
 }
 
-.edit .modal-form {
-    animation: modal-form-enter-edit var(--modal-animation-length);
+.edit .modal-form,
+.create .modal-form {
+    animation: modal-form-enter var(--modal-animation-length);
 }
-@keyframes modal-form-enter-edit {
+@keyframes modal-form-enter {
     from {
         transform: scale(0);
         opacity: 0;
@@ -1320,15 +1302,45 @@ input[type=checkbox]:checked + .css-check::after {
     pointer-events: none;
 }
 
-/* Mobile, keyboard open layout */
+/* Short height e.g. mobile, keyboard open layout */
 
-@media only screen and (max-height: 450px) and (max-width: 900px) {
+@media only screen and (max-height: 450px) {
     .login-header {
         display: none;
     }
 
     .modal-container {
         background-color: var(--secondary);
+        pointer-events: auto;
+        justify-content: flex-start;
+        animation: modal-container-background-enter var(--modal-animation-length);
+        overflow: auto;
+    }
+    @keyframes modal-container-background-enter {
+        from {
+            overflow: hidden;
+            background-color: var(--transparent);
+        }
+        to {
+            overflow: hidden;
+            background-color: var(--secondary);
+        }
+    }
+
+    .modal-exit .modal-container,
+    .modal-exit .modal-container.create,
+    .modal-exit .modal-container.edit {
+        animation: modal-container-background-exit var(--modal-exit-animation-length);
+    }
+    @keyframes modal-container-background-exit {
+        from {
+            background-color: var(--secondary);
+            overflow: hidden;
+        }
+        to {
+            overflow: hidden;
+            background-color: var(--transparent);
+        }
     }
 
     .login-container {
@@ -1345,6 +1357,37 @@ input[type=checkbox]:checked + .css-check::after {
 /* Desktop layout */
 
 @media only screen and (min-width: 900px) {
+    .modal-container.create {
+        animation: modal-container-enter-create var(--modal-animation-length);
+    }
+    @keyframes modal-container-enter-create {
+        from {
+            width: 3.5rem;
+            height: 3.5rem;
+            border-radius: 1.75rem;
+            right: 1.5rem;
+            bottom: 1.5rem;
+            padding: 0;
+        }
+        to {
+            width: 100vw;
+            height: 100vh;
+            border-radius: 0;
+            right: 0;
+            bottom: 0;
+            padding: 0 0.5rem;
+        }
+    }
+
+    /* Don't do expand animation for create on desktop */
+    .create .modal-form {
+        animation: none;
+    }
+    .modal-exit .modal-form {/* don't break CSS priorities */
+        animation: modal-form-exit var(--modal-exit-animation-length);
+    }
+
+
     .menu-shadow {
         display: none;
     }
@@ -1412,13 +1455,10 @@ input[type=checkbox]:checked + .css-check::after {
         }
     }
 
-
-    /*.edit-form {
-        border: 0.5px solid var(--outline-faint);
-        border-radius: 0.5rem;
-        max-width: 35rem;
-        padding: 0.8rem 1rem;
-    }*/
+    .modal-form {
+        /* prevent reflow during animation */
+        width: 35rem;
+    }
 
     .login-title {
         font-size: 3.2rem;
