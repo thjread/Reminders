@@ -1,10 +1,8 @@
 import m from "mithril";
-import { TodoContext } from "./TodoPage";
 import Item from "./Item";
 
 interface Attrs {
     todoIds: string[];
-    context: TodoContext;
 }
 
 
@@ -35,7 +33,7 @@ export default function () {
                 selected = null;
             }
             return m("ul.todo-list", vnode.attrs.todoIds.map(id => {
-                return m(Item, {key: id, id: id, selectCallback: toggleSelect, selected: selected === id, context: vnode.attrs.context, animate_enter});
+                return m(Item, {key: id, id: id, selectCallback: toggleSelect, selected: selected === id, animate_enter});
             }));
         }
     };

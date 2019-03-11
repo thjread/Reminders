@@ -1,8 +1,7 @@
 import m from "mithril";
-import { TodoContext, MENU_SWIPE_OUT_MARGIN } from "./TodoPage";
+import { MENU_SWIPE_OUT_MARGIN } from "./TodoPage";
 import {store, getTodo} from "../models/store";
 import {deleteTodo, toggleDone} from "../models/actions";
-import {edit} from "../models/ui";;
 import {formatDateTime} from "../utils";
 import { serverUpdate } from "../models/update";
 
@@ -14,7 +13,6 @@ interface Attrs {
     id: string;
     selectCallback: (id: string) => void;
     selected: boolean;
-    context: TodoContext;
     animate_enter: boolean;
 }
 
@@ -65,7 +63,7 @@ const Item = function (): m.Component<Attrs> {
         }
     }
 
-    function touchEnd(e: TouchEvent) {
+    function touchEnd() {
         swipingRight = false;
     }
 
@@ -102,19 +100,19 @@ const Item = function (): m.Component<Attrs> {
             const selected = vnode.attrs.selected;
 
             let displayTime = null;
-            switch (vnode.attrs.context) {
-                case TodoContext.Normal: {
-                    if (!item.hide_until_done) {
-                        displayTime = item.deadline;
-                    }
-                    break;
-                }
-                case TodoContext.Completed: {
+            switch (m.route.param("c")) {
+                case "completed": {
                     displayTime = item.done_time;
                     break;
                 }
-                case TodoContext.Upcoming: {
+                case "upcoming": {
                     displayTime = item.deadline;
+                    break;
+                }
+                default: {
+                    if (!item.hide_until_done) {
+                        displayTime = item.deadline;
+                    }
                     break;
                 }
             }
@@ -147,7 +145,7 @@ const Item = function (): m.Component<Attrs> {
                 m("div.item-options", [
                     m("button.pill-button.on-secondary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
                         toggleSelect(id);
-                        edit(id);
+                        m.route.set("/", {c: m.route.param("c"), e: id})
                     }}, "Edit"),
                     m("button.pill-button.on-secondary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
                         toggleSelect(id);

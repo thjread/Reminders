@@ -5,7 +5,7 @@ import {store, getTodo} from "../models/store";
 import {formatDateTime} from "../utils";
 import { serverUpdate } from "../models/update";
 
-export default function (redirect: string, dateParseFunction: (s: string) => Date | null, editId: string | null = null) {
+export default function (context: string, dateParseFunction: (s: string) => Date | null, editId: string | null = null) {
     let title = "";
     let deadlineInputText = "";
     let deadline: Date | null = null;
@@ -33,7 +33,6 @@ export default function (redirect: string, dateParseFunction: (s: string) => Dat
             showMessage("Please enter a valid deadline");
             return;
         }
-        clearMessage();
         if (editId) {
             store.dispatch(editTodo(editId, title, deadline, hide_until_done));
             serverUpdate();
@@ -45,19 +44,19 @@ export default function (redirect: string, dateParseFunction: (s: string) => Dat
             store.dispatch(createTodo(title, deadline, done, done_time, new Date(), hide_until_done));
             serverUpdate();
         }
-        m.route.set(redirect);
+        dismiss();
     }
 
-    function cancel() {
+    function dismiss() {
         clearMessage();
-        m.route.set(redirect);
+        m.route.set("/", {c: context});
     }
 
     return {
         oninit: function() {
             store.dispatch(createShortcutContext());
             store.dispatch(addShortcut("Escape 000", {
-                callback: cancel,
+                callback: dismiss,
                 anywhere: true,
                 preventDefault: true
             }));
@@ -89,7 +88,7 @@ export default function (redirect: string, dateParseFunction: (s: string) => Dat
         view: function() {
             return m("div.modal", [
                 m("div.modal-shadow", {
-                    onclick: cancel
+                    onclick: dismiss
                 }),
                 m("main.modal-container",
                   { class: editId ? "edit" : "create" },
@@ -103,7 +102,7 @@ export default function (redirect: string, dateParseFunction: (s: string) => Dat
                       m("div.form-top-bar", [
                           m("h2.form-title", editId ? "EDIT" : "NEW"),
                           m("button[type=button].text-button.on-secondary", {
-                              onclick: cancel }, "Cancel")
+                              onclick: dismiss }, "Cancel")
                       ]),
                       m("textarea.text-input#title",// make text-area with rows=several, max-height=small, transition max-height to expand when more than one line of text input
                         {name: "title", placeholder: "Title", "aria-label": "Title",

@@ -7,20 +7,6 @@ import Edit from "../views/Edit";
 import { serverUpdate } from "./update";
 import { MESSAGE_SHOW_TIME } from "../views/Message"
 
-export function create() {
-    m.route.set(m.route.get(), {create: ""});
-    /*import(/* webpackChunkName: "sugar", webpackPreload: true *//* "../sugar-utils").then(({sugarParseDate}) => {
-        store.dispatch(setModal(Edit(sugarParseDate)));
-    })*/
-}
-
-export function edit(id: string) {
-    m.route.set(m.route.get(), {edit: id});
-    /*import(/* webpackChunkName: "sugar", webpackPreload: true *//* "../sugar-utils").then(({sugarParseDate}) => {
-        store.dispatch(setModal(Edit(sugarParseDate, id)));
-    })*/
-}
-
 export function undo() {
     const undo = pendingUndo();
     if (undo) {

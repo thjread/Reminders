@@ -5,7 +5,7 @@ import TodoList from "./TodoList";
 import {store, dueTodos, deadlineTodos, otherTodos, completedTodos, upcomingTodos, pendingUndo} from "../models/store";
 import { addShortcut, createShortcutContext, popShortcutContext} from "../models/actions";
 import {logout} from "../models/auth";
-import {undo, dismissUndo, create} from "../models/ui";
+import {undo, dismissUndo} from "../models/ui";
 import { CLOUD_SVG, MENU_SVG } from "./Icons";
 
 const UNDO_SHOW_TIME = 10*1000;// 10 seconds
@@ -15,25 +15,7 @@ const MENU_SWIPE_OUT_DISTANCE = 60;
 const MENU_SWIPE_IN_EXTRA_MARGIN = 50;
 const MENU_SWIPE_IN_DISTANCE = 60;
 
-export enum TodoContext {
-    Normal,
-    Upcoming,
-    Completed
-}
-
-function contextClass(c: TodoContext) {
-    switch (c) {
-        case TodoContext.Normal:
-            return "normal";
-        case TodoContext.Upcoming:
-            return "upcoming";
-        case TodoContext.Completed:
-            return "completed";
-    }
-}
-
 interface Attrs {
-    context: TodoContext;
     modal: m.Vnode | undefined;
 }
 
@@ -42,7 +24,18 @@ const TodoPage = function (): m.Component<Attrs> {
     let desktopLayout = false;
     const desktopQuery = window.matchMedia("only screen and (min-width: 900px)");// move this to global state if we want to use it anywhere else
 
-    let oldContext: null | TodoContext = null;
+    let oldContext: null | string = null;
+
+    function contextClass(context: string) {
+        switch (context) {
+            case "upcoming":
+                return "upcoming";
+            case "completed":
+                return "completed";
+            default:
+                return "normal";
+        }
+    }
 
     function doShowMenu(show: boolean) {
         if (show) {
@@ -127,7 +120,7 @@ const TodoPage = function (): m.Component<Attrs> {
         }
     }
 
-    function menuTouchEnd(e: TouchEvent) {
+    function menuTouchEnd() {
         swipingMenuOut = false;
         swipingMenuIn = false;
     }
@@ -136,7 +129,9 @@ const TodoPage = function (): m.Component<Attrs> {
         oninit: function() {
             store.dispatch(createShortcutContext());
             store.dispatch(addShortcut("Enter 000", {
-                callback: create,
+                callback: () => {
+                    m.route.set("/", {c: m.route.param("c"), e: ""})
+                },
                 anywhere: false,
                 preventDefault: true
             }));
@@ -171,14 +166,29 @@ const TodoPage = function (): m.Component<Attrs> {
             }
 
             // only animate todo section enter if not just switched context
-            const contextChanged = vnode.attrs.context !== oldContext;
-            oldContext = vnode.attrs.context;
+            const context = m.route.param("c");
+            const contextChanged = context !== oldContext;
+            oldContext = context
             let todoSections: (m.Vnode | undefined)[] = [];
             function section(ids: string[], title: string) {
-                return ids.length > 0 ? m(TodoSection, {title: title, key: title, animate_enter: !contextChanged}, m(TodoList, {todoIds: ids, context: vnode.attrs.context})) : undefined;
+                return ids.length > 0 ? m(TodoSection, {title: title, key: title, animate_enter: !contextChanged}, m(TodoList, {todoIds: ids})) : undefined;
             }
-            switch (vnode.attrs.context) {
-                case TodoContext.Normal: {
+            switch (context) {
+                case "upcoming": {
+                    const upcoming = upcomingTodos();
+                    todoSections = [
+                        section(upcoming, "UPCOMING")
+                    ];
+                    break;
+                }
+                case "completed": {
+                    const completed = completedTodos();
+                    todoSections = [
+                        section(completed, "COMPLETED")
+                    ];
+                    break;
+                }
+                default: {
                     const due = dueTodos();
                     const deadline = deadlineTodos();
                     const other = otherTodos();
@@ -189,26 +199,12 @@ const TodoPage = function (): m.Component<Attrs> {
                     ];
                     break;
                 }
-                case TodoContext.Upcoming: {
-                    const upcoming = upcomingTodos();
-                    todoSections = [
-                        section(upcoming, "UPCOMING")
-                    ];
-                    break;
-                }
-                case TodoContext.Completed: {
-                    const completed = completedTodos();
-                    todoSections = [
-                        section(completed, "COMPLETED")
-                    ];
-                    break;
-                }
             }
 
             const modal = vnode.attrs.modal;
 
             const header =
-                m("header.header", {class: contextClass(vnode.attrs.context)}, [
+                m("header.header", {class: contextClass(context)}, [
                     m("div.header-first", [
                         m("button.menu-icon", { onclick: () => {doShowMenu(!showMenu);}}, m.trust(MENU_SVG)),
                     ]),
@@ -228,11 +224,11 @@ const TodoPage = function (): m.Component<Attrs> {
                     m("div.menu-spacer"),
                     m("nav.menu", [
                         m("ul.menu-list", [
-                            ["Reminders", "", vnode.attrs.context === TodoContext.Normal],
-                            ["Upcoming", "upcoming", vnode.attrs.context === TodoContext.Upcoming],
-                            ["Completed", "completed", vnode.attrs.context === TodoContext.Completed]
+                            ["Reminders", "", context !== "upcoming" && context !== "completed"],
+                            ["Upcoming", "upcoming", context === "upcoming"],
+                            ["Completed", "completed", context === "completed"]
                         ].map(([title, path, selected]) => {
-                            return m("li", m(`a[href=/${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {doShowMenu(desktopLayout);}}, title));
+                            return m("li", m(`a[href=/?c=${path}].main-nav-item`, {class: selected ? "selected" : undefined, oncreate: m.route.link, onclick: () => {doShowMenu(desktopLayout);}}, title));
                         })),
                         m("h4.menu-username", [
                             "Logged in as ", m("span.username", username)
@@ -244,7 +240,7 @@ const TodoPage = function (): m.Component<Attrs> {
 
             return [
                 header,
-                m("div.page-container", {class: contextClass(vnode.attrs.context)}, [
+                m("div.page-container", {class: contextClass(context)}, [
                     menu,
                     m("main.todo-container", todoSections)
                 ]),
@@ -263,7 +259,9 @@ const TodoPage = function (): m.Component<Attrs> {
                         }
                         dismissUndo();
                     }, tabindex: showUndo ? 0 : -1}, "✕")]),
-                modal ? undefined : m("button.fab", {onclick: create}, "+"),
+                modal ? undefined : m("button.fab", {onclick: () => {
+                    m.route.set("/", {c: m.route.param("c"), e: ""})
+                }}, "+"),
                 modal
             ]}
     }
