@@ -75,6 +75,7 @@ export function serverUpdate(actions: ActionDummy[]
                         const serverHash = response.hash;
                         const todos = response.todos;
                         actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        // tslint:disable-next-line:no-console
                         console.log("Local hash " + state.hash + " does not match hash " +
                                     serverHash + " from server - updating");
                         updateWithServerTodos(todos as ServerTodoRow[], serverHash);

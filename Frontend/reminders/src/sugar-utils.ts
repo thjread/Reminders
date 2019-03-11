@@ -1,3 +1,4 @@
+// tslint:disable-next-line:no-var-requires
 const Sugar = require("./sugar");
 
 export const sugarFormatDateTime = (d: Date) => {
@@ -28,7 +29,7 @@ export const sugarParseDate = (s: string) => {
     try {
         Sugar.Date.setLocale(locale);
     } catch (err) {
-        console.log("Locale " + locale + " not supported, reverting to 'en'");
+        console.error("Locale " + locale + " not supported, reverting to 'en'");
     }
     const date = Sugar.Date.create(s, { future: true});
     if (Sugar.Date.isValid(date)) {

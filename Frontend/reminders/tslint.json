@@ -9,6 +9,7 @@
         "interface-name": [false],
         "object-literal-sort-keys": [false],
         "object-literal-key-quotes": [true, "as-needed"],
+        "no-console": [true, "log"],
         "whitespace": [true,
                        "check-branch",
                        "check-decl",

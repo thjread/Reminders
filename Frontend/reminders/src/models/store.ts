@@ -118,6 +118,7 @@ const s: StateI = {
 };
 export const initState: State = Immutable(s);
 
+// tslint:disable-next-line:max-line-length
 export const store = createStore(reducer, initState, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());
 store.dispatch(setState(stateFromStorage()));
 

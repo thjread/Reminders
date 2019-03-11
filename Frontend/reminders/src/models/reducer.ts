@@ -1,3 +1,5 @@
+// tslint:disable:variable-name
+
 import { ActionType, getType } from "typesafe-actions";
 import { hash } from "./serialize";
 

@@ -8,6 +8,7 @@ function dateFormat(d: Date) {
 
 function serializeTodo(id: string, t: Todo) {
     const deadline = t.deadline ? `Some(${dateFormat(t.deadline)})` : "None";
+    // tslint:disable-next-line:variable-name
     const done_time = t.done_time ? `Some(${dateFormat(t.done_time)})` : "None";
     return `[id]:${id},
 [title]:"${t.title}",

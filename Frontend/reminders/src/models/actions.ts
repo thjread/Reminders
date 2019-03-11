@@ -1,3 +1,5 @@
+// tslint:disable:variable-name
+
 import { createAction } from "typesafe-actions";
 import uuidv4 from "uuid/v4";
 

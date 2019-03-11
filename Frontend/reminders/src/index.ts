@@ -17,7 +17,7 @@ loadFonts()
     .then(() => {
         document.body.classList.add("fonts-loaded");
     }, () => {
-        console.log("Fonts not available");
+        console.error("Fonts not available");
     });
 
 store.subscribe(storeState);

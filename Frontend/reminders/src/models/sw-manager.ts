@@ -1,3 +1,5 @@
+// tslint:disable:no-console
+
 import m from "mithril";
 import { logout, loggedIn } from "./auth";
 import { urlBase64ToUint8Array } from "../utils";

@@ -1,3 +1,5 @@
+// tslint:disable:max-line-length
+
 // from https://materialdesignicons.com/ cloud-outline
 // TODO refactor into mithril style?
 export const CLOUD_SVG = `<svg viewBox="-1 -1 25 25" role="img" aria-labelledby="cloud-title">
