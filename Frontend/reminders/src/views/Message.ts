@@ -4,7 +4,7 @@ import { store } from "../models/store";
 export const MESSAGE_SHOW_TIME = 10*1000;
 
 export default {
-    view: function() {
+    view() {
         let display = false;
         let text = "";
         const message = store.getState().message;
@@ -14,6 +14,6 @@ export default {
                 display = true;
             }
         }
-        return m("footer.message", {class: display ? undefined : "hidden"}, text);
-    }
-}
+        return m("footer.message", { class: display ? undefined : "hidden"}, text);
+    },
+};

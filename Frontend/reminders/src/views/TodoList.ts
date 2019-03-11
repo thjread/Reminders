@@ -5,10 +5,9 @@ interface Attrs {
     todoIds: string[];
 }
 
-
-export default function () {
+export default function() {
     let selected: string | null = null;
-    let first_paint = true;
+    let firstPaint = true;
 
     function toggleSelect(id: string) {
         if (selected === id) {
@@ -19,24 +18,24 @@ export default function () {
     }
 
     const TodoList: m.Component<Attrs> = {
-        oninit: function() {
+        oninit() {
             selected = null;
-            first_paint = true;
+            firstPaint = true;
         },
 
-        view: function(vnode) {
-            const animate_enter = !first_paint;
-            first_paint = false;
+        view(vnode) {
+            const animateEnter = !firstPaint;
+            firstPaint = false;
 
             // deselect item if it's gone
             if (selected && !vnode.attrs.todoIds.includes(selected)) {
                 selected = null;
             }
-            return m("ul.todo-list", vnode.attrs.todoIds.map(id => {
-                return m(Item, {key: id, id: id, selectCallback: toggleSelect, selected: selected === id, animate_enter});
+            return m("ul.todo-list", vnode.attrs.todoIds.map((id) => {
+                return m(Item, { key: id, id, selectCallback: toggleSelect, selected: selected === id, animateEnter});
             }));
-        }
+        },
     };
 
     return TodoList;
-};
+}

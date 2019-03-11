@@ -1,8 +1,8 @@
 import m from "mithril";
 import { MENU_SWIPE_OUT_MARGIN } from "./TodoPage";
 import { store, getTodo } from "../models/store";
-import {deleteTodo, toggleDone} from "../models/actions";
-import {formatDateTime} from "../utils";
+import { deleteTodo, toggleDone } from "../models/actions";
+import { formatDateTime } from "../utils";
 import { serverUpdate } from "../models/update";
 
 const MENU_SWIPE_OUT_EXTRA_MARGIN = 10;
@@ -13,7 +13,7 @@ interface Attrs {
     id: string;
     selectCallback: (id: string) => void;
     selected: boolean;
-    animate_enter: boolean;
+    animateEnter: boolean;
 }
 
 const Item = (): m.Component<Attrs> => {
@@ -69,7 +69,7 @@ const Item = (): m.Component<Attrs> => {
 
     return {
         oncreate(vnode) {
-            if (vnode.attrs.animate_enter) {
+            if (vnode.attrs.animateEnter) {
                 vnode.dom.classList.add("item-enter");
                 vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("item-enter"));
             }
@@ -147,9 +147,9 @@ const Item = (): m.Component<Attrs> => {
                 m("div.item-options", [
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
                         toggleSelect(id);
-                        m.route.set("/", {c: m.route.param("c"), e: id})
+                        m.route.set("/", { c: m.route.param("c"), e: id});
                     }}, "Edit"),
-                    m("button.pill-button.on-secondary.option-button", {tabindex: selected ? 0 : -1, onclick: () => {
+                    m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
                         toggleSelect(id);
                         store.dispatch(deleteTodo(id));
                         serverUpdate();
@@ -157,7 +157,7 @@ const Item = (): m.Component<Attrs> => {
                 ]),
             ]);
         },
-    }
+    };
 };
 
 export default Item;

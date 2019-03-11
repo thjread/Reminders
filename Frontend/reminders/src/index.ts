@@ -14,10 +14,10 @@ const SERVER_SYNC_INTERVAL = 2000;
 const SERVER_SYNC_HIDDEN_INTERVAL = 20000;
 
 loadFonts()
-    .then(function() {
-        document.body.classList.add('fonts-loaded');
-    }, function() {
-        console.log('Fonts not available');
+    .then(() => {
+        document.body.classList.add("fonts-loaded");
+    }, () => {
+        console.log("Fonts not available");
     });
 
 store.subscribe(storeState);
@@ -25,17 +25,17 @@ sugarDateTime();
 
 m.route(document.body, "/", {
     "/login": {
-        onmatch: function() {
+        onmatch() {
             if (loggedIn()) {
                 m.route.set("/");
             }
         },
-        render: function() {
+        render() {
             return m(App, m(Login));
-        }
+        },
     },
     "/": {
-        onmatch: function(params) {
+        onmatch(params) {
             if (!loggedIn()) {
                 m.route.set("/login");
             }
@@ -44,21 +44,22 @@ m.route(document.body, "/", {
                 if (store.getState().todos[params.e]) {
                     editId = params.e;
                 }
-                return import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils").then(({sugarParseDate}) => {
+                return import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils")
+                    .then(({ sugarParseDate}) => {
                     return Edit(params.c, sugarParseDate, editId);
-                })
+                });
             }
         },
-        render: function(vnode) {
+        render(vnode) {
             let modal;
             if (vnode.tag === "div") {
                 modal = undefined;
             } else {
                 modal = m(vnode.tag as m.Component);
             }
-            return m(App, m(TodoPage, {modal}))
-        }
-    }
+            return m(App, m(TodoPage, { modal}));
+        },
+    },
 });
 
 let syncInterval = setInterval(serverUpdate, SERVER_SYNC_INTERVAL);
@@ -77,8 +78,8 @@ serverUpdate();
 handleVisibilityChange();
 document.addEventListener("visibilitychange", handleVisibilityChange, false);
 
-window.addEventListener("online", _ => serverUpdate());
-window.addEventListener("offline", _ => m.redraw());// make sure sync indicator redraws
-window.addEventListener("keydown", e => handleShortcuts(e));
+window.addEventListener("online", (_) => serverUpdate());
+window.addEventListener("offline", (_) => m.redraw()); // make sure sync indicator redraws
+window.addEventListener("keydown", (e) => handleShortcuts(e));
 
 swInit();

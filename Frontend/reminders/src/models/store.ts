@@ -7,51 +7,51 @@ import { stateFromStorage } from "./update";
 import { hash } from "./serialize";
 
 export interface Todo {
-    title: string,
-    deadline?: Date,
-    done: boolean,
-    done_time?: Date,
-    create_time: Date
-    hide_until_done: boolean,
+    title: string;
+    deadline?: Date;
+    done: boolean;
+    done_time?: Date;
+    create_time: Date;
+    hide_until_done: boolean;
 }
-export type TodoMap = { [id: string]: Todo };
+export interface TodoMap { [id: string]: Todo; }
 
-function itemCompare(id_a: string, id_b: string) {
-    const ta = getTodo(id_a);
-    const tb = getTodo(id_b);
-    let comp1 = dateCompare(ta.deadline, tb.deadline, true);
+function itemCompare(idA: string, idB: string) {
+    const ta = getTodo(idA);
+    const tb = getTodo(idB);
+    const comp1 = dateCompare(ta.deadline, tb.deadline, true);
     if (comp1 === 0) {
-        let comp2 = dateCompare(ta.create_time, tb.create_time, false);
+        const comp2 = dateCompare(ta.create_time, tb.create_time, false);
         if (comp2 === 0) {
-            if (id_a < id_b) {// stable tie break
+            if (idA < idB) { // stable tie break
                 return -1;
             } else {
                 return 1;
             }
         } else {
-            return -comp2;// most recently created first
+            return -comp2; // most recently created first
         }
     } else {
-        return comp1;// oldest deadline first
+        return comp1; // oldest deadline first
     }
 }
 
-function completedCompare(id_a: string, id_b: string) {
-    const ta = getTodo(id_a);
-    const tb = getTodo(id_b);
-    let comp1 = dateCompare(ta.done_time, tb.done_time, false);
+function completedCompare(idA: string, idB: string) {
+    const ta = getTodo(idA);
+    const tb = getTodo(idB);
+    const comp1 = dateCompare(ta.done_time, tb.done_time, false);
     if (comp1 === 0) {
-        if (id_a < id_b) {// stable tie break
+        if (idA < idB) { // stable tie break
             return -1;
         } else {
             return 1;
         }
     } else {
-        return -comp1;// most recently completed first
+        return -comp1; // most recently completed first
     }
 }
 
-function dateCompare(a: Date | undefined, b: Date | undefined, undefined_lower: boolean) {
+function dateCompare(a: Date | undefined, b: Date | undefined, undefinedLower: boolean) {
     if (a) {
         if (b) {
             if (a < b) {
@@ -62,11 +62,11 @@ function dateCompare(a: Date | undefined, b: Date | undefined, undefined_lower: 
                 return 0;
             }
         } else {
-            return undefined_lower ? -1 : 1;
+            return undefinedLower ? -1 : 1;
         }
     } else {
         if (b) {
-            return undefined_lower ? 1 : -1;
+            return undefinedLower ? 1 : -1;
         } else {
             return 0;
         }
@@ -77,7 +77,6 @@ export interface ActionDummy {
     type: string;
     payload: any;
 }
-
 
 export interface UndoInfo {
     redoAction: () => ActionDummy;
@@ -95,7 +94,7 @@ export interface Shortcut {
     preventDefault: boolean;
 }
 
-export type ShortcutMap = { [key: string]: Shortcut};
+export interface ShortcutMap { [key: string]: Shortcut; }
 
 interface StateI {
     todos: TodoMap;
@@ -105,18 +104,18 @@ interface StateI {
     loginDetails?: LoginDetails;
     modal: any;
     message?: Message;
-    onlineAsOf?: Date
+    onlineAsOf?: Date;
     shortcutStack: ShortcutMap[];
 }
 export type State = Immutable.Immutable<StateI>;
 
 const s: StateI = {
-    todos: {},
-    hash: hash({}),
+    todos: { },
+    hash: hash({ }),
     syncActions: [],
     modal: null,
-    shortcutStack: []
-}
+    shortcutStack: [],
+};
 export const initState: State = Immutable(s);
 
 export const store = createStore(reducer, initState, (window as any).__REDUX_DEVTOOLS_EXTENSION__ && (window as any).__REDUX_DEVTOOLS_EXTENSION__());

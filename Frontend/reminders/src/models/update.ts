@@ -1,17 +1,17 @@
 import m from "mithril";
 import { store, initState, Todo } from "./store";
-import { syncActionSynced, setServerTodos, setOnlineAsOf } from  "./actions";
+import { syncActionSynced, setServerTodos, setOnlineAsOf } from "./actions";
 import { Action } from "./reducer";
 import { dateTimeReviver } from "../utils";
 import { logout, LoginDetails } from "./auth";
 import { showMessage } from "./ui";
 import { hash } from "./serialize";
 
-declare var API_URI: boolean;//provided by webpack
+declare var API_URI: boolean; // provided by webpack
 
 interface ActionDummy {
-    type: string,
-    payload: any
+    type: string;
+    payload: any;
 }
 
 export function storeState() {
@@ -62,21 +62,22 @@ export function serverUpdate(actions: ActionDummy[]
                 data: {
                     jwt: state.loginDetails.jwt,
                     batch: actions,
-                    expected_hash: state.hash
-                }
-            }).then(function (response: any) {
+                    expected_hash: state.hash,
+                },
+            }).then((response: any) => {
                 switch (response.type) {
                     case "SUCCESS": {
-                        actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
                         store.dispatch(setOnlineAsOf(new Date()));
                         break;
                     }
                     case "HASH_MISMATCH": {
-                        const hash = response.hash;
+                        const serverHash = response.hash;
                         const todos = response.todos;
-                        actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
-                        console.log("Local hash " + state.hash + " does not match hash " + hash + " from server - updating");
-                        updateWithServerTodos(todos as ServerTodoRow[], hash);
+                        actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        console.log("Local hash " + state.hash + " does not match hash " +
+                                    serverHash + " from server - updating");
+                        updateWithServerTodos(todos as ServerTodoRow[], serverHash);
                         store.dispatch(setOnlineAsOf(new Date()));
                         break;
                     }
@@ -91,21 +92,22 @@ export function serverUpdate(actions: ActionDummy[]
                     default:
                         showMessage("Server error");
                 }
-            }).catch(function (e: any) {
-                if (e.code !== 0 && e.code !== 503) {// got a response from server
+            }).catch((e: any) => {
+                if (e.code !== 0 && e.code !== 503) { // got a response from server
                     if (actions.length > 0) {
-                        showMessage("Server error - offline actions not saved (you may need to close and reopen the webpage)");
+                        showMessage(
+                            "Server error - offline actions not saved (you may need to close and reopen the webpage)");
                         // give up on actions
-                        actions.forEach(a => store.dispatch(syncActionSynced(a.payload.action_id)));
-                        setTimeout(serverUpdate, 500);// try to reset to server state
+                        actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        setTimeout(serverUpdate, 500); // try to reset to server state
                     } else {
                         showMessage("Server error (you may need to close and reopen the webpage)");
                     }
                 }
                 setOnlineAsOf(undefined);
-            })
+            });
         } else {
-            m.redraw();// make sure other UI elements refresh e.g. todos that have reached their deadline
+            m.redraw(); // make sure other UI elements refresh e.g. todos that have reached their deadline
         }
     }
 }
@@ -121,12 +123,12 @@ export interface ServerTodoRow {
 }
 
 export function serverRowToTodo(t: ServerTodoRow) {
-    let todo: Todo = {
+    const todo: Todo = {
         title: t.title,
         done: t.done,
         create_time: new Date(t.create_time+"Z"),
-        hide_until_done: t.hide_until_done
-    }
+        hide_until_done: t.hide_until_done,
+    };
     if (t.deadline) {
         todo.deadline = new Date(t.deadline+"Z");
     }
@@ -136,7 +138,7 @@ export function serverRowToTodo(t: ServerTodoRow) {
     return todo;
 }
 
-function updateWithServerTodos(todos: ServerTodoRow[], hash: number) {
-    store.dispatch(setServerTodos(todos, hash));
-    store.getState().syncActions.forEach(a => store.dispatch(a as Action));
+function updateWithServerTodos(todos: ServerTodoRow[], serverHash: number) {
+    store.dispatch(setServerTodos(todos, serverHash));
+    store.getState().syncActions.forEach((a) => store.dispatch(a as Action));
 }

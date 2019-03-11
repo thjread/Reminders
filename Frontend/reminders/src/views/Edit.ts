@@ -59,12 +59,12 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
             store.dispatch(addShortcut("Escape 000", {
                 callback: dismiss,
                 anywhere: true,
-                preventDefault: true
+                preventDefault: true,
             }));
             store.dispatch(addShortcut("Enter 010", {
                 callback: submit,
                 anywhere: true,
-                preventDefault: true
+                preventDefault: true,
             }));
         },
 

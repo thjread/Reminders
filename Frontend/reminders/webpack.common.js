@@ -1,21 +1,21 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const webpack = require('webpack');
-const CopyWebpackPlugin = require('copy-webpack-plugin')
-const CleanWebpackPlugin = require('clean-webpack-plugin');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const webpack = require("webpack");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     entry: {
-        app: './src/index.ts',
-        css: './src/main.css'
+        app: "./src/index.ts",
+        css: "./src/main.css",
     },
     module: {
         rules: [
             {
                 test: /\.tsx?$/,
-                use: 'ts-loader',
-                exclude: /node_modules/
+                use: "ts-loader",
+                exclude: /node_modules/,
             },
             /*{
                 test:/\.css$/,
@@ -30,40 +30,40 @@ module.exports = {
                     {
                         loader: MiniCssExtractPlugin.loader,
                     },
-                    "css-loader"
-                ]
-            }
-        ]
+                    "css-loader",
+                ],
+            },
+        ],
     },
     plugins: [
-        new CleanWebpackPlugin(['dist']),
+        new CleanWebpackPlugin(["dist"]),
         new HtmlWebpackPlugin({
-            template: './src/index.html'
+            template: "./src/index.html",
         }),
         new webpack.HashedModuleIdsPlugin(),
         new CopyWebpackPlugin([
-            {from: './src/manifest.json', to: './manifest.json'},
-            {from: './src/images/', to: './images/'},
-            {from: './src/favicon.ico', to: './favicon.ico'},
-            {from: './src/robots.txt', to: './robots.txt'}
+            {from: "./src/manifest.json", to: "./manifest.json"},
+            {from: "./src/images/", to: "./images/"},
+            {from: "./src/favicon.ico", to: "./favicon.ico"},
+            {from: "./src/robots.txt", to: "./robots.txt"},
         ]),
         new MiniCssExtractPlugin({
             filename: "[name].[contenthash].css",
-            chunkFilename: "[name].[contenthash].css"
-        })
+            chunkFilename: "[name].[contenthash].css",
+        }),
     ],
     resolve: {
-        extensions: ['.tsx', '.ts', '.js']
+        extensions: [".tsx", ".ts", ".js"],
     },
     output: {
-        filename: '[name].[contenthash].bundle.js',
-        chunkFilename: '[name].[contenthash].chunk.js',
-        path: path.resolve(__dirname, 'dist')
+        filename: "[name].[contenthash].bundle.js",
+        chunkFilename: "[name].[contenthash].chunk.js",
+        path: path.resolve(__dirname, "dist"),
     },
     optimization: {
-        runtimeChunk: 'single',
+        runtimeChunk: "single",
         splitChunks: {
-            chunks: 'all'
-        }
-    }
+            chunks: "all",
+        },
+    },
 };

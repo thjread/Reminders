@@ -5,7 +5,7 @@ import { stateFromStorage, serverUpdate } from "./update";
 import { showMessage, clearMessage } from "./ui";
 import { pushSubscribe, pushUnsubscribe } from "./sw-manager";
 
-declare var API_URI: boolean;//provided by webpack
+declare var API_URI: boolean; // provided by webpack
 
 export interface LoginDetails {
     username: string;
@@ -14,7 +14,7 @@ export interface LoginDetails {
 }
 
 export function loggedIn(state: State = store.getState()) {
-    return store.getState().loginDetails ? true : false;
+    return state.loginDetails ? true : false;
 }
 
 export function doLogin(loginDetails: LoginDetails) {
@@ -30,17 +30,17 @@ export function login(username: string, password: string) {
     return m.request({
         method: "POST",
         url: API_URI+"/login",
-        data: {username, password}
-    }).then(function (response: any) {
+        data: { username, password},
+    }).then((response: any) => {
         switch (response.type) {
             case "Success":
                 const loginDetails: LoginDetails = {
                     username,
                     userid: response.userid,
-                    jwt: response.jwt
-                }
+                    jwt: response.jwt,
+                };
                 return loginDetails;
-                //doLogin(loginDetails);
+                // doLogin(loginDetails);
             case "UsernameNotFound":
                 showMessage("User \"" + username + "\" not found");
                 break;
@@ -48,13 +48,13 @@ export function login(username: string, password: string) {
                 showMessage("Incorrect password");
                 break;
         }
-    }).catch(function (e) {
+    }).catch((e) => {
         if (e.code !== 0 && e.code !== 503) {
             showMessage("Server error");
         } else {
             showMessage("Failed to reach server - please check your internet connection and try again");
         }
-    })
+    });
 }
 
 export function logout(unsubscribe: boolean = true) {
@@ -66,7 +66,7 @@ export function logout(unsubscribe: boolean = true) {
 }
 
 export function signup(username: string, password: string) {
-    if (password.length == 0) {
+    if (password.length === 0) {
         showMessage("Please enter a password");
         return Promise.resolve();
     }
@@ -74,17 +74,17 @@ export function signup(username: string, password: string) {
     return m.request({
         method: "POST",
         url: API_URI+"/signup",
-        data: {username, password}
-    }).then(function (response: any) {
+        data: { username, password},
+    }).then((response: any) => {
         switch (response.type) {
             case "Success":
                 const loginDetails: LoginDetails = {
                     username,
                     userid: response.userid,
-                    jwt: response.jwt
-                }
+                    jwt: response.jwt,
+                };
                 return loginDetails;
-                //doLogin(loginDetails);
+                // doLogin(loginDetails);
             case "UsernameTooLong":
                 showMessage("Username \"" + username + "\" is too long (max 100 characters)");
                 break;
@@ -92,11 +92,11 @@ export function signup(username: string, password: string) {
                 showMessage("Username \"" + username + "\" is already taken");
                 break;
         }
-    }).catch(function (e) {
+    }).catch((e) => {
         if (e.code !== 0 && e.code !== 503) {
             showMessage("Server error");
         } else {
             showMessage("Failed to reach server - please check your internet connection and try again");
         }
-    })
+    });
 }

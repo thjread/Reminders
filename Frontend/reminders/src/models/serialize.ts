@@ -7,9 +7,9 @@ function dateFormat(d: Date) {
 }
 
 function serializeTodo(id: string, t: Todo) {
-    let deadline = t.deadline ? `Some(${dateFormat(t.deadline)})` : "None";
-    let done_time = t.done_time ? `Some(${dateFormat(t.done_time)})` : "None";
-   return `[id]:${id},
+    const deadline = t.deadline ? `Some(${dateFormat(t.deadline)})` : "None";
+    const done_time = t.done_time ? `Some(${dateFormat(t.done_time)})` : "None";
+    return `[id]:${id},
 [title]:"${t.title}",
 [deadline]:${deadline},
 [done]:${t.done},
@@ -21,15 +21,15 @@ function serializeTodo(id: string, t: Todo) {
 
 export function serializeTodos(todos: TodoMap) {
     let result = "";
-    Object.keys(todos).sort().forEach(key => {
+    Object.keys(todos).sort().forEach((key) => {
         result += "[\n";
         result += serializeTodo(key, todos[key]);
         result += "]\n";
-    })
+    });
     return result;
 }
 
 export function hash(todos: TodoMap) {
-    let s = serializeTodos(todos);
-    return parseInt(XXH.h32(s, 42).toString(10));
+    const s = serializeTodos(todos);
+    return parseInt(XXH.h32(s, 42).toString(10), 10);
 }

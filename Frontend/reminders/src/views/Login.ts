@@ -62,30 +62,30 @@ export default () => {
                     },
                 }, [
                     m("h2.form-title", "LOGIN"),
-                    m("input[type=text].text-input#username",// TODO wrap in a div
-                      {name: "username", placeholder: "Username", "aria-label": "Username",
-                       oninput: function (e: any) {username = e.currentTarget.value;},
-                       value: username
+                    m("input[type=text].text-input#username", // TODO wrap in a div
+                      { name: "username", placeholder: "Username", "aria-label": "Username",
+                       oninput(e: any) { username = e.currentTarget.value; },
+                       value: username,
                       }),
                     m("input[type=password].text-input",
-                      {name: "password", placeholder: "Password", "aria-label": "Password",
-                       oninput: function (e: any) {password = e.currentTarget.value;},
-                       value: password
+                      { name: "password", placeholder: "Password", "aria-label": "Password",
+                       oninput(e: any) { password = e.currentTarget.value; },
+                       value: password,
                       }),
                     m("div.login-signup", [
                         m("button[type=submit].pill-button.large-fixed.on-secondary.fill",
-                          {class: pending ? "processing" : undefined},
+                          { class: pending ? "processing" : undefined},
                           m("div.button-text",
                             isLogin ?
                             (pending ? "Logging in..." : "Log in") :
-                            (pending ? "Signing up..." : "Sign up")
+                            (pending ? "Signing up..." : "Sign up"),
                            )),
                         m("button[type=button].text-button",
-                          { onclick: function() { isLogin = !isLogin } },
-                          isLogin ? "Sign up" : "Log in")
-                    ])
-                ]))
-            ])
-        }
-    }
-}
+                          { onclick() { isLogin = !isLogin; } },
+                          isLogin ? "Sign up" : "Log in"),
+                    ]),
+                ])),
+            ]);
+        },
+    };
+};

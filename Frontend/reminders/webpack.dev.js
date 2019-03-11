@@ -1,23 +1,23 @@
-const merge = require('webpack-merge');
-const common = require('./webpack.common.js');
+const merge = require("webpack-merge");
+const common = require("./webpack.common.js");
 
 module.exports = merge(common, {
-    mode: 'development',
+    mode: "development",
     devServer: {
-        contentBase: './dist'
+        contentBase: "./dist",
     },
     module: {
         rules: [
             {
                 test: /\.ts$/,
-                enforce: 'pre',
+                enforce: "pre",
                 use: [
                     {
-                        loader: 'tslint-loader',
-                        options: { /* Loader options go here */ }
-                    }
-                ]
-            }
-        ]
-    }
+                        loader: "tslint-loader",
+                        options: { /* Loader options go here */ },
+                    },
+                ],
+            },
+        ],
+    },
 });

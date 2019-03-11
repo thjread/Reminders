@@ -1,10 +1,10 @@
 import { ActionType, getType } from "typesafe-actions";
 import { hash } from "./serialize";
 
-import { State, initState, Todo, ActionDummy, ShortcutMap } from "./store";
+import { State, initState, Todo, ActionDummy } from "./store";
 import * as actions from "./actions";
 export type Action = ActionType<typeof actions>;
-import Immutable from "seamless-immutable"
+import Immutable from "seamless-immutable";
 
 export default (state: State, action: Action) => {
     switch (action.type) {
@@ -20,11 +20,11 @@ export default (state: State, action: Action) => {
             const done_time = action.payload.done_time;
             const create_time = action.payload.create_time;
             const hide_until_done = action.payload.hide_until_done;
-            let new_todo: Todo = {
-                title: title,
-                done: done,
-                create_time: create_time,
-                hide_until_done
+            const new_todo: Todo = {
+                title,
+                done,
+                create_time,
+                hide_until_done,
             };
             if (deadline) {
                 new_todo.deadline = deadline;
@@ -32,9 +32,9 @@ export default (state: State, action: Action) => {
             if (done_time) {
                 new_todo.done_time = done_time;
             }
-            let s = state.set("todos", state.todos.merge({
-                [id]: new_todo
-            }))
+            const s = state.set("todos", state.todos.merge({
+                [id]: new_todo,
+            }));
             return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.editTodo): {
@@ -43,11 +43,11 @@ export default (state: State, action: Action) => {
             const deadline = action.payload.deadline;
             const old_todo = state.todos[id];
             const hide_until_done = action.payload.hide_until_done;
-            let new_todo: Todo = {
-                title: title,
+            const new_todo: Todo = {
+                title,
                 done: old_todo.done,
                 create_time: new Date(old_todo.create_time.getTime()),
-                hide_until_done
+                hide_until_done,
             };
             if (deadline) {
                 new_todo.deadline = deadline;
@@ -55,22 +55,22 @@ export default (state: State, action: Action) => {
             if (old_todo.done_time) {
                 new_todo.done_time = new Date(old_todo.done_time.getTime());
             }
-            let s = state.set("todos", state.todos.merge({
-                [id]: new_todo
-            }))
+            const s = state.set("todos", state.todos.merge({
+                [id]: new_todo,
+            }));
             return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.toggleDone): {
             const id = action.payload.id;
             const done = action.payload.done;
             const done_time = action.payload.done_time;
-            let s = state.setIn(["todos", id, "done"], done)
+            const s = state.setIn(["todos", id, "done"], done)
                 .setIn(["todos", id, "done_time"], done_time);
             return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.deleteTodo): {
             const id = action.payload.id;
-            let s = state.set("todos", state.todos.without(id));
+            const s = state.set("todos", state.todos.without(id));
             return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.syncAction):
@@ -83,15 +83,15 @@ export default (state: State, action: Action) => {
             const action_id = action.payload.action_id;
             return state.set("syncActions",
                              state.syncActions.filter(
-                                 a => a.payload.action_id !== action_id
+                                 (a) => a.payload.action_id !== action_id,
                              ));
         case getType(actions.setState):
             return action.payload.state;
         case getType(actions.setServerTodos): {
             const todos = action.payload.todos;
-            const hash = action.payload.hash;
-            let s = state.set("todos", todos);
-            return s.set("hash", hash);
+            const serverHash = action.payload.hash;
+            const s = state.set("todos", todos);
+            return s.set("hash", serverHash);
         }
         case getType(actions.setMessage):
             const message = action.payload.message;
@@ -100,7 +100,7 @@ export default (state: State, action: Action) => {
             const time = action.payload.time;
             return state.set("onlineAsOf", time);
         case getType(actions.createShortcutContext): {
-            return state.set("shortcutStack", Immutable([{}]).concat(state.shortcutStack));
+            return state.set("shortcutStack", Immutable([{ }]).concat(state.shortcutStack));
         }
         case getType(actions.popShortcutContext): {
             return state.set("shortcutStack", state.shortcutStack.slice(1, state.shortcutStack.length));
@@ -111,7 +111,7 @@ export default (state: State, action: Action) => {
             if (state.shortcutStack.length > 0) {
                 const shortcuts = Immutable(state.shortcutStack[0]);
                 return state.setIn(["shortcutStack", 0], shortcuts.merge({
-                    [code]: shortcut
+                    [code]: shortcut,
                 }));
             }
         }
@@ -123,4 +123,4 @@ export default (state: State, action: Action) => {
         default:
             return state;
     }
-}
+};

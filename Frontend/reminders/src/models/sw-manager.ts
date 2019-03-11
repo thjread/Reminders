@@ -5,31 +5,31 @@ import { store } from "./store";
 import { toggleDone } from "./actions";
 import { showMessage } from "./ui";
 
-declare var API_URI: boolean;//provided by webpack
+declare var API_URI: boolean; // provided by webpack
 
-var registration: null | ServiceWorkerRegistration = null;
-var subscription: null | PushSubscription = null;
+let registration: null | ServiceWorkerRegistration = null;
+let subscription: null | PushSubscription = null;
 
 export function swInit() {
     if ("serviceWorker" in navigator) {
-        window.addEventListener('load', function () {
-            navigator.serviceWorker.register("/sw.js", {scope: "/"}).then(function (reg) {
-                if(reg.installing) {
-                    console.log('Service worker installing');
-                } else if(reg.waiting) {
-                    console.log('Service worker installed');
-                } else if(reg.active) {
-                    console.log('Service worker active');
+        window.addEventListener("load", () => {
+            navigator.serviceWorker.register("/sw.js", { scope: "/"}).then((reg) => {
+                if (reg.installing) {
+                    console.log("Service worker installing");
+                } else if (reg.waiting) {
+                    console.log("Service worker installed");
+                } else if (reg.active) {
+                    console.log("Service worker active");
                 }
                 registration = reg;
                 if (loggedIn()) {
                     pushSubscribe();
                 }
-            }).catch(function(error) {
+            }).catch((error) => {
                 console.log("Service worker registration failed with " + error);
             });
         });
-        navigator.serviceWorker.addEventListener('message', function (event) {
+        navigator.serviceWorker.addEventListener("message", (event) => {
             switch (event.data.type) {
                 case "DONE":
                     const state = store.getState();
@@ -38,7 +38,7 @@ export function swInit() {
                     }
                     break;
             }
-        })
+        });
     }
 }
 
@@ -48,19 +48,20 @@ export function pushSubscribe() {
         const jwt = state.loginDetails.jwt;
         registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array('BPIRY5FILkfU3oWiL5_glenBme7ryX39oucdQqwjl_EHME9f4IDSC2mQdIQe-Hnu5viH1kUPnjZCUlTvlnfNSeY=')
-        }).then(function (pushSubscription) {
+            applicationServerKey: urlBase64ToUint8Array(
+                "BPIRY5FILkfU3oWiL5_glenBme7ryX39oucdQqwjl_EHME9f4IDSC2mQdIQe-Hnu5viH1kUPnjZCUlTvlnfNSeY="),
+        }).then((pushSubscription) => {
             subscription = pushSubscription;
             console.log(JSON.stringify(pushSubscription));
             return m.request({
                 method: "POST",
                 url: API_URI+"/subscribe",
                 data: {
-                    jwt: jwt,
-                    info: pushSubscription
-                }
-            }).then(function (response: any) {
-                switch(response.type) {
+                    jwt,
+                    info: pushSubscription,
+                },
+            }).then((response: any) => {
+                switch (response.type) {
                     case "SUCCESS": {
                         console.log("Registered subscription info");
                         break;
@@ -76,14 +77,14 @@ export function pushSubscribe() {
                     default:
                         showMessage("Server error");
                 }
-            }).catch(function (e) {
+            }).catch((e) => {
                 if (e.code !== 0) {
                     showMessage("Server error");
                 }
             });
-        }).catch(function (error) {
+        }).catch((error) => {
             console.log("Push manager subscription failed with " + error);
-        })
+        });
     }
 }
 
@@ -95,11 +96,11 @@ export function pushUnsubscribe() {
             method: "DELETE",
             url: API_URI+"/unsubscribe",
             data: {
-                jwt: jwt,
-                info: subscription
-            }
-        }).then(function (response: any) {
-            switch(response.type) {
+                jwt,
+                info: subscription,
+            },
+        }).then((response: any) => {
+            switch (response.type) {
                 case "SUCCESS": {
                     console.log("Removed subscription info");
                     break;
@@ -115,10 +116,10 @@ export function pushUnsubscribe() {
                 default:
                     showMessage("Server error");
             }
-        }).catch(function (e) {
+        }).catch((e) => {
             if (e.code !== 0) {
                 showMessage("Server error");
             }
-        })
+        });
     }
 }
