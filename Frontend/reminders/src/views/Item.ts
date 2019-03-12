@@ -74,7 +74,7 @@ const Item = (): m.Component<Attrs> => {
                 vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("item-enter"));
             }
 
-            vnode.dom.addEventListener("touchstart", touchStart, false);
+            vnode.dom.addEventListener("touchstart", touchStart, { passive: true });
             vnode.dom.addEventListener("touchmove", (e) => touchMove(e as TouchEvent, vnode.dom, () => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
@@ -82,8 +82,8 @@ const Item = (): m.Component<Attrs> => {
                     store.dispatch(toggleDone(id, true));
                     m.redraw();
                 }
-            }), false);
-            vnode.dom.addEventListener("touchend", touchEnd, false);
+            }), { passive: true });
+            vnode.dom.addEventListener("touchend", touchEnd, { passive: true });
         },
 
         onbeforeremove(vnode: any) {

@@ -140,9 +140,9 @@ const TodoPage = (): m.Component<Attrs> => {
             desktopQueryHandle(desktopQuery);
             desktopQuery.addListener(desktopQueryHandle);
 
-            window.addEventListener("touchstart", menuTouchStart, false);
-            window.addEventListener("touchmove", menuTouchMove, false);
-            window.addEventListener("touchend", menuTouchEnd, false);
+            window.addEventListener("touchstart", menuTouchStart, { passive: true });
+            window.addEventListener("touchmove", menuTouchMove, { passive: true });
+            window.addEventListener("touchend", menuTouchEnd, { passive: true });
 
             oldContext = null; // ensure contextChanged=true on first draw
         },
@@ -150,9 +150,9 @@ const TodoPage = (): m.Component<Attrs> => {
         onremove() {
             store.dispatch(popShortcutContext());
             desktopQuery.removeListener(desktopQueryHandle);
-            window.removeEventListener("touchstart", menuTouchStart, false);
-            window.removeEventListener("touchmove", menuTouchMove, false);
-            window.removeEventListener("touchend", menuTouchEnd, false);
+            window.removeEventListener("touchstart", menuTouchStart, { passive: true } as EventListenerOptions);
+            window.removeEventListener("touchmove", menuTouchMove, { passive: true } as EventListenerOptions);
+            window.removeEventListener("touchend", menuTouchEnd, { passive: true } as EventListenerOptions);
         },
 
         view(vnode) {
