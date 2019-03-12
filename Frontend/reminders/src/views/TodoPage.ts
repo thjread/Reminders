@@ -213,7 +213,10 @@ const TodoPage = (): m.Component<Attrs> => {
             const header =
                 m("header.header", { class: contextClass(context)}, [
                     m("div.header-first", [
-                        m("button.menu-icon", { onclick: () => { doShowMenu(!showMenu); }}, m.trust(MENU_SVG)),
+                        m("button.menu-icon", {
+                            "aria-label": "Menu",
+                            onclick: () => { doShowMenu(!showMenu); },
+                        }, m.trust(MENU_SVG)),
                     ]),
                     m("div.header-last", [
                         m("div.cloud", { class: showSynced ? undefined : "cloud-hidden" }, m.trust(CLOUD_SVG)),
