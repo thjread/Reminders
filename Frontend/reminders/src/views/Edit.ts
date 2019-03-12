@@ -105,7 +105,7 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
                       },
                   }, m("div.modal-form-contents", [
                       m("div.form-top-bar", [
-                          m("h2.form-title", editId ? "EDIT" : "NEW"),
+                          m("h2.form-title.title-font", editId ? "EDIT" : "NEW"),
                           m("button[type=button].text-button.on-secondary", {
                               onclick: dismiss }, "Cancel"),
                       ]),

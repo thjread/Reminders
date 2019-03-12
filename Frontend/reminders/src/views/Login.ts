@@ -61,7 +61,7 @@ export default () => {
                         }
                     },
                 }, [
-                    m("h2.form-title", "LOGIN"),
+                    m("h2.form-title.title-font", "LOGIN"),
                     m("input[type=text].text-input#username", // TODO wrap in a div
                       { name: "username", placeholder: "Username", "aria-label": "Username",
                        oninput(e: any) { username = e.currentTarget.value; },

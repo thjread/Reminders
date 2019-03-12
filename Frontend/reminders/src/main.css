@@ -521,7 +521,7 @@ body.noscroll {
 }
 
 .form-title {
-    font-size: 1rem;
+    font-size: 1.05rem;
     color: var(--on-secondary);
     padding-top: 0.1rem;
     padding-bottom: 0.1rem;
