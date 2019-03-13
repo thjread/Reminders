@@ -124,17 +124,19 @@ const Item = (): m.Component<Attrs> => {
                 }
             }
 
+            const toggleAndScrollUp = () => {
+                if (selected) {
+                    const itemTitle = document.getElementById(id+"-item-title");
+                    if (itemTitle) {
+                        itemTitle.scrollTop = 0;
+                    }
+                }
+                toggleSelect(id);
+            };
+
             return m("li.item", { class: selected ? "selected" : undefined }, [
                 m("div.item-main", {
-                    onclick: () => {
-                        if (selected) {
-                            const itemTitle = document.getElementById(id+"-item-title");
-                            if (itemTitle) {
-                                itemTitle.scrollTop = 0;
-                            }
-                        }
-                        toggleSelect(id);
-                    },
+                    onclick: toggleAndScrollUp,
                 }, [
                     m("div.item-first", [
                         m("input[type=checkbox]",
@@ -156,11 +158,11 @@ const Item = (): m.Component<Attrs> => {
                 ]),
                 m("div.item-options", [
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
-                        toggleSelect(id);
+                        toggleAndScrollUp();
                         m.route.set("/", { c: m.route.param("c"), e: id});
                     }}, "Edit"),
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
-                        toggleSelect(id);
+                        toggleAndScrollUp();
                         store.dispatch(deleteTodo(id));
                         serverUpdate();
                     }}, "Delete"),
