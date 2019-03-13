@@ -40,7 +40,6 @@ export function login(username: string, password: string) {
                     jwt: response.jwt,
                 };
                 return loginDetails;
-                // doLogin(loginDetails);
             case "UsernameNotFound":
                 showMessage("User \"" + username + "\" not found");
                 break;
@@ -84,7 +83,6 @@ export function signup(username: string, password: string) {
                     jwt: response.jwt,
                 };
                 return loginDetails;
-                // doLogin(loginDetails);
             case "UsernameTooLong":
                 showMessage("Username \"" + username + "\" is too long (max 100 characters)");
                 break;
