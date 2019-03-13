@@ -471,6 +471,9 @@ body.noscroll {
     background-color: var(--secondary);
     width: 100%;
     pointer-events: auto;
+    border: 0.5px solid var(--outline-faint);
+    border-radius: 0.5rem;
+    padding: 0.8rem 1rem;
 }
 
 .edit .modal-form,
@@ -514,18 +517,11 @@ body.noscroll {
 }
 
 .login-form {
-    border: 0.5px solid var(--outline-faint);
-    border-radius: 0.3rem;
-    width: 90%;
-    max-width: 23rem;
-    padding-bottom: 1.4rem;
+    max-width: 25rem;
 }
 
 .edit-form {
-    border: 0.5px solid var(--outline-faint);
-    border-radius: 0.5rem;
     max-width: 35rem;
-    padding: 0.8rem 1rem;
 }
 
 .form-top-bar {

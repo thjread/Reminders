@@ -46,6 +46,8 @@ module.exports = {
             {from: "./src/images/", to: "./images/"},
             {from: "./src/favicon.ico", to: "./favicon.ico"},
             {from: "./src/robots.txt", to: "./robots.txt"},
+            {from: "./src/404.html", to: "./404.html"},
+            {from: "./src/50x.html", to: "./50x.html"},
         ]),
         new MiniCssExtractPlugin({
             filename: "[name].[contenthash].css",

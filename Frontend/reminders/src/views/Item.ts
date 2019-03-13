@@ -158,11 +158,9 @@ const Item = (): m.Component<Attrs> => {
                 ]),
                 m("div.item-options", [
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
-                        toggleAndScrollUp();
                         m.route.set("/", { c: m.route.param("c"), e: id});
                     }}, "Edit"),
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
-                        toggleAndScrollUp();
                         store.dispatch(deleteTodo(id));
                         serverUpdate();
                     }}, "Delete"),
