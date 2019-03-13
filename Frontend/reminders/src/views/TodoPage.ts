@@ -201,8 +201,8 @@ const TodoPage = (): m.Component<Attrs> => {
                     const other = otherTodos();
                     todoSections = [
                         section(due, "DUE"),
-                        section(other, "TASKS"),
                         section(deadline, "DEADLINES"),
+                        section(other, "TASKS"),
                     ];
                     break;
                 }
