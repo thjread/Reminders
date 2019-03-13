@@ -850,7 +850,6 @@ body.noscroll {
     opacity: 0;
     pointer-events: none;
     transition: 0.1s opacity ease-out;
-    will-change: opacity;
 }
 
 .menu-show .menu-shadow {

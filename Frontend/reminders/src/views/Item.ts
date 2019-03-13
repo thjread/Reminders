@@ -100,7 +100,7 @@ const Item = (): m.Component<Attrs> => {
             const selected = vnode.attrs.selected;
 
             let displayTime = null;
-            let displayColorClass: string | undefined = undefined;
+            let displayColorClass;
             switch (m.route.param("c")) {
                 case "completed": {
                     displayTime = item.done_time;
