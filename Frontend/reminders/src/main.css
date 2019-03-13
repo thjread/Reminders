@@ -1139,7 +1139,7 @@ body.noscroll {
 }
 @keyframes enlarge {
     0% {
-        max-height: 3.75em;
+        max-height: 4.55em;
         overflow-y: hidden;
     }
     99% {
