@@ -13,6 +13,7 @@ module.exports = merge(common, {
             swSrc: "./src/sw.js",
             swDest: "sw.js",
             importWorkboxFrom: "local",
+            exclude: ["./404.html", "./50x.html"],
         }),
     ],
     optimization: {
