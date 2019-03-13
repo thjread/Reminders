@@ -7,7 +7,9 @@ import { serverUpdate } from "../models/update";
 
 const MENU_SWIPE_OUT_EXTRA_MARGIN = 10;
 const SWIPE_DONE_DISTANCE = 95;
+const SWIPE_SELECTED_DONE_DISTANCE = 130;
 const SWIPE_DONE_Y_MARGIN = 0;
+const SWIPE_SELECTED_Y_GUTTER = 85;
 
 interface Attrs {
     id: string;
@@ -20,6 +22,8 @@ const Item = (): m.Component<Attrs> => {
     let swipingRight = false;
     let swipingRightTime = 0;
     let startX = 0;
+    let startY = 0;
+    let selected = false;
 
     function speedBonus(speed: number) {
         return Math.max(0, Math.min(1, speed-1));
@@ -33,6 +37,7 @@ const Item = (): m.Component<Attrs> => {
         if (e.changedTouches.length === 1) {
             const touch = e.changedTouches[0];
             startX = touch.pageX;
+            startY = touch.pageY;
 
             if (startX > MENU_SWIPE_OUT_MARGIN + MENU_SWIPE_OUT_EXTRA_MARGIN) {
                 swipingRight = true;
@@ -49,11 +54,17 @@ const Item = (): m.Component<Attrs> => {
             const diff = touch.pageX - startX;
 
             const rect = elem.getBoundingClientRect();
-            if (touch.clientY > rect.top - SWIPE_DONE_Y_MARGIN && touch.clientY < rect.bottom + SWIPE_DONE_Y_MARGIN) {
+            if (touch.clientY > rect.top - SWIPE_DONE_Y_MARGIN &&
+                touch.clientY < rect.bottom + SWIPE_DONE_Y_MARGIN &&
+                !(selected && Math.abs(startY - touch.pageY) > SWIPE_SELECTED_Y_GUTTER)) {
                 const time = e.timeStamp - swipingRightTime;
                 const speed = diff / time;
                 const multiplier = 1 + speedBonus(speed) + slowPenalty(time);
-                if (multiplier*diff > SWIPE_DONE_DISTANCE) {
+                const selectedMultiplier = 1 + slowPenalty(time);
+                // if selected, don't allow speed bonus, and have higher threshold,
+                // to prevent accidental marking as done while scrolling
+                if ((!selected && multiplier*diff > SWIPE_DONE_DISTANCE) ||
+                    (selected && selectedMultiplier*diff > SWIPE_SELECTED_DONE_DISTANCE)) {
                     swipingRight = false;
                     callback();
                 }
@@ -97,7 +108,7 @@ const Item = (): m.Component<Attrs> => {
             const id = vnode.attrs.id;
             const item = getTodo(id);
             const toggleSelect = vnode.attrs.selectCallback;
-            const selected = vnode.attrs.selected;
+            selected = vnode.attrs.selected;
 
             let displayTime = null;
             let displayColorClass;
