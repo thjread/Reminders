@@ -522,7 +522,6 @@ body.noscroll {
 }
 
 .edit-form {
-    /*padding: 0.8rem 0.6rem;*/
     border: 0.5px solid var(--outline-faint);
     border-radius: 0.5rem;
     max-width: 35rem;
@@ -1125,7 +1124,12 @@ body.noscroll {
     overflow: hidden;
     max-height: 4.55em;
     transition: max-height 0.3s;
+
+    /* word-wrap and overflow-wrap work in Firefox,
+    break-word works in Chrome */
     word-wrap: anywhere;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .selected .item-title {
@@ -1339,7 +1343,7 @@ input[type=checkbox]:checked + .css-check::after {
 
 /* Short height e.g. mobile, keyboard open layout */
 
-@media only screen and (max-height: 450px) {
+@media only screen and (max-height: 400px) {
     .login-header {
         display: none;
     }
@@ -1386,6 +1390,7 @@ input[type=checkbox]:checked + .css-check::after {
     .modal-form {
         box-shadow: none;
         border: none;
+        padding: 0.8rem 0.3rem;
     }
 }
 

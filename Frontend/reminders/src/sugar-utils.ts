@@ -34,7 +34,7 @@ export const sugarFormatDateTime = (d: Date) => {
     } else if (Sugar.Date.isTomorrow(d)) {
         formatDay = "Tomorrow";
     } else if (d.getTime() > Date.now() && Sugar.Date.daysUntil(Sugar.Date.create("today"), d) < 7) {
-        formatDay = "{Dow}";
+        formatDay = "{Weekday}";
     }
     let formatYear = "{year} ";
     if (Sugar.Date.isThisYear(d)) {
