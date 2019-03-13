@@ -1,7 +1,7 @@
 import m from "mithril";
 import { store } from "./models/store"; // initialise store
 import { storeState, serverUpdate } from "./models/update";
-import { loadFonts, sugarDateTime } from "./utils";
+import { sugarDateTime } from "./utils";
 import { handleShortcuts } from "./models/ui";
 import { swInit } from "./models/sw-manager";
 import App from "./views/App";
@@ -12,13 +12,6 @@ import { loggedIn } from "./models/auth";
 
 const SERVER_SYNC_INTERVAL = 2000;
 const SERVER_SYNC_HIDDEN_INTERVAL = 20000;
-
-loadFonts()
-    .then(() => {
-        document.body.classList.add("fonts-loaded");
-    }, () => {
-        console.error("Fonts not available");
-    });
 
 store.subscribe(storeState);
 sugarDateTime();
