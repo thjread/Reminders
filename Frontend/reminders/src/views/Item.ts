@@ -2,7 +2,7 @@ import m from "mithril";
 import { MENU_SWIPE_OUT_MARGIN } from "./TodoPage";
 import { store, getTodo } from "../models/store";
 import { deleteTodo, toggleDone } from "../models/actions";
-import { formatDateTime } from "../utils";
+import { formatDateTime, dateColorClass } from "../utils";
 import { serverUpdate } from "../models/update";
 
 const MENU_SWIPE_OUT_EXTRA_MARGIN = 10;
@@ -100,6 +100,7 @@ const Item = (): m.Component<Attrs> => {
             const selected = vnode.attrs.selected;
 
             let displayTime = null;
+            let displayColorClass: string | undefined = undefined;
             switch (m.route.param("c")) {
                 case "completed": {
                     displayTime = item.done_time;
@@ -107,11 +108,17 @@ const Item = (): m.Component<Attrs> => {
                 }
                 case "upcoming": {
                     displayTime = item.deadline;
+                    if (displayTime) {
+                        displayColorClass = dateColorClass(displayTime);
+                    }
                     break;
                 }
                 default: {
                     if (!item.hide_until_done) {
                         displayTime = item.deadline;
+                        if (displayTime) {
+                            displayColorClass = dateColorClass(displayTime);
+                        }
                     }
                     break;
                 }
@@ -142,7 +149,10 @@ const Item = (): m.Component<Attrs> => {
                         m("label.css-check", { for: id+"-check" }),
                         m("h2.item-title", { id: id+"-item-title" }, item.title),
                     ]),
-                    displayTime ? m("h3.item-deadline", formatDateTime(displayTime)) : undefined,
+                    displayTime ? m("h3.item-deadline",
+                                    { class: displayColorClass },
+                                    formatDateTime(displayTime),
+                                   ) : undefined,
                 ]),
                 m("div.item-options", [
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {

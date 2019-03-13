@@ -1,12 +1,26 @@
 import m from "mithril";
 
 export let formatDateTime = (d: Date) => {
-    return d.toLocaleTimeString() + " " + d.toLocaleDateString();
+    if (d.toLocaleTimeString() !== "00:00:00") {
+        return d.toLocaleTimeString() + " " + d.toLocaleDateString();
+    } else {
+        return d.toLocaleDateString();
+    }
+};
+
+export let dateColorClass = (d: Date): string | undefined => {
+    if (d.getTime() <= Date.now()) {
+        return "due";
+    } else {
+        return undefined;
+    }
 };
 
 export function sugarDateTime() {
-    import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils").then(({ sugarFormatDateTime}) => {
+    import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils")
+        .then(({ sugarFormatDateTime, sugarDateColorClass}) => {
         formatDateTime = sugarFormatDateTime;
+        dateColorClass = sugarDateColorClass;
         m.redraw();
     }).catch((e) => "Error " + e + " while loading Sugar library");
 }

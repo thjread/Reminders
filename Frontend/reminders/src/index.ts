@@ -13,8 +13,8 @@ import { loggedIn } from "./models/auth";
 const SERVER_SYNC_INTERVAL = 2000;
 const SERVER_SYNC_HIDDEN_INTERVAL = 20000;
 
-store.subscribe(storeState);
 sugarDateTime();
+store.subscribe(storeState);
 
 m.route(document.body, "/", {
     "/login": {

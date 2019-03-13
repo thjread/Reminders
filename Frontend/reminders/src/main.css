@@ -285,6 +285,16 @@ button::-moz-focus-inner {
     --completed-dark: #b28a27;
     --completed-dark-90: #b28a2790;
 
+    --due: #ff3b22;
+    --today: #e5005b;
+    --tomorrow: #b100d4;
+    --overmorrow: #5c18ff;
+    /*--overmorrow: #aa18ff;*/
+    /*--week: #474eef;*/
+    --week: #008094;
+    /*--later: #008f8c;*/
+    --later: #2a7d0d;
+
     --login-animation-length: 0.3s;
     --modal-animation-length: 0.3s;
     --modal-exit-animation-length: 0.2s;
@@ -1151,6 +1161,28 @@ body.noscroll {
     padding-right: 0.4rem;/* stop weird clipping */
     overflow-y: hidden;
     overflow-x: hidden;/*seems to be necessary to avoid scrollbar*/
+}
+
+.due.item-deadline {
+    color: var(--due);
+    border-right: 0.15rem solid var(--due);
+}
+
+.today.item-deadline {
+    color: var(--today);
+    border-right: 0.1rem solid var(--today);
+}
+.tomorrow.item-deadline {
+    color: var(--tomorrow);
+}
+.overmorrow.item-deadline {
+    color: var(--overmorrow);
+}
+.week.item-deadline {
+    color: var(--week);
+}
+.later.item-deadline {
+    color: var(--later);
 }
 
 .selected .item-deadline {

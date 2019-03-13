@@ -1,6 +1,25 @@
 // tslint:disable-next-line:no-var-requires
 const Sugar = require("./sugar");
 
+export const sugarDateColorClass = (d: Date): string | undefined => {
+    if (d.getTime() <= Date.now()) {
+        return "due";
+    } else if (Sugar.Date.isToday(d)) {
+        return "today";
+    } else if (Sugar.Date.isTomorrow(d)) {
+        return "tomorrow";
+    } else {
+        const days = Sugar.Date.daysUntil(Sugar.Date.create("today"), d);
+        if (days < 3) {
+            return "overmorrow";
+        } else if (days < 7) {
+            return "week";
+        } else {
+            return "later";
+        }
+    }
+};
+
 export const sugarFormatDateTime = (d: Date) => {
     // TODO rewrite this to not use sugar
     let formatTime = " {hours}:{mm}{tt}";
