@@ -1,0 +1,3 @@
+#!/bin/sh
+pg_dump -U postgres -h db postgres > /root/$1
+aws s3 cp /root/$1 s3://reminders-backup

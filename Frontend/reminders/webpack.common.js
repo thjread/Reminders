@@ -35,12 +35,13 @@ module.exports = {
             },
         ],
     },
+    output: {
+        filename: "[name].[contenthash].bundle.js",
+        chunkFilename: "[name].[contenthash].chunk.js",
+        path: path.resolve(__dirname, "dist"),
+    },
     plugins: [
         new CleanWebpackPlugin(["dist"]),
-        new HtmlWebpackPlugin({
-            template: "./src/index.html",
-        }),
-        new webpack.HashedModuleIdsPlugin(),
         new CopyWebpackPlugin([
             {from: "./src/manifest.json", to: "./manifest.json"},
             {from: "./src/images/", to: "./images/"},
@@ -49,6 +50,10 @@ module.exports = {
             {from: "./src/404.html", to: "./404.html"},
             {from: "./src/50x.html", to: "./50x.html"},
         ]),
+        new HtmlWebpackPlugin({
+            template: "./src/index.html",
+        }),
+        new webpack.HashedModuleIdsPlugin(),
         new MiniCssExtractPlugin({
             filename: "[name].[contenthash].css",
             chunkFilename: "[name].[contenthash].css",
@@ -56,11 +61,6 @@ module.exports = {
     ],
     resolve: {
         extensions: [".tsx", ".ts", ".js"],
-    },
-    output: {
-        filename: "[name].[contenthash].bundle.js",
-        chunkFilename: "[name].[contenthash].chunk.js",
-        path: path.resolve(__dirname, "dist"),
     },
     optimization: {
         runtimeChunk: "single",

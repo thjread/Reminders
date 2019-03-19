@@ -61,7 +61,7 @@ export default () => {
                         }
                     },
                 }, [
-                    m("h2.form-title.title-font", "LOGIN"),
+                    m("h2.form-title.title-font", isLogin ? "LOGIN" : "SIGNUP"),
                     m("input[type=text].text-input#username",
                       { name: "username", placeholder: "Username",
                         "aria-label": "Username",
