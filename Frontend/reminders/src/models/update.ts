@@ -92,6 +92,7 @@ export function serverUpdate(actions: ActionDummy[]
                         break;
                     default:
                         showMessage("Server error");
+                        setOnlineAsOf(undefined);
                 }
             }).catch((e: any) => {
                 if (e.code !== 0 && e.code !== 503) { // got a response from server
