@@ -25,6 +25,7 @@ const Item = (): m.Component<Attrs> => {
     let startY = 0;
     let selected = false;
     let title = "";
+    let katexedTitle: null | string;
 
     function speedBonus(speed: number) {
         return Math.max(0, Math.min(1, speed-1));
@@ -99,14 +100,19 @@ const Item = (): m.Component<Attrs> => {
         },
 
         onupdate(vnode) {
-            if (title.includes("$$") || title.includes("\\[")) {
-                import(/* webpackChunkName: "katex" */ "../katex")
-                    .then(({ renderMath }) => {
-                        const elem = document.getElementById(vnode.attrs.id + "-item-title");
-                        if (elem) {
-                            renderMath(elem, title);
-                        }
-                    }).catch((e) => "Error " + e + " while loading Katex library");
+            if (katexedTitle !== title) {
+                const elem = document.getElementById(vnode.attrs.id + "-item-title");
+                if (elem) {
+                    if (title.includes("$$") || title.includes("\\[")) {
+                        import(/* webpackChunkName: "katex" */ "../katex")
+                            .then(({ renderMath }) => {
+                                renderMath(elem, title);
+                            }).catch((e) => "Error " + e + " while loading Katex library");
+                    } else {
+                        elem.textContent = title;
+                    }
+                }
+                katexedTitle = title;
             }
         },
 

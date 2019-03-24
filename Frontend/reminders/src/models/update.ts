@@ -91,7 +91,7 @@ export function serverUpdate(actions: ActionDummy[]
                         logout(false);
                         break;
                     default:
-                        showMessage("Server error");
+                        showMessage("Server error (you may need to close and reopen the webpage)");
                         setOnlineAsOf(undefined);
                 }
             }).catch((e: any) => {
