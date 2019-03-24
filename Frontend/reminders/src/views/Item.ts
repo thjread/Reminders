@@ -24,6 +24,7 @@ const Item = (): m.Component<Attrs> => {
     let startX = 0;
     let startY = 0;
     let selected = false;
+    let title = "";
 
     function speedBonus(speed: number) {
         return Math.max(0, Math.min(1, speed-1));
@@ -97,6 +98,18 @@ const Item = (): m.Component<Attrs> => {
             vnode.dom.addEventListener("touchend", touchEnd, { passive: true });
         },
 
+        onupdate(vnode) {
+            if (title.includes("$$") || title.includes("\\[")) {
+                import(/* webpackChunkName: "katex" */ "../katex")
+                    .then(({ renderMath }) => {
+                        const elem = document.getElementById(vnode.attrs.id + "-item-title");
+                        if (elem) {
+                            renderMath(elem, title);
+                        }
+                    }).catch((e) => "Error " + e + " while loading Katex library");
+            }
+        },
+
         onbeforeremove(vnode: any) {
             vnode.dom.classList.add("item-exit");
             return new Promise((resolve: any) => {
@@ -107,6 +120,7 @@ const Item = (): m.Component<Attrs> => {
         view(vnode) {
             const id = vnode.attrs.id;
             const item = getTodo(id);
+            title = item.title;
             const toggleSelect = vnode.attrs.selectCallback;
             selected = vnode.attrs.selected;
 
@@ -160,7 +174,7 @@ const Item = (): m.Component<Attrs> => {
                             },
                         }),
                         m("label.css-check", { for: id+"-check" }),
-                        m("h2.item-title", { id: id+"-item-title" }, item.title),
+                        m("h2.item-title", { id: id+"-item-title" }, title),
                     ]),
                     displayTime ? m("h3.item-deadline",
                                     { class: displayColorClass },
