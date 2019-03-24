@@ -39,7 +39,8 @@ export function handleShortcuts(e: KeyboardEvent) {
         const shortcut = shortcuts[e.code.toString() + " " + (+e.ctrlKey) + (+e.shiftKey) + (+e.altKey)];
         if (shortcut) {
             const tag = (e.target as HTMLElement).tagName;
-            if (!shortcut.anywhere && (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA")) {
+            if (!shortcut.anywhere &&
+                (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA" || tag === "A" || tag === "BUTTON")) {
                 return;
             }
             if (shortcut.preventDefault) {
