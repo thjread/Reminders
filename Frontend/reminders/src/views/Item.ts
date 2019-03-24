@@ -80,6 +80,23 @@ const Item = (): m.Component<Attrs> => {
         swipingRight = false;
     }
 
+    function katexUpdate(vnode: m.Vnode<Attrs>) {
+        if (katexedTitle !== title) {
+            const elem = document.getElementById(vnode.attrs.id + "-item-title");
+            if (elem) {
+                if (title.includes("$$") || title.includes("\\[")) {
+                    import(/* webpackChunkName: "katex" */ "../katex")
+                        .then(({ renderMath }) => {
+                            renderMath(elem, title);
+                        }).catch((e) => "Error " + e + " while loading Katex library");
+                } else {
+                    elem.textContent = title;
+                }
+            }
+            katexedTitle = title;
+        }
+    }
+
     return {
         oncreate(vnode) {
             if (vnode.attrs.animateEnter) {
@@ -97,24 +114,10 @@ const Item = (): m.Component<Attrs> => {
                 }
             }), { passive: true });
             vnode.dom.addEventListener("touchend", touchEnd, { passive: true });
+            katexUpdate(vnode);
         },
 
-        onupdate(vnode) {
-            if (katexedTitle !== title) {
-                const elem = document.getElementById(vnode.attrs.id + "-item-title");
-                if (elem) {
-                    if (title.includes("$$") || title.includes("\\[")) {
-                        import(/* webpackChunkName: "katex" */ "../katex")
-                            .then(({ renderMath }) => {
-                                renderMath(elem, title);
-                            }).catch((e) => "Error " + e + " while loading Katex library");
-                    } else {
-                        elem.textContent = title;
-                    }
-                }
-                katexedTitle = title;
-            }
-        },
+        onupdate: katexUpdate,
 
         onbeforeremove(vnode: any) {
             vnode.dom.classList.add("item-exit");
