@@ -13,26 +13,32 @@ export interface Todo {
     done_time?: Date;
     create_time: Date;
     hide_until_done: boolean;
+    highlight: boolean;
 }
 export interface TodoMap { [id: string]: Todo; }
 
 function itemCompare(idA: string, idB: string) {
     const ta = getTodo(idA);
     const tb = getTodo(idB);
-    const comp1 = dateCompare(ta.deadline, tb.deadline, true);
-    if (comp1 === 0) {
-        const comp2 = dateCompare(ta.create_time, tb.create_time, false);
-        if (comp2 === 0) {
-            if (idA < idB) { // stable tie break
-                return -1;
+    const comp0 = highlightCompare(ta.highlight, tb.highlight);
+    if (comp0 === 0) {
+        const comp1 = dateCompare(ta.deadline, tb.deadline, true);
+        if (comp1 === 0) {
+            const comp2 = dateCompare(ta.create_time, tb.create_time, false);
+            if (comp2 === 0) {
+                if (idA < idB) { // stable tie break
+                    return -1;
+                } else {
+                    return 1;
+                }
             } else {
-                return 1;
+                return -comp2; // most recently created first
             }
         } else {
-            return -comp2; // most recently created first
+            return comp1; // oldest deadline first
         }
     } else {
-        return comp1; // oldest deadline first
+        return comp0;
     }
 }
 
@@ -48,6 +54,16 @@ function completedCompare(idA: string, idB: string) {
         }
     } else {
         return -comp1; // most recently completed first
+    }
+}
+
+function highlightCompare(a: boolean, b: boolean) {
+    if (a && !b) {
+        return -1;
+    } else if (b && !a) {
+        return 1;
+    } else {
+        return 0;
     }
 }
 

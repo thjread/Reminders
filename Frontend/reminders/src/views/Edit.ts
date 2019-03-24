@@ -41,10 +41,11 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
         } else {
             // tslint:disable-next-line:variable-name
             let done_time;
-            if (done) {
+            if (done) { // this should always be false in this branch
                 done_time = new Date();
             }
-            store.dispatch(createTodo(title, deadline, done, done_time, new Date(), hide_until_done));
+            const highlight = false;
+            store.dispatch(createTodo(title, deadline, done, done_time, new Date(), hide_until_done, highlight));
             serverUpdate();
         }
         dismiss();

@@ -122,6 +122,7 @@ export interface ServerTodoRow {
     done_time: string | null;
     create_time: string;
     hide_until_done: boolean;
+    highlight: boolean;
 }
 
 export function serverRowToTodo(t: ServerTodoRow) {
@@ -130,6 +131,7 @@ export function serverRowToTodo(t: ServerTodoRow) {
         done: t.done,
         create_time: new Date(t.create_time+"Z"),
         hide_until_done: t.hide_until_done,
+        highlight: t.highlight,
     };
     if (t.deadline) {
         todo.deadline = new Date(t.deadline+"Z");

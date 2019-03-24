@@ -18,6 +18,7 @@ pub struct Todo {
     pub done_time: Option<NaiveDateTime>,
     pub create_time: NaiveDateTime,
     pub hide_until_done: bool,
+    pub highlight: bool,
 }
 
 #[derive(Debug, Insertable, Queryable)]

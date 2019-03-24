@@ -1,7 +1,7 @@
 import m from "mithril";
 import { MENU_SWIPE_OUT_MARGIN } from "./TodoPage";
 import { store, getTodo } from "../models/store";
-import { deleteTodo, toggleDone } from "../models/actions";
+import { deleteTodo, toggleDone, toggleHighlight } from "../models/actions";
 import { formatDateTime, dateColorClass } from "../utils";
 import { serverUpdate } from "../models/update";
 
@@ -10,6 +10,8 @@ const SWIPE_DONE_DISTANCE = 95;
 const SWIPE_SELECTED_DONE_DISTANCE = 130;
 const SWIPE_DONE_Y_MARGIN = 0;
 const SWIPE_SELECTED_Y_GUTTER = 85;
+const LONG_PRESS_DELAY = 500;
+const LONG_PRESS_DIST = 15;
 
 interface Attrs {
     id: string;
@@ -21,13 +23,15 @@ interface Attrs {
 const Item = (): m.Component<Attrs> => {
     let swipingRight = false;
     let swipingRightTime = 0;
+    let holding = false;
+    let holdingTimeout: undefined | number;
     let startX = 0;
     let startY = 0;
+    let startTime = 0;
     let selected = false;
     let title = "";
     let katexedTitle: null | string;
     let mouseover = false;
-    let mouseoutWhileSelected = false;
 
     function speedBonus(speed: number) {
         return Math.max(0, Math.min(1, speed-1));
@@ -37,11 +41,20 @@ const Item = (): m.Component<Attrs> => {
         return Math.max(-1, Math.min(0, -(time-300.0)/700.0));
     }
 
-    function touchStart(e: TouchEvent) {
+    function touchStart(e: TouchEvent, highlightCallback: () => void) {
         if (e.changedTouches.length === 1) {
             const touch = e.changedTouches[0];
             startX = touch.pageX;
             startY = touch.pageY;
+            startTime = e.timeStamp;
+
+            holding = true;
+            holdingTimeout = window.setTimeout(() => {
+                if (holding) {
+                    holding = false;
+                    highlightCallback();
+                }
+            }, LONG_PRESS_DELAY);
 
             if (startX > MENU_SWIPE_OUT_MARGIN + MENU_SWIPE_OUT_EXTRA_MARGIN) {
                 swipingRight = true;
@@ -52,8 +65,32 @@ const Item = (): m.Component<Attrs> => {
         }
     }
 
-    function touchMove(e: TouchEvent, elem: Element, callback: () => void) {
-        if (swipingRight && e.changedTouches.length === 1) {
+    function touchHighlight(e: TouchEvent, highlightCallback: () => void) {
+        if (holding && e.changedTouches.length === 1) {
+            const touch = e.changedTouches[0];
+            const diffX = (touch.pageX - startX);
+            const diffY = (touch.pageY - startY);
+            const dist = diffX*diffX + diffY*diffY;
+            console.log(e.timeStamp - startTime);
+            console.log(dist);
+            if (dist > LONG_PRESS_DIST*LONG_PRESS_DIST) {
+                holding = false;
+                if (holdingTimeout) {
+                    window.clearTimeout(holdingTimeout);
+                }
+            } else if (e.timeStamp - startTime > LONG_PRESS_DELAY) {
+                holding = false;
+                if (holdingTimeout) {
+                    window.clearTimeout(holdingTimeout);
+                }
+                highlightCallback();
+            }
+        }
+    }
+
+    function touchMove(e: TouchEvent, elem: Element, doneCallback: () => void, highlightCallback: () => void) {
+        touchHighlight(e, highlightCallback);
+        if (e.changedTouches.length === 1 && swipingRight) {
             const touch = e.changedTouches[0];
             const diff = touch.pageX - startX;
 
@@ -70,7 +107,7 @@ const Item = (): m.Component<Attrs> => {
                 if ((!selected && multiplier*diff > SWIPE_DONE_DISTANCE) ||
                     (selected && selectedMultiplier*diff > SWIPE_SELECTED_DONE_DISTANCE)) {
                     swipingRight = false;
-                    callback();
+                    doneCallback();
                 }
             } else {
                 swipingRight = false;
@@ -78,8 +115,13 @@ const Item = (): m.Component<Attrs> => {
         }
     }
 
-    function touchEnd() {
+    function touchEnd(e: TouchEvent, highlightCallback: () => void) {
+        touchHighlight(e, highlightCallback);
         swipingRight = false;
+        holding = false;
+        if (holdingTimeout) {
+            window.clearTimeout(holdingTimeout);
+        }
     }
 
     function katexUpdate(vnode: m.Vnode<Attrs>) {
@@ -106,16 +148,23 @@ const Item = (): m.Component<Attrs> => {
                 vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("item-enter"));
             }
 
-            vnode.dom.addEventListener("touchstart", touchStart, { passive: true });
-            vnode.dom.addEventListener("touchmove", (e) => touchMove(e as TouchEvent, vnode.dom, () => {
+            vnode.dom.addEventListener("touchstart", (e: TouchEvent) => touchStart(e, highlightCallback), { passive: true });
+            const highlightCallback = () => {
+                const id = vnode.attrs.id;
+                const todo = getTodo(id);
+                store.dispatch(toggleHighlight(id, !todo.highlight));
+                m.redraw();
+            };
+            vnode.dom.addEventListener("touchmove", (e: TouchEvent) => touchMove(e, vnode.dom, () => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
                 if (!todo.done) {
                     store.dispatch(toggleDone(id, true));
+                    store.dispatch(toggleHighlight(id, false));
                     m.redraw();
                 }
-            }), { passive: true });
-            vnode.dom.addEventListener("touchend", touchEnd, { passive: true });
+            }, highlightCallback), { passive: true });
+            vnode.dom.addEventListener("touchend", (e: TouchEvent) => touchEnd(e, highlightCallback), { passive: true });
             katexUpdate(vnode);
         },
 
@@ -168,7 +217,6 @@ const Item = (): m.Component<Attrs> => {
                     }
                 }
                 toggleSelect(id);
-                mouseoutWhileSelected = false;
             };
 
             const liClasses = [];
@@ -177,8 +225,9 @@ const Item = (): m.Component<Attrs> => {
             }
             if (mouseover) {
                 liClasses.push("mouseover");
-            } else if (selected && mouseoutWhileSelected) {
-                liClasses.push("selected_mouseout");
+            }
+            if (item.highlight) {
+                liClasses.push("highlight");
             }
 
             return m("li.item", {
@@ -188,13 +237,8 @@ const Item = (): m.Component<Attrs> => {
                         mouseover = true;
                     }
                 },
-                onpointerout: (event: PointerEvent) => {
-                    if (event.pointerType === "mouse") {
-                        mouseover = false;
-                        if (selected) {
-                            mouseoutWhileSelected = true;
-                        }
-                    }
+                onpointerout: () => {
+                    mouseover = false;
                 },
             }, [
                 m("div.item-main", {
@@ -207,6 +251,10 @@ const Item = (): m.Component<Attrs> => {
                             id: id+"-check",
                             oninput: (e: any) => {
                                 store.dispatch(toggleDone(id, e.target.checked));
+                                if (e.target.checked) {
+                                    store.dispatch(toggleHighlight(id, false));
+                                    // TODO combine this with toggleDone so undo doesn't remove highlight
+                                }
                                 serverUpdate();
                             },
                         }),
@@ -218,10 +266,18 @@ const Item = (): m.Component<Attrs> => {
                                     formatDateTime(displayTime),
                                    ) : undefined,
                 ]),
+                m("div.item-highlight", [// TODO don't show this in Completed view
+                    m("button.pill-button.option-button", {
+                        tabindex: mouseover ? 0 : -1,
+                        onclick: () => {
+                            store.dispatch(toggleHighlight(id, !item.highlight));
+                        },
+                    }, item.highlight ? "Unpin" : "Pin"),
+                ]),
                 m("div.item-options", [
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
                         m.route.set("/", { c: m.route.param("c"), e: id});
-                    }}, "Edit"),
+                    } }, "Edit"),
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
                         store.dispatch(deleteTodo(id));
                         serverUpdate();

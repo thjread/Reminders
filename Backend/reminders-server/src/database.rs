@@ -76,6 +76,22 @@ fn toggle_done(
     .map_err(|e| e.into())
 }
 
+fn toggle_highlight(
+    connection: &PgConnection,
+    userid: Uuid,
+    id: Uuid,
+    highlight: bool,
+) -> Result<usize, Error> {
+    diesel::update(
+        todos_dsl::todos
+            .filter(todos_dsl::userid.eq(userid))
+            .find(id),
+    )
+        .set(todos_dsl::highlight.eq(highlight))
+        .execute(connection)
+        .map_err(|e| e.into())
+}
+
 fn delete(connection: &PgConnection, userid: Uuid, id: Uuid) -> Result<usize, Error> {
     diesel::delete(
         todos_dsl::todos
@@ -122,6 +138,11 @@ pub enum UpdateAction {
         done_time: Option<chrono::DateTime<chrono::Utc>>,
         action_id: Uuid,
     },
+    TOGGLE_HIGHLIGHT {
+        id: Uuid,
+        highlight: bool,
+        action_id: Uuid,
+    },
     CREATE_TODO {
         id: Uuid,
         title: String,
@@ -130,6 +151,7 @@ pub enum UpdateAction {
         done_time: Option<chrono::DateTime<chrono::Utc>>,
         create_time: chrono::DateTime<chrono::Utc>,
         hide_until_done: bool,
+        highlight: bool,
         action_id: Uuid,
     },
     EDIT_TODO {
@@ -174,6 +196,7 @@ impl Handler<UpdateBatch> for DbExecutor {
                         done_time,
                         create_time,
                         hide_until_done,
+                        highlight,
                         ..
                     } => {
                         let todo = Todo {
@@ -185,6 +208,7 @@ impl Handler<UpdateBatch> for DbExecutor {
                             done_time: done_time.map(|date| date.naive_utc()),
                             create_time: create_time.naive_utc(),
                             hide_until_done,
+                            highlight,
                         };
                         create_todo(&conn, todo)
                     }
@@ -213,6 +237,16 @@ impl Handler<UpdateBatch> for DbExecutor {
                         id,
                         done,
                         done_time.map(|date| date.naive_utc()),
+                    ),
+                    UpdateAction::TOGGLE_HIGHLIGHT {
+                        id,
+                        highlight,
+                        ..
+                    } => toggle_highlight(
+                        &conn,
+                        userid,
+                        id,
+                        highlight,
                     ),
                     UpdateAction::DELETE_TODO { id, .. } => delete(&conn, userid, id),
                 };

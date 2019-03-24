@@ -22,11 +22,13 @@ export default (state: State, action: Action) => {
             const done_time = action.payload.done_time;
             const create_time = action.payload.create_time;
             const hide_until_done = action.payload.hide_until_done;
+            const highlight = action.payload.highlight;
             const new_todo: Todo = {
                 title,
                 done,
                 create_time,
                 hide_until_done,
+                highlight,
             };
             if (deadline) {
                 new_todo.deadline = deadline;
@@ -50,6 +52,7 @@ export default (state: State, action: Action) => {
                 done: old_todo.done,
                 create_time: new Date(old_todo.create_time.getTime()),
                 hide_until_done,
+                highlight: old_todo.highlight,
             };
             if (deadline) {
                 new_todo.deadline = deadline;
@@ -68,6 +71,12 @@ export default (state: State, action: Action) => {
             const done_time = action.payload.done_time;
             const s = state.setIn(["todos", id, "done"], done)
                 .setIn(["todos", id, "done_time"], done_time);
+            return s.set("hash", hash(s.todos.asMutable()));
+        }
+        case getType(actions.toggleHighlight): {
+            const id = action.payload.id;
+            const highlight = action.payload.highlight;
+            const s = state.setIn(["todos", id, "highlight"], highlight);
             return s.set("hash", hash(s.todos.asMutable()));
         }
         case getType(actions.deleteTodo): {

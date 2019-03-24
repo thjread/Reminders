@@ -573,7 +573,7 @@ body.noscroll {
 }
 
 .item-deadline.on-edit-form {
-    background: var(--background);
+    background-color: var(--background);
     margin: 0;
     width: 100%;
     margin-top: 1rem;
@@ -703,17 +703,17 @@ body.noscroll {
 }
 
 .header.normal {
-    background: var(--primary);
+    background-color: var(--primary);
     border-bottom: 1px solid var(--primary-dark);
 }
 
 .header.upcoming {
-    background: var(--upcoming);
+    background-color: var(--upcoming);
     border-bottom: 1px solid var(--upcoming-dark);
 }
 
 .header.completed {
-    background: var(--completed);
+    background-color: var(--completed);
     border-bottom: 1px solid var(--completed-dark);
 }
 
@@ -946,7 +946,7 @@ body.noscroll {
 /* Main styles */
 
 .page-container {
-    background: var(--background);
+    background-color: var(--background);
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -997,7 +997,7 @@ body.noscroll {
 .section-title {
     font-size: 1.15rem;
     padding: 1rem 0 0.4rem 0.8rem;
-    background: var(--background);
+    background-color: var(--background);
     text-transform: capitalize;
 }
 
@@ -1046,6 +1046,11 @@ body.noscroll {
     background-color: var(--background-light);
     color: var(--on-primary);
     font-size: 1.1rem;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .item-enter {
@@ -1186,6 +1191,12 @@ body.noscroll {
     color: var(--later);
 }
 
+.highlight .item-main {
+    color: var(--secondary);
+    border-right: 0.15rem dotted var(--secondary);
+    border-left: 0.15rem dotted var(--secondary);
+}
+
 .selected .item-deadline {
     max-height: 20rem;
     overflow-y: auto;
@@ -1213,7 +1224,7 @@ input[type=checkbox] {
 }
 
 .css-check.on-secondary {
-    background: var(--on-secondary);
+    background-color: var(--on-secondary);
 }
 
 input[type=checkbox] + .css-check::after {
@@ -1241,6 +1252,38 @@ input[type=checkbox]:checked + .css-check {
 
 input[type=checkbox]:checked + .css-check::after {
     opacity: 1;
+}
+
+.item-highlight {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    opacity: 0;
+    height: 2.5rem;
+    padding: 0.3rem 0.3rem;
+    transition: opacity 0.3s;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.mouseover .item-highlight {
+    opacity: 1;
+}
+
+.item-highlight .pill-button {
+    color: black;
+    background-color: var(--background);
+    pointer-events: auto;
+    margin: 0 0.2rem;
+}
+.item-highlight .pill-button:hover,
+.item-highlight .pill-button:focus {
+    background-color: yellow;
+}
+
+.item-highlight .pill-button:active {
+    background-color: red;
 }
 
 .item-options {
@@ -1501,41 +1544,5 @@ input[type=checkbox]:checked + .css-check::after {
     .login-logo {
         width: 7rem;
         height: 7rem;
-    }
-
-    .item-options {
-        position: absolute;
-        width: 100%;
-        background-color: transparent;
-        justify-content: flex-end;
-        box-shadow: none;
-        opacity: 0;
-        height: 2.5rem;
-        padding: 0.3rem 0.3rem;
-        transition: opacity 0.3s;
-        z-index: 2;
-        pointer-events: none;
-    }
-
-    .selected .item-options,
-    .mouseover .item-options {
-        opacity: 1;
-    }
-
-    .selected_mouseout .item-options {
-        opacity: 0;
-    }
-
-    .item-options .pill-button.on-secondary {
-        color: black;
-        background-color: var(--background);
-        pointer-events: auto;
-        margin: 0 0.2rem;
-    }
-    .item-options .pill-button.on-secondary:hover {
-        color: black;
-        background-color: var(--background-medium);
-        pointer-events: auto;
-        margin: 0 0.2rem;
     }
 }

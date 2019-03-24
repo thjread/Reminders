@@ -17,6 +17,7 @@ table! {
         done_time -> Nullable<Timestamp>,
         create_time -> Timestamp,
         hide_until_done -> Bool,
+        highlight -> Bool,
     }
 }
 

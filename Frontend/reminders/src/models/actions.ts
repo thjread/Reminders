@@ -38,10 +38,10 @@ export const setServerTodos = createAction("SET_SERVER_TODOS", (resolve) => {
 export const createTodo = createAction("CREATE_TODO", (resolve) => {
     return (title: string, deadline: Date | null | undefined, done: boolean,
             done_time: Date | null | undefined, create_time: Date,
-            hide_until_done: boolean, id: string = uuidv4()) => {
+            hide_until_done: boolean, highlight: boolean, id: string = uuidv4()) => {
                 const action = resolve({ id, title, deadline, done,
                                          done_time, create_time,
-                                         hide_until_done, action_id: uuidv4()});
+                                         hide_until_done, highlight, action_id: uuidv4()});
                 store.dispatch(syncAction(action));
                 store.dispatch(setUndoAction(() => deleteTodo(id)));
                 return action;
@@ -71,6 +71,15 @@ export const toggleDone = createAction("TOGGLE_DONE", (resolve) => {
     };
 });
 
+export const toggleHighlight = createAction("TOGGLE_HIGHLIGHT", (resolve) => {
+    return (id: string, highlight: boolean) => {
+        const action = resolve({ id, highlight, action_id: uuidv4()});
+        store.dispatch(syncAction(action));
+        // Note don't bother adding an undo action
+        return action;
+    };
+});
+
 export const deleteTodo = createAction("DELETE_TODO", (resolve) => {
     return (id: string) => {
         const action = resolve({ id, action_id: uuidv4()});
@@ -79,7 +88,7 @@ export const deleteTodo = createAction("DELETE_TODO", (resolve) => {
         store.dispatch(setUndoAction(() =>
                                      createTodo(todo.title, todo.deadline, todo.done,
                                                 todo.done_time, todo.create_time,
-                                                todo.hide_until_done, id)));
+                                                todo.hide_until_done, todo.highlight, id)));
         return action;
     };
 });
