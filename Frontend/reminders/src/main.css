@@ -1243,10 +1243,6 @@ input[type=checkbox]:checked + .css-check::after {
     opacity: 1;
 }
 
-.item:hover .item-options {
-    will-change: height, padding;
-}
-
 .item-options {
     background-color: var(--secondary-light);
     display: flex;
@@ -1505,5 +1501,41 @@ input[type=checkbox]:checked + .css-check::after {
     .login-logo {
         width: 7rem;
         height: 7rem;
+    }
+
+    .item-options {
+        position: absolute;
+        width: 100%;
+        background-color: transparent;
+        justify-content: flex-end;
+        box-shadow: none;
+        opacity: 0;
+        height: 2.5rem;
+        padding: 0.3rem 0.3rem;
+        transition: opacity 0.3s;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .selected .item-options,
+    .mouseover .item-options {
+        opacity: 1;
+    }
+
+    .selected_mouseout .item-options {
+        opacity: 0;
+    }
+
+    .item-options .pill-button.on-secondary {
+        color: black;
+        background-color: var(--background);
+        pointer-events: auto;
+        margin: 0 0.2rem;
+    }
+    .item-options .pill-button.on-secondary:hover {
+        color: black;
+        background-color: var(--background-medium);
+        pointer-events: auto;
+        margin: 0 0.2rem;
     }
 }

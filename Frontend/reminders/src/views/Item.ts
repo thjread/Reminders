@@ -26,6 +26,8 @@ const Item = (): m.Component<Attrs> => {
     let selected = false;
     let title = "";
     let katexedTitle: null | string;
+    let mouseover = false;
+    let mouseoutWhileSelected = false;
 
     function speedBonus(speed: number) {
         return Math.max(0, Math.min(1, speed-1));
@@ -166,9 +168,35 @@ const Item = (): m.Component<Attrs> => {
                     }
                 }
                 toggleSelect(id);
+                mouseoutWhileSelected = false;
             };
 
-            return m("li.item", { class: selected ? "selected" : undefined }, [
+            const liClasses = [];
+            if (selected) {
+                liClasses.push("selected");
+            }
+            if (mouseover) {
+                liClasses.push("mouseover");
+            } else if (selected && mouseoutWhileSelected) {
+                liClasses.push("selected_mouseout");
+            }
+
+            return m("li.item", {
+                class: liClasses.join(" "),
+                onpointerover: (event: PointerEvent) => {
+                    if (event.pointerType === "mouse") {
+                        mouseover = true;
+                    }
+                },
+                onpointerout: (event: PointerEvent) => {
+                    if (event.pointerType === "mouse") {
+                        mouseover = false;
+                        if (selected) {
+                            mouseoutWhileSelected = true;
+                        }
+                    }
+                },
+            }, [
                 m("div.item-main", {
                     onclick: toggleAndScrollUp,
                 }, [
