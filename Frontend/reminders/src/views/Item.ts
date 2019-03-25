@@ -10,8 +10,9 @@ const SWIPE_DONE_DISTANCE = 95;
 const SWIPE_SELECTED_DONE_DISTANCE = 130;
 const SWIPE_DONE_Y_MARGIN = 0;
 const SWIPE_SELECTED_Y_GUTTER = 85;
-const LONG_PRESS_DELAY = 500;
-const LONG_PRESS_DIST = 15;
+const LONG_PRESS_DELAY = 600;
+const LONG_PRESS_DIST = 10;
+const LONG_PRESS_VIBRATE = 200;
 
 interface Attrs {
     id: string;
@@ -45,7 +46,7 @@ const Item = (): m.Component<Attrs> => {
         if (e.changedTouches.length === 1) {
             const touch = e.changedTouches[0];
             startX = touch.pageX;
-            startY = touch.pageY;
+            startY = touch.screenY;
             startTime = e.timeStamp;
 
             holding = true;
@@ -69,10 +70,8 @@ const Item = (): m.Component<Attrs> => {
         if (holding && e.changedTouches.length === 1) {
             const touch = e.changedTouches[0];
             const diffX = (touch.pageX - startX);
-            const diffY = (touch.pageY - startY);
+            const diffY = (touch.screenY - startY);
             const dist = diffX*diffX + diffY*diffY;
-            console.log(e.timeStamp - startTime);
-            console.log(dist);
             if (dist > LONG_PRESS_DIST*LONG_PRESS_DIST) {
                 holding = false;
                 if (holdingTimeout) {
@@ -152,6 +151,9 @@ const Item = (): m.Component<Attrs> => {
             const highlightCallback = () => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
+                if (window.navigator.vibrate) {
+                    window.navigator.vibrate(LONG_PRESS_VIBRATE);
+                }
                 store.dispatch(toggleHighlight(id, !todo.highlight));
                 m.redraw();
             };
@@ -160,12 +162,12 @@ const Item = (): m.Component<Attrs> => {
                 const todo = getTodo(id);
                 if (!todo.done) {
                     store.dispatch(toggleDone(id, true));
-                    store.dispatch(toggleHighlight(id, false));
                     m.redraw();
                 }
             }, highlightCallback), { passive: true });
             vnode.dom.addEventListener("touchend", (e: TouchEvent) => touchEnd(e, highlightCallback), { passive: true });
             katexUpdate(vnode);
+            mouseover = false;
         },
 
         onupdate: katexUpdate,
@@ -251,10 +253,6 @@ const Item = (): m.Component<Attrs> => {
                             id: id+"-check",
                             oninput: (e: any) => {
                                 store.dispatch(toggleDone(id, e.target.checked));
-                                if (e.target.checked) {
-                                    store.dispatch(toggleHighlight(id, false));
-                                    // TODO combine this with toggleDone so undo doesn't remove highlight
-                                }
                                 serverUpdate();
                             },
                         }),
@@ -266,7 +264,7 @@ const Item = (): m.Component<Attrs> => {
                                     formatDateTime(displayTime),
                                    ) : undefined,
                 ]),
-                m("div.item-highlight", [// TODO don't show this in Completed view
+                m("div.item-highlight", [
                     m("button.pill-button.option-button", {
                         tabindex: mouseover ? 0 : -1,
                         onclick: () => {

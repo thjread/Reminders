@@ -16,7 +16,8 @@ function serializeTodo(id: string, t: Todo) {
 [done]:${t.done},
 [done_time]:${done_time},
 [create_time]:${dateFormat(t.create_time)},
-[hide_until_done]:${t.hide_until_done}
+[hide_until_done]:${t.hide_until_done},
+[highlight]:${t.highlight},
 `;
 }
 

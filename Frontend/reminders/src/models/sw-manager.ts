@@ -36,7 +36,8 @@ export function swInit() {
                 case "DONE":
                     const state = store.getState();
                     if (state.loginDetails && state.loginDetails.userid === event.data.userid) {
-                        store.dispatch(toggleDone(event.data.id, true));
+                        const id = event.data.id;
+                        store.dispatch(toggleDone(id, true));
                     }
                     break;
             }

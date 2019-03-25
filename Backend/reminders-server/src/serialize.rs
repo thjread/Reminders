@@ -18,7 +18,7 @@ where F: Fn(&mut fmt::Formatter) -> fmt::Result
 }
 
 fn serialize_todo(t: &Todo, f: &mut fmt::Formatter) -> fmt::Result {
-    write!(f, "[id]:{},\n[title]:\"{}\",\n[deadline]:{:?},\n[done]:{},\n[done_time]:{:?},\n[create_time]:{:?},\n[hide_until_done]:{}\n", t.id, t.title, t.deadline.map(|d| d.timestamp()), t.done, t.done_time.map(|d| d.timestamp()), t.create_time.timestamp(), t.hide_until_done)// escape newlines in title?
+    write!(f, "[id]:{},\n[title]:\"{}\",\n[deadline]:{:?},\n[done]:{},\n[done_time]:{:?},\n[create_time]:{:?},\n[hide_until_done]:{},\n[highlight]:{},\n", t.id, t.title, t.deadline.map(|d| d.timestamp()), t.done, t.done_time.map(|d| d.timestamp()), t.create_time.timestamp(), t.hide_until_done, t.highlight)// escape newlines in title?
 }
 
 fn serialize_todos(todos: &[Todo], f: &mut fmt::Formatter) -> fmt::Result {

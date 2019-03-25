@@ -1106,9 +1106,12 @@ body.noscroll {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 0.7rem;
-    padding-bottom: 0.7rem;
-    padding-left: 0.7rem;
+    padding-top: 0.5rem;
+    margin-top: 0.2rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
+    padding-left: 0.6rem;
+    margin-left: 0.2rem;
     padding-right: 0.4rem;
     position: relative;
 }
@@ -1191,10 +1194,11 @@ body.noscroll {
     color: var(--later);
 }
 
-.highlight .item-main {
+.normal .highlight .item-main,
+.upcoming .highlight .item-main {
     color: var(--secondary);
-    border-right: 0.15rem dotted var(--secondary);
-    border-left: 0.15rem dotted var(--secondary);
+    border-left: 0.35rem dotted var(--secondary);
+    padding-left: 0.25rem;
 }
 
 .selected .item-deadline {
@@ -1267,23 +1271,27 @@ input[type=checkbox]:checked + .css-check::after {
     pointer-events: none;
 }
 
+.completed .item-highlight {
+    display: none;
+}
+
 .mouseover .item-highlight {
     opacity: 1;
 }
 
 .item-highlight .pill-button {
-    color: black;
+    color: var(--secondary);
     background-color: var(--background);
     pointer-events: auto;
     margin: 0 0.2rem;
 }
 .item-highlight .pill-button:hover,
 .item-highlight .pill-button:focus {
-    background-color: yellow;
+    background-color: var(--secondary-lightest);
 }
 
 .item-highlight .pill-button:active {
-    background-color: red;
+    background-color: var(--secondary-lighter);
 }
 
 .item-options {
