@@ -177,7 +177,10 @@ const TodoPage = (): m.Component<Attrs> => {
             let todoSections: Array<m.Vnode | undefined> = [];
             function section(ids: string[], title: string) {
                 return ids.length > 0 ?
-                    m(TodoSection, { title, key: title, animate_enter: !contextChanged}, m(TodoList, { todoIds: ids})) :
+                    m(TodoSection, { title,
+                                     key: title,
+                                     animate_enter: !contextChanged,
+                                   }, m(TodoList, { todoIds: ids })) :
                     undefined;
             }
             switch (context) {

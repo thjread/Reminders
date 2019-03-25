@@ -147,16 +147,20 @@ const Item = (): m.Component<Attrs> => {
                 vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("item-enter"));
             }
 
-            vnode.dom.addEventListener("touchstart", (e: TouchEvent) => touchStart(e, highlightCallback), { passive: true });
             const highlightCallback = () => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
-                if (navigator.vibrate) {
-                    navigator.vibrate([LONG_PRESS_VIBRATE]);
+                if (!todo.done) {
+                    if (navigator.vibrate) {
+                        navigator.vibrate([LONG_PRESS_VIBRATE]);
+                    }
+                    store.dispatch(toggleHighlight(id, !todo.highlight));
+                    m.redraw();
                 }
-                store.dispatch(toggleHighlight(id, !todo.highlight));
-                m.redraw();
             };
+            vnode.dom.addEventListener("touchstart",
+                                       (e: TouchEvent) => touchStart(e, highlightCallback),
+                                       { passive: true });
             vnode.dom.addEventListener("touchmove", (e: TouchEvent) => touchMove(e, vnode.dom, () => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
@@ -165,7 +169,9 @@ const Item = (): m.Component<Attrs> => {
                     m.redraw();
                 }
             }, highlightCallback), { passive: true });
-            vnode.dom.addEventListener("touchend", (e: TouchEvent) => touchEnd(e, highlightCallback), { passive: true });
+            vnode.dom.addEventListener("touchend",
+                                       (e: TouchEvent) => touchEnd(e, highlightCallback),
+                                       { passive: true });
             katexUpdate(vnode);
             mouseover = false;
         },
@@ -228,7 +234,7 @@ const Item = (): m.Component<Attrs> => {
             if (mouseover) {
                 liClasses.push("mouseover");
             }
-            if (item.highlight) {
+            if (!item.done && item.highlight) {
                 liClasses.push("highlight");
             }
 
@@ -264,11 +270,12 @@ const Item = (): m.Component<Attrs> => {
                                     formatDateTime(displayTime),
                                    ) : undefined,
                 ]),
-                m("div.item-highlight", [
+                item.done ? undefined : m("div.item-highlight", [
                     m("button.pill-button.option-button", {
                         tabindex: mouseover ? 0 : -1,
                         onclick: () => {
                             store.dispatch(toggleHighlight(id, !item.highlight));
+                            mouseover = false;
                         },
                     }, item.highlight ? "Unpin" : "Pin"),
                 ]),

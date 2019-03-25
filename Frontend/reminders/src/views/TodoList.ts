@@ -1,4 +1,5 @@
 import m from "mithril";
+import { getTodo } from "../models/store";
 import Item from "./Item";
 
 interface Attrs {
@@ -32,7 +33,13 @@ export default function() {
                 selected = null;
             }
             return m("ul.todo-list", vnode.attrs.todoIds.map((id) => {
-                return m(Item, { key: id, id, selectCallback: toggleSelect, selected: selected === id, animateEnter});
+                return m(Item, {
+                    key: id+getTodo(id).highlight,
+                    id,
+                    selectCallback: toggleSelect,
+                    selected: selected === id,
+                    animateEnter,
+                });
             }));
         },
     };

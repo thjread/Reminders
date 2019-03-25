@@ -1194,8 +1194,8 @@ body.noscroll {
     color: var(--later);
 }
 
-.normal .highlight .item-main,
-.upcoming .highlight .item-main {
+.highlight .item-main,
+.highlight .item-main {
     color: var(--secondary);
     border-left: 0.35rem dotted var(--secondary);
     padding-left: 0.25rem;
@@ -1269,10 +1269,6 @@ input[type=checkbox]:checked + .css-check::after {
     transition: opacity 0.3s;
     z-index: 2;
     pointer-events: none;
-}
-
-.completed .item-highlight {
-    display: none;
 }
 
 .mouseover .item-highlight {
