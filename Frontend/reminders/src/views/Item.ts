@@ -285,6 +285,7 @@ const Item = (): m.Component<Attrs> => {
                                 store.dispatch(toggleDone(id, e.target.checked));
                                 serverUpdate();
                             },
+                            "aria-labelledby": id+"-item-title",
                         }),
                         m("label.css-check", { for: id+"-check" }),
                         m("h2.item-title", { id: id+"-item-title" }, title),
