@@ -1070,12 +1070,28 @@ body.noscroll {
 }
 
 .item-exit {
-    animation: item-exit 0.5s;
+    animation: item-exit 0.3s;
+}
+@keyframes item-exit {
+    from {
+        opacity: 1;
+        max-height: 6rem;
+        z-index: -1;
+        overflow-y: hidden;
+    }
+    to {
+        opacity: 0;
+        max-height: 0;
+    }
+}
+
+.done-item-exit {
+    animation: done-item-exit 0.5s;
     overflow: hidden;
     position: relative;
     border: 0px solid transparent;
 }
-@keyframes item-exit {
+@keyframes done-item-exit {
     from {
         left: 0;
         max-height: 6rem;
@@ -1278,8 +1294,10 @@ input[type=checkbox]:checked + .css-check::after {
 .item-highlight .pill-button {
     color: var(--secondary);
     background-color: var(--background);
-    pointer-events: auto;
     margin: 0 0.2rem;
+}
+.mouseover .pill-button {
+    pointer-events: auto;
 }
 .item-highlight .pill-button:hover,
 .item-highlight .pill-button:focus {

@@ -179,7 +179,12 @@ const Item = (): m.Component<Attrs> => {
         onupdate: katexUpdate,
 
         onbeforeremove(vnode: any) {
-            vnode.dom.classList.add("item-exit");
+            const todo = getTodo(vnode.attrs.id);
+            if (todo.done) {
+                vnode.dom.classList.add("done-item-exit");
+            } else {
+                vnode.dom.classList.add("item-exit");
+            }
             return new Promise((resolve: any) => {
                 vnode.dom.addEventListener("animationend", resolve);
             });
