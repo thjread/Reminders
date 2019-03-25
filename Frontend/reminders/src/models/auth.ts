@@ -1,7 +1,7 @@
 import m from "mithril";
 import { store, State } from "./store";
 import { logoutResetStore, setState } from "./actions";
-import { stateFromStorage, serverUpdate } from "./update";
+import { stateFromStorage, logoutClearStorage, serverUpdate } from "./update";
 import { showMessage, clearMessage } from "./ui";
 import { pushSubscribe, pushUnsubscribe } from "./sw-manager";
 
@@ -56,8 +56,9 @@ export function login(username: string, password: string) {
     });
 }
 
-export function logout(unsubscribe: boolean = true) {
-    if (unsubscribe) {
+export function logout(unsubscribeAndClearData: boolean = true) {
+    if (unsubscribeAndClearData) {
+        logoutClearStorage();
         pushUnsubscribe();
     }
     store.dispatch(logoutResetStore());

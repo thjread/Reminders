@@ -27,6 +27,14 @@ export function storeState() {
     }
 }
 
+export function logoutClearStorage() {
+    const state = store.getState();
+    if (state.loginDetails) {
+        localStorage.removeItem(state.loginDetails.userid);
+    }
+    localStorage.removeItem("loginDetails");
+}
+
 export function stateFromStorage(loginDetails: LoginDetails | null = null) {
     let is = initState;
     if (!loginDetails) {
