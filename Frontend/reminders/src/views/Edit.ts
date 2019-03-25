@@ -143,10 +143,8 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
                       m("div.show-in-deadlines", [
                           m("input#deadline-check[type=checkbox]", {
                               checked: !hide_until_done,
-                              oninput: (e: Event) => {
-                                  if (e.target && (e.target as HTMLInputElement).checked !== null) {
-                                      hide_until_done = !(e.target as HTMLInputElement).checked;
-                                  }
+                              onclick: (e: any) => {
+                                  hide_until_done = !e.target.checked;
                               },
                           }),
                           m("label.css-check.on-secondary", { for: "deadline-check" }),

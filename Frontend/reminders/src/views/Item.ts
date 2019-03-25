@@ -242,7 +242,7 @@ const Item = (): m.Component<Attrs> => {
             let onpointerout;
             let onmouseover;
             let onmouseout;
-            // Safari doesn't support PointerEvent yet
+            // Safari (12) doesn't support PointerEvent yet
             if ((window as any).PointerEvent) {
                 onpointerover =  (event: PointerEvent) => {
                     if (event.pointerType === "mouse") {
