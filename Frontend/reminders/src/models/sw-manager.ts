@@ -49,45 +49,47 @@ export function pushSubscribe() {
     const state = store.getState();
     if (registration && state.loginDetails) {
         const jwt = state.loginDetails.jwt;
-        registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(
-                "BPIRY5FILkfU3oWiL5_glenBme7ryX39oucdQqwjl_EHME9f4IDSC2mQdIQe-Hnu5viH1kUPnjZCUlTvlnfNSeY="),
-        }).then((pushSubscription) => {
-            subscription = pushSubscription;
-            console.log(JSON.stringify(pushSubscription));
-            return m.request({
-                method: "POST",
-                url: API_URI+"/subscribe",
-                data: {
-                    jwt,
-                    info: pushSubscription,
-                },
-            }).then((response: any) => {
-                switch (response.type) {
-                    case "SUCCESS": {
-                        console.log("Registered subscription info");
-                        break;
+        if ("pushManager" in registration) {
+            registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: urlBase64ToUint8Array(
+                    "BPIRY5FILkfU3oWiL5_glenBme7ryX39oucdQqwjl_EHME9f4IDSC2mQdIQe-Hnu5viH1kUPnjZCUlTvlnfNSeY="),
+            }).then((pushSubscription) => {
+                subscription = pushSubscription;
+                console.log(JSON.stringify(pushSubscription));
+                return m.request({
+                    method: "POST",
+                    url: API_URI+"/subscribe",
+                    data: {
+                        jwt,
+                        info: pushSubscription,
+                    },
+                }).then((response: any) => {
+                    switch (response.type) {
+                        case "SUCCESS": {
+                            console.log("Registered subscription info");
+                            break;
+                        }
+                        case "INVALID_TOKEN":
+                            showMessage("Authentication error");
+                            logout();
+                            break;
+                        case "EXPIRED_TOKEN":
+                            showMessage("Saved login details expired - please log in again");
+                            logout(false);
+                            break;
+                        default:
+                            showMessage("Server error");
                     }
-                    case "INVALID_TOKEN":
-                        showMessage("Authentication error");
-                        logout();
-                        break;
-                    case "EXPIRED_TOKEN":
-                        showMessage("Saved login details expired - please log in again");
-                        logout(false);
-                        break;
-                    default:
+                }).catch((e) => {
+                    if (e.code !== 0) {
                         showMessage("Server error");
-                }
-            }).catch((e) => {
-                if (e.code !== 0) {
-                    showMessage("Server error");
-                }
+                    }
+                });
+            }).catch((error) => {
+                console.log("Push manager subscription failed with " + error);
             });
-        }).catch((error) => {
-            console.log("Push manager subscription failed with " + error);
-        });
+        }
     }
 }
 

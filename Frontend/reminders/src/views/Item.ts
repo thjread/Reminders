@@ -238,16 +238,35 @@ const Item = (): m.Component<Attrs> => {
                 liClasses.push("highlight");
             }
 
-            return m("li.item", {
-                class: liClasses.join(" "),
-                onpointerover: (event: PointerEvent) => {
+            let onpointerover;
+            let onpointerout;
+            let onmouseover;
+            let onmouseout;
+            // Safari doesn't support PointerEvent yet
+            if ((window as any).PointerEvent) {
+                onpointerover =  (event: PointerEvent) => {
                     if (event.pointerType === "mouse") {
                         mouseover = true;
                     }
-                },
-                onpointerout: () => {
+                };
+                onpointerout = () => {
                     mouseover = false;
-                },
+                };
+            } else {
+                onmouseover = () => {
+                    mouseover = true;
+                };
+                onmouseout = () => {
+                    mouseover = false;
+                };
+            }
+
+            return m("li.item", {
+                class: liClasses.join(" "),
+                onpointerover,
+                onpointerout,
+                onmouseover,
+                onmouseout,
             }, [
                 m("div.item-main", {
                     onclick: toggleAndScrollUp,
@@ -257,7 +276,7 @@ const Item = (): m.Component<Attrs> => {
                           {
                             checked: item.done,
                             id: id+"-check",
-                            oninput: (e: any) => {
+                            onclick: (e: any) => {
                                 store.dispatch(toggleDone(id, e.target.checked));
                                 serverUpdate();
                             },
