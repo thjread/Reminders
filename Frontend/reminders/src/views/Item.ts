@@ -12,6 +12,7 @@ const SWIPE_DONE_Y_MARGIN = 0;
 const SWIPE_SELECTED_Y_GUTTER = 85;
 const LONG_PRESS_DELAY = 600;
 const LONG_PRESS_DIST = 10;
+const LONG_PRESS_VIBRATE = 20;
 
 interface Attrs {
     id: string;
@@ -150,6 +151,9 @@ const Item = (): m.Component<Attrs> => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
                 if (!todo.done) {
+                    if ("vibrate" in navigator) {
+                        navigator.vibrate([LONG_PRESS_VIBRATE]);
+                    }
                     store.dispatch(toggleHighlight(id, !todo.highlight));
                     m.redraw();
                 }
