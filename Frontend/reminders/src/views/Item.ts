@@ -151,8 +151,8 @@ const Item = (): m.Component<Attrs> => {
             const highlightCallback = () => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
-                if (window.navigator.vibrate) {
-                    window.navigator.vibrate(LONG_PRESS_VIBRATE);
+                if (navigator.vibrate) {
+                    navigator.vibrate([LONG_PRESS_VIBRATE]);
                 }
                 store.dispatch(toggleHighlight(id, !todo.highlight));
                 m.redraw();
