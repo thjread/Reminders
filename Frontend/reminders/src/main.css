@@ -1026,7 +1026,7 @@ body.noscroll {
 .todo-list {
     position: relative;
     z-index: 1000;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 .normal .todo-list {
