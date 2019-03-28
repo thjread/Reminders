@@ -104,7 +104,8 @@ export function serverUpdate(actions: ActionDummy[]
                 }
             }).catch((e: any) => {
                 console.warn("Server responded with error code " + e.code + ": " + e.message);
-                if (e.code !== 0 && e.code !== 503) { // got a response from server
+                if (e.code !== 0 && e.code !== 503 && e.code !== 521 && e.code !== 525) { // got a response from server
+                    // 503, 521, 525 all errors produced by Cloudflare when server is down
                     if (actions.length > 0) {
                         showMessage(
                             "Server error - offline actions not saved (you may need to close and reopen the webpage)");
