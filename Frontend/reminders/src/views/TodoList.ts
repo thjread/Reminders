@@ -33,8 +33,13 @@ export default function() {
                 selected = null;
             }
             return m("ul.todo-list", vnode.attrs.todoIds.map((id) => {
+                const todo = getTodo(id);
+                if (!todo) {
+                    console.warn(`Todo ${id} does not exist`);
+                    return;
+                }
                 return m(Item, {
-                    key: id+getTodo(id).highlight,
+                    key: id+todo.highlight,
                     id,
                     selectCallback: toggleSelect,
                     selected: selected === id,

@@ -150,7 +150,7 @@ const Item = (): m.Component<Attrs> => {
             const highlightCallback = () => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
-                if (!todo.done) {
+                if (todo && !todo.done) {
                     if ("vibrate" in navigator) {
                         navigator.vibrate([LONG_PRESS_VIBRATE]);
                     }
@@ -164,7 +164,7 @@ const Item = (): m.Component<Attrs> => {
             vnode.dom.addEventListener("touchmove", (e: TouchEvent) => touchMove(e, vnode.dom, () => {
                 const id = vnode.attrs.id;
                 const todo = getTodo(id);
-                if (!todo.done) {
+                if (todo && !todo.done) {
                     store.dispatch(toggleDone(id, true));
                     m.redraw();
                 }
@@ -180,7 +180,7 @@ const Item = (): m.Component<Attrs> => {
 
         onbeforeremove(vnode: any) {
             const todo = getTodo(vnode.attrs.id);
-            if (todo.done) {
+            if (todo && todo.done) {
                 vnode.dom.classList.add("done-item-exit");
             } else {
                 vnode.dom.classList.add("item-exit");
@@ -193,6 +193,10 @@ const Item = (): m.Component<Attrs> => {
         view(vnode) {
             const id = vnode.attrs.id;
             const item = getTodo(id);
+            if (!item) {
+                console.warn(`Todo ${id} does not exist`);
+                return;
+            }
             title = item.title;
             const toggleSelect = vnode.attrs.selectCallback;
             selected = vnode.attrs.selected;

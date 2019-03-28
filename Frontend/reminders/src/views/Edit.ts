@@ -17,13 +17,17 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
 
     if (editId) {
         const todo = getTodo(editId);
-        title = todo.title;
-        if (todo.deadline) {
-            deadline = todo.deadline;
-            deadlineInputText = formatDateTime(deadline);
+        if (todo) {
+            title = todo.title;
+            if (todo.deadline) {
+                deadline = todo.deadline;
+                deadlineInputText = formatDateTime(deadline);
+            }
+            done = todo.done;
+            hide_until_done = todo.hide_until_done;
+        } else {
+            console.warn(`Todo ${editId} does not exist`);
         }
-        done = todo.done;
-        hide_until_done = todo.hide_until_done;
     }
 
     function submit() {

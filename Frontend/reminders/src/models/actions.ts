@@ -52,8 +52,12 @@ export const editTodo = createAction("EDIT_TODO", (resolve) => {
     return (id: string, title: string, deadline: Date | null | undefined, hide_until_done: boolean) => {
         const action = resolve({ id, title, deadline, hide_until_done, action_id: uuidv4()});
         const todo = getTodo(id);
-        store.dispatch(syncAction(action));
-        store.dispatch(setUndoAction(() => editTodo(id, todo.title, todo.deadline, todo.hide_until_done)));
+        if (todo) {
+            store.dispatch(syncAction(action));
+            store.dispatch(setUndoAction(() => editTodo(id, todo.title, todo.deadline, todo.hide_until_done)));
+        } else {
+            console.warn(`Todo ${id} does not exist`);
+        }
         return action;
     };
 });
@@ -84,11 +88,15 @@ export const deleteTodo = createAction("DELETE_TODO", (resolve) => {
     return (id: string) => {
         const action = resolve({ id, action_id: uuidv4()});
         const todo = getTodo(id);
-        store.dispatch(syncAction(action));
-        store.dispatch(setUndoAction(() =>
-                                     createTodo(todo.title, todo.deadline, todo.done,
-                                                todo.done_time, todo.create_time,
-                                                todo.hide_until_done, todo.highlight, id)));
+        if (todo) {
+            store.dispatch(syncAction(action));
+            store.dispatch(setUndoAction(() =>
+                                         createTodo(todo.title, todo.deadline, todo.done,
+                                                    todo.done_time, todo.create_time,
+                                                    todo.hide_until_done, todo.highlight, id)));
+        } else {
+            console.warn(`Todo ${id} does not exist`);
+        }
         return action;
     };
 });

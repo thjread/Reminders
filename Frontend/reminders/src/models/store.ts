@@ -20,6 +20,10 @@ export interface TodoMap { [id: string]: Todo; }
 function itemCompare(idA: string, idB: string) {
     const ta = getTodo(idA);
     const tb = getTodo(idB);
+    if (!ta || !tb) {
+        console.warn(`Todo ${ta} or ${tb} does not exist`);
+        return 0;
+    }
     const comp0 = highlightCompare(ta.highlight, tb.highlight);
     if (comp0 === 0) {
         const comp1 = dateCompare(ta.deadline, tb.deadline, true);
@@ -45,6 +49,10 @@ function itemCompare(idA: string, idB: string) {
 function completedCompare(idA: string, idB: string) {
     const ta = getTodo(idA);
     const tb = getTodo(idB);
+    if (!ta || !tb) {
+        console.warn(`Todo ${ta} or ${tb} does not exist`);
+        return 0;
+    }
     const comp1 = dateCompare(ta.done_time, tb.done_time, false);
     if (comp1 === 0) {
         if (idA < idB) { // stable tie break
@@ -139,7 +147,12 @@ export const store = createStore(reducer, initState, (window as any).__REDUX_DEV
 store.dispatch(setState(stateFromStorage()));
 
 export function getTodo(id: string) {
-    return store.getState().todos[id].asMutable();
+    const todo: Immutable.Immutable<Todo> | undefined = store.getState().todos[id];
+    if (todo) {
+        return todo.asMutable();
+    } else {
+        return undefined;
+    }
 }
 
 export function dueTodos() {
@@ -147,7 +160,12 @@ export function dueTodos() {
     return Object.keys(store.getState().todos)
         .filter((id) => {
             const t = getTodo(id);
-            return !t.done && t.deadline && t.deadline.getTime() <= now;
+            if (t) {
+                return !t.done && t.deadline && t.deadline.getTime() <= now;
+            } else {
+                console.warn(`Todo ${id} does not exist`);
+                return false;
+            }
         })
         .sort((a, b) => itemCompare(a, b));
 }
@@ -157,7 +175,12 @@ export function deadlineTodos() {
     return Object.keys(store.getState().todos)
         .filter((id) => {
             const t = getTodo(id);
-            return !t.hide_until_done && !t.done && t.deadline && t.deadline.getTime() > now;
+            if (t) {
+                return !t.hide_until_done && !t.done && t.deadline && t.deadline.getTime() > now;
+            } else {
+                console.warn(`Todo ${id} does not exist`);
+                return false;
+            }
         })
         .sort((a, b) => itemCompare(a, b));
 }
@@ -167,7 +190,12 @@ export function upcomingTodos() {
     return Object.keys(store.getState().todos)
         .filter((id) => {
             const t = getTodo(id);
-            return !t.done && t.deadline && t.deadline.getTime() > now;
+            if (t) {
+                return !t.done && t.deadline && t.deadline.getTime() > now;
+            } else {
+                console.warn(`Todo ${id} does not exist`);
+                return false;
+            }
         })
         .sort((a, b) => itemCompare(a, b));
 }
@@ -176,7 +204,12 @@ export function otherTodos() {
     return Object.keys(store.getState().todos)
         .filter((id) => {
             const t = getTodo(id);
-            return !t.done && !t.deadline;
+            if (t) {
+                return !t.done && !t.deadline;
+            } else {
+                console.warn(`Todo ${id} does not exist`);
+                return false;
+            }
         })
         .sort((a, b) => itemCompare(a, b));
 }
@@ -185,7 +218,12 @@ export function completedTodos() {
     return Object.keys(store.getState().todos)
         .filter((id) => {
             const t = getTodo(id);
-            return t.done;
+            if (t) {
+                return t.done;
+            } else {
+                console.warn(`Todo ${id} does not exist`);
+                return false;
+            }
         })
         .sort((a, b) => completedCompare(a, b));
 }
