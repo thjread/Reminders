@@ -103,6 +103,7 @@ export function serverUpdate(actions: ActionDummy[]
                         setOnlineAsOf(undefined);
                 }
             }).catch((e: any) => {
+                console.warn("Server responded with error code " + e.code + ": " + e.message);
                 if (e.code !== 0 && e.code !== 503) { // got a response from server
                     if (actions.length > 0) {
                         showMessage(
