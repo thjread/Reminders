@@ -1181,7 +1181,7 @@ body.noscroll {
     line-height: 1.2em;
     margin-left: 0.5rem;
     text-align: right;
-    min-width: 5rem;
+    min-width: 5.1rem;
     max-height: 4.55em;
     padding-right: 0.4rem;/* stop weird clipping */
     overflow-y: hidden;
