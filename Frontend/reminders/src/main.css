@@ -338,7 +338,7 @@ body.noscroll {
         max-height: 35vh;
         background-color: var(--primary-light);
         overflow: hidden;
-        border-bottom: 1.5px solid transparent;
+        border-bottom: 1px solid transparent;
         box-shadow: 0px 1px 5px 0px var(--shadow);
     }
     to {
@@ -346,7 +346,7 @@ body.noscroll {
         max-height: 3.1rem;
         background-color: var(--primary);
         overflow: hidden;
-        border-bottom: 1.5px solid var(--primary-dark);
+        border-bottom: 1px solid var(--primary-dark);
         box-shadow: 0px 1px 5px 0px transparent;
     }
 }
@@ -405,6 +405,7 @@ body.noscroll {
     background-color: var(--shadow-dark);
     z-index: 10000;
     animation: shadow-enter var(--modal-animation-length);
+    contain: strict;
 }
 @keyframes shadow-enter {
     from {
@@ -441,6 +442,7 @@ body.noscroll {
     z-index: 10001;
     overflow: hidden;
     pointer-events: none;
+    contain: strict;
 }
 
 .login-container {
@@ -700,6 +702,7 @@ body.noscroll {
     /*box-shadow: 0 1px 3px 0 var(--shadow-faint);*/
     transition: background-color 0.5s;
     z-index: 1000;
+    contain: strict;
 }
 
 .header.normal {
@@ -964,6 +967,7 @@ body.noscroll {
 .todo-section {
     flex-basis: 100%;
     overflow: hidden;
+    contain: content;
 }
 
 .section-enter {
@@ -1051,6 +1055,7 @@ body.noscroll {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    contain: content;
 }
 
 .item-enter {
@@ -1347,6 +1352,7 @@ input[type=checkbox]:checked + .css-check::after {
     z-index: 10000;
     transition: background-color 0.1s;
     cursor: pointer;
+    contain: strict;
 }
 
 .fab:focus {
@@ -1373,6 +1379,7 @@ input[type=checkbox]:checked + .css-check::after {
     bottom: 1.5rem;
     z-index: 10000;
     transition: background-color 0.1s, opacity 0.2s;
+    contain: content;
 }
 
 .dismiss-button,
@@ -1486,6 +1493,9 @@ input[type=checkbox]:checked + .css-check::after {
         animation: modal-form-exit var(--modal-exit-animation-length);
     }
 
+    .menu-container {
+        contain: content;
+    }
 
     .menu-shadow {
         display: none;
