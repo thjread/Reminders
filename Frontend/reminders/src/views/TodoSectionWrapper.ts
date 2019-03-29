@@ -1,13 +1,10 @@
 import m from "mithril";
 
 interface Attrs {
-    title: string;
-    animateEnter: boolean;
-    desktopAnimateHorizontal: boolean;
-    desktopPad: boolean;
+    animate_enter: boolean;
 }
 
-const TodoSection = (): m.Component<Attrs> => {
+const TodoSectionWrapper = (): m.Component<Attrs> => {
     let route: string | null;
 
     return {
@@ -16,7 +13,7 @@ const TodoSection = (): m.Component<Attrs> => {
         },
 
         oncreate(vnode) {
-            if (vnode.attrs.animateEnter) {
+            if (vnode.attrs.animate_enter) {
                 vnode.dom.classList.add("section-enter");
                 vnode.dom.addEventListener("animationend", () => vnode.dom.classList.remove("section-enter"));
             }
@@ -32,23 +29,11 @@ const TodoSection = (): m.Component<Attrs> => {
         },
 
         view(vnode) {
-            const classes = [];
-            if (vnode.attrs.desktopAnimateHorizontal) {
-                classes.push("desktop-animate-horizontal");
-            }
-            if (vnode.attrs.desktopPad) {
-                classes.push("desktop-pad");
-            }
-            return m("section.todo-section", {
-                class: classes.join(" "),
-            }, [
-                m("h1.section-title.title-font", vnode.attrs.title),
-                m("div.section-before"),
+            return m("section.todo-section.desktop-animate-horizontal.desktop-pad", [
                 vnode.children,
-                m("div.section-after"),
             ]);
         },
     };
 };
 
-export default TodoSection;
+export default TodoSectionWrapper;

@@ -1522,35 +1522,45 @@ input[type=checkbox]:checked + .css-check::after {
         min-width: auto;
     }
 
-    .todo-section {
+    .desktop-pad.todo-section {
         padding: 0 1rem;
     }
 
-    .section-enter {
-        animation: section-enter 0.5s;
+    .desktop-animate-horizontal.section-enter {
+        animation: horiz-section-enter 0.5s;
     }
-    @keyframes section-enter {
-        from {
+    @keyframes horiz-section-enter {
+        0% {
             max-width: 0vw;
             opacity: 0;
+            padding: 0;
         }
-        to {
+        30% {
+            padding: 0 1rem;
+        }
+        100% {
             max-width: 100vw;
             opacity: 1;
+            padding: 0 1rem;
         }
     }
 
-    .section-exit {
-        animation: section-exit 0.5s linear;
+    .desktop-animate-horizontal.section-exit {
+        animation: horiz-section-exit 0.5s linear;
     }
-    @keyframes section-exit {
-        from {
+    @keyframes horiz-section-exit {
+        0% {
             max-width: 100vw;
             opacity: 1;
+            padding: 0 1rem;
         }
-        to {
+        70% {
+            padding: 0 1rem;
+        }
+        100% {
             max-width: 0vw;
             opacity: 0;
+            padding: 0;
         }
     }
 

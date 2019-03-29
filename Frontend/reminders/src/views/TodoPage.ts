@@ -1,4 +1,5 @@
 import m from "mithril";
+import TodoSectionWrapper from "./TodoSectionWrapper";
 import TodoSection from "./TodoSection";
 import TodoList from "./TodoList";
 
@@ -175,11 +176,13 @@ const TodoPage = (): m.Component<Attrs> => {
             const contextChanged = context !== oldContext;
             oldContext = context;
             let todoSections: Array<m.Vnode | undefined> = [];
-            function section(ids: string[], title: string) {
+            function section(ids: string[], title: string, desktopAnimateHorizontal: boolean, desktopPad: boolean) {
                 return ids.length > 0 ?
                     m(TodoSection, { title,
                                      key: title,
-                                     animate_enter: !contextChanged,
+                                     animateEnter: !contextChanged,
+                                     desktopAnimateHorizontal,
+                                     desktopPad,
                                    }, m(TodoList, { todoIds: ids })) :
                     undefined;
             }
@@ -187,14 +190,14 @@ const TodoPage = (): m.Component<Attrs> => {
                 case "upcoming": {
                     const upcoming = upcomingTodos();
                     todoSections = [
-                        section(upcoming, "UPCOMING"),
+                        section(upcoming, "UPCOMING", false, true),
                     ];
                     break;
                 }
                 case "completed": {
                     const completed = completedTodos();
                     todoSections = [
-                        section(completed, "COMPLETED"),
+                        section(completed, "COMPLETED", false, true),
                     ];
                     break;
                 }
@@ -202,10 +205,18 @@ const TodoPage = (): m.Component<Attrs> => {
                     const due = dueTodos();
                     const deadline = deadlineTodos();
                     const other = otherTodos();
+                    let wrapper;
+                    if (due.length + deadline.length > 0) {
+                        wrapper = m(TodoSectionWrapper, { key: "wrapper",
+                                                          animate_enter: !contextChanged,
+                                                        }, [
+                                                            section(due, "DUE", false, false),
+                                                            section(deadline, "DEADLINES", false, false),
+                        ]);
+                    }
                     todoSections = [
-                        section(due, "DUE"),
-                        section(deadline, "DEADLINES"),
-                        section(other, "TASKS"),
+                        wrapper,
+                        section(other, "TASKS", wrapper ? true : false, true),
                     ];
                     break;
                 }
@@ -214,7 +225,7 @@ const TodoPage = (): m.Component<Attrs> => {
             const modal = vnode.attrs.modal;
 
             const header =
-                m("header.header", { class: contextClass(context)}, [
+                m("header.header", { class: contextClass(context) }, [
                     m("div.header-first", [
                         m("button.menu-icon", {
                             "aria-label": "Menu",

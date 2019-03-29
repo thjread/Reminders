@@ -126,7 +126,9 @@ export function serverUpdate(actions: SyncActionDummy[]
                     }
                 }
             }).catch((e: any) => {
-                console.warn("Server responded with error " + e.code);
+                if (e.code !== 0) {
+                    console.warn("Server responded with error " + e.code);
+                }
                 if (e.code !== 0 && e.code !== 503 && e.code !== 521 && e.code !== 525) { // got a response from server
                     // 503, 521, 525 all errors produced by Cloudflare when server is down
                     serverError(actions);
