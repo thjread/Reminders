@@ -64,4 +64,4 @@ cargo run    # start the backend server on localhost:3000
 
 ![Screenshot on desktop](docs/images/reminders-desktop.png)
 
-![Screenshot on mobile](docs/images/reminders-mobile.png) ![Screenshot on mobile](docs/images/reminders-mobile-login.png)
+![Screenshot on mobile](docs/images/reminders-mobile-login.png) ![Screenshot on mobile](docs/images/reminders-mobile.png) 
