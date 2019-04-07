@@ -1,7 +1,0 @@
-Remove CORS headers
-
-Auth: https://www.jamestease.co.uk/blether/creating-authentication-middleware-actix-rust-react
-
-Batched API via serde internally tagged enum to send redux `action`s directly.
-
-Landing page with double-submit CSRF mitigation? (https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)_Prevention_Cheat_Sheet#Identifying_Source_Origin_.28via_Origin.2FReferer_header.29 check if this even works in presence of XSS, think about login CSRF and whether it affects me)

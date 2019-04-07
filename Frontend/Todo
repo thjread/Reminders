@@ -1,7 +1,0 @@
-Remember seamless-immutable has a (faster?) production mode
-
-Put HTML, css, bundle.js, sw.js in sensible places
-
-Remove REDUX_DEVTOOLS_EXTENSION code for production
-
-Order todos alphabetically as fallback
