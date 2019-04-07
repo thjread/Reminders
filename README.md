@@ -9,7 +9,7 @@ Hosted at <https://reminders.thjread.com> on Google Cloud Platform Free Tier (se
 * Progressive web application -- uses service workers to work offline, and can use as a standalone application on mobile (click 'Add to Home Screen')
 * Push notifications
 * Responsive design on desktop and mobile
-* Enter deadlines in human-readable form e.g. "tomorrow", "3pm Tuesday" "in 10 minutes" (using [Sugar](https://sugarjs.com/)).
+* Enter deadlines in human-readable form e.g. "tomorrow", "3pm Tuesday" "in 10 minutes" with [Sugar](https://sugarjs.com/)
 * Pin to-dos to the top of the list to mark them as needing attention
 * Touch gestures on mobile -- swipe right to mark as done, long press to pin
 * Keyboard shortcuts
@@ -34,10 +34,6 @@ Hosted at <https://reminders.thjread.com> on Google Cloud Platform Free Tier (se
 * Push notifications with the Web Push API
 * Automated database backups to an Amazon S3 bucket
 
-![Screenshot on desktop](docs/images/reminders-desktop.png)
-
-![Screenshot on mobile](docs/images/reminders-mobile.png) ![Screenshot on mobile](docs/images/reminders-mobile-login.png)
-
 ### Running
 
 Requires:
@@ -45,7 +41,8 @@ Requires:
 * npm
 * Rust
 * A local PostgreSQL database
-* Diesel CLI (``cargo install diesel_cli --no-default-features --features "postgres"``)
+* Diesel CLI
+  (``cargo install diesel_cli --no-default-features --features "postgres"``)
 
 **Frontend**:
 
@@ -62,3 +59,9 @@ sh keygen.sh # create a JSON Web Token secret key, and a VAPID keypair for web p
 diesel setup # create a database named db, and set up the schema.
 cargo run    # start the backend server on localhost:3000
 ```
+
+### Screenshots
+
+![Screenshot on desktop](docs/images/reminders-desktop.png)
+
+![Screenshot on mobile](docs/images/reminders-mobile.png) ![Screenshot on mobile](docs/images/reminders-mobile-login.png)
