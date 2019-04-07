@@ -2,7 +2,7 @@
 
 A to-do list web app focusing on robust offline and multi-device operation, and taking advantage of modern web technologies.
 
-Hosted at <https://reminders.thjread.com> on Google Cloud Platform Free Tier (see <https://github.com/thjread/thjread> for full Docker Compose configuration).
+Hosted at <https://reminders.thjread.com> on Google Cloud Platform Free Tier (see <https://github.com/thjread/thjread> for full NGINX and Docker Compose configuration), using CloudFlare to cache static content.
 
 ### Features
 
@@ -16,6 +16,7 @@ Hosted at <https://reminders.thjread.com> on Google Cloud Platform Free Tier (se
 * Undo last action
 * Maths rendering with [KaTeX](https://katex.org/)
 * Fluid CSS animations
+* Uses modern web security technologies such as a restrictive Content Security Policy
 
 ### Technologies
 
