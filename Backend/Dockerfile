@@ -1,4 +1,4 @@
-FROM rust:1.33 as build
+FROM rust:1.34 as build
 
 RUN USER=root cargo new --bin reminders-server
 WORKDIR /reminders-server

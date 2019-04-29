@@ -51,7 +51,7 @@ module.exports = {
         path: path.resolve(__dirname, "dist"),
     },
     plugins: [
-        new CleanWebpackPlugin(["dist"]),
+        new CleanWebpackPlugin(),
         new CopyWebpackPlugin([
             {from: "./src/manifest.json", to: "./manifest.json"},
             {from: "./src/images/", to: "./images/"},
