@@ -48,10 +48,7 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
             if (done) { // this should always be false in this branch
                 done_time = new Date();
             }
-            let highlight = false;
-            if (deadline) {
-                highlight = true;
-            }
+            const highlight = true;
             store.dispatch(createTodo(title, deadline, done, done_time, new Date(), hide_until_done, highlight));
             serverUpdate();
         }

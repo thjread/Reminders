@@ -39,7 +39,7 @@ export default (state: State, action: Action) => {
             const s = state.set("todos", state.todos.merge({
                 [id]: new_todo,
             }));
-            return s.set("hash", hash(s.todos.asMutable()));
+            return s.set("hash", hash(s.todos.asMutable({ deep: true })));
         }
         case getType(actions.editTodo): {
             const id = action.payload.id;
@@ -63,7 +63,7 @@ export default (state: State, action: Action) => {
             const s = state.set("todos", state.todos.merge({
                 [id]: new_todo,
             }));
-            return s.set("hash", hash(s.todos.asMutable()));
+            return s.set("hash", hash(s.todos.asMutable({ deep: true })));
         }
         case getType(actions.toggleDone): {
             const id = action.payload.id;
@@ -71,18 +71,18 @@ export default (state: State, action: Action) => {
             const done_time = action.payload.done_time;
             const s = state.setIn(["todos", id, "done"], done)
                 .setIn(["todos", id, "done_time"], done_time);
-            return s.set("hash", hash(s.todos.asMutable()));
+            return s.set("hash", hash(s.todos.asMutable({ deep: true })));
         }
         case getType(actions.toggleHighlight): {
             const id = action.payload.id;
             const highlight = action.payload.highlight;
             const s = state.setIn(["todos", id, "highlight"], highlight);
-            return s.set("hash", hash(s.todos.asMutable()));
+            return s.set("hash", hash(s.todos.asMutable({ deep: true })));
         }
         case getType(actions.deleteTodo): {
             const id = action.payload.id;
             const s = state.set("todos", state.todos.without(id));
-            return s.set("hash", hash(s.todos.asMutable()));
+            return s.set("hash", hash(s.todos.asMutable({ deep: true })));
         }
         case getType(actions.syncAction):
             const sync_action = action.payload.action;

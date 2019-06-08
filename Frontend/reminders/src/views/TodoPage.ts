@@ -175,7 +175,7 @@ const TodoPage = (): m.Component<Attrs> => {
             const context = m.route.param("c");
             const contextChanged = context !== oldContext;
             oldContext = context;
-            let todoSections: Array<m.Vnode | undefined> = [];
+            let todoSections: Array<m.Vnode<any, any> | undefined> = [];
             function section(ids: string[], title: string, desktopAnimateHorizontal: boolean, desktopPad: boolean) {
                 return ids.length > 0 ?
                     m(TodoSection, { title,

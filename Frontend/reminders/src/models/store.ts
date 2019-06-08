@@ -149,7 +149,7 @@ store.dispatch(setState(stateFromStorage()));
 export function getTodo(id: string) {
     const todo: Immutable.Immutable<Todo> | undefined = store.getState().todos[id];
     if (todo) {
-        return todo.asMutable();
+        return todo.asMutable({ deep: true });
     } else {
         return undefined;
     }
