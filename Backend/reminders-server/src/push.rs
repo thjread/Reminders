@@ -4,7 +4,6 @@ use failure::Error;
 use futures::future::Either;
 use serde_derive::Serialize;
 use std::time::Duration;
-use tokio::prelude::future::*;
 use uuid::Uuid;
 use web_push::*;
 

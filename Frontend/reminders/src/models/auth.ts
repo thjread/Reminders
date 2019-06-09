@@ -30,7 +30,7 @@ export function login(username: string, password: string) {
     return m.request({
         method: "POST",
         url: API_URI+"/login",
-        data: { username, password},
+        data: { username, password },
     }).then((response: any) => {
         switch (response.type) {
             case "Success":

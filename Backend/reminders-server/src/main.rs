@@ -1,7 +1,5 @@
-extern crate actix;
 extern crate actix_web;
 extern crate env_logger;
-extern crate listenfd;
 #[macro_use]
 extern crate diesel;
 extern crate chrono;
@@ -24,19 +22,18 @@ extern crate web_push;
 
 use actix::prelude::*;
 use actix_web::{
-    http, middleware::cors::Cors, middleware::Logger, server, App, AsyncResponder, Error,
-    HttpRequest, HttpResponse, Json,
+    middleware::cors::Cors, middleware::Compress, middleware::Logger, web, web::Json, App, Error,
+    HttpRequest, HttpResponse, HttpServer,
 };
+use bigdecimal::Zero;
 use chrono::prelude::*;
 use dotenv::dotenv;
 use futures::future::Either;
 use futures::Future;
-use listenfd::ListenFd;
 use serde_derive::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
 use web_push::SubscriptionInfo;
-use bigdecimal::Zero;
 
 mod auth;
 mod database;
@@ -46,7 +43,9 @@ mod schema;
 mod serialize;
 
 use auth::{CheckHash, Hash, HashExecutor, JWTVerifyError};
-use database::{DbExecutor, GetUser, GetTodos, Signup, Subscribe, Unsubscribe, UpdateAction, UpdateBatch};
+use database::{
+    DbExecutor, GetTodos, GetUser, Signup, Subscribe, Unsubscribe, UpdateAction, UpdateBatch,
+};
 use push::Push;
 
 const DEFAULT_DB_THREADS: usize = 2;
@@ -73,28 +72,33 @@ pub enum UpdateResult {
     INVALID_TOKEN,
     EXPIRED_TOKEN,
     SUCCESS,
-    HASH_MISMATCH { todos: Vec<models::Todo>, hash: u64 }
+    HASH_MISMATCH { todos: Vec<models::Todo>, hash: u64 },
 }
 
 fn update(
-    (req, data): (HttpRequest<AppState>, Json<UpdateRequest>),
-) -> Box<Future<Item = HttpResponse, Error = Error>> {
+    data: Json<UpdateRequest>,
+    req: HttpRequest,
+) -> impl Future<Item = HttpResponse, Error = Error> {
     let jwt_result = auth::verify_jwt(&data.0.jwt);
     match jwt_result {
-        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
-            futures::future::ok(HttpResponse::Ok().json(UpdateResult::INVALID_TOKEN)).responder()
-        }
-        Err(JWTVerifyError::Expired { .. }) => {
-            futures::future::ok(HttpResponse::Ok().json(UpdateResult::EXPIRED_TOKEN)).responder()
-        }
+        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => Either::A(
+            futures::future::ok(HttpResponse::Ok().json(UpdateResult::INVALID_TOKEN)),
+        ),
+        Err(JWTVerifyError::Expired { .. }) => Either::A(futures::future::ok(
+            HttpResponse::Ok().json(UpdateResult::EXPIRED_TOKEN),
+        )),
         Ok(userid) => {
             let actions = data.0.batch;
             let expected_hash = data.0.expected_hash;
             let len = actions.len();
-            req.state()
+            let data = req
+                .get_app_data::<AppState>()
+                .expect("App state not available");
+            Either::B(
+                data
                 .db
                 .send(UpdateBatch(userid, actions))
-                .from_err()
+                .map_err(|e| actix_web::error::ErrorInternalServerError(e))
                 .and_then(move |res| match res {
                     Ok(hash) => Either::A({
                         if len > 0 {
@@ -103,10 +107,11 @@ fn update(
                         if hash == expected_hash {
                             Either::A(futures::future::ok(HttpResponse::Ok().json(UpdateResult::SUCCESS)))
                         } else {
-                            Either::B(req.state()
+                            Either::B(
+                                data
                                 .db
                                 .send(GetTodos(userid))
-                                .from_err()
+                                .map_err(|e| actix_web::error::ErrorInternalServerError(e))
                                 .and_then(move |res| match res {
                                     Ok(todos) => {
                                         println!("[RUST] Sending todos with hash {} (user {})", hash, userid);
@@ -126,8 +131,7 @@ fn update(
                         println!("[RUST] Error performing update {:?}", e);
                         Either::B(futures::future::ok(HttpResponse::InternalServerError().into()))
                     }
-                })
-                .responder()
+                }))
         }
     }
 }
@@ -147,12 +151,16 @@ pub enum LoginResult {
 }
 
 fn login(
-    (req, details): (HttpRequest<AppState>, Json<LoginDetails>),
-) -> Box<Future<Item = HttpResponse, Error = Error>> {
-    req.state()
-        .db
+    details: Json<LoginDetails>,
+    req: HttpRequest,
+) -> impl Future<Item = HttpResponse, Error = Error> {
+    println!("hi");
+    let data = req
+        .get_app_data::<AppState>()
+        .expect("App state not available");
+    data.db
         .send(GetUser(details.0.username.clone()))
-        .from_err()
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e))
         .and_then(move |res| {
             match res {
                 Err(e) => {
@@ -165,13 +173,12 @@ fn login(
                     HttpResponse::Ok().json(LoginResult::UsernameNotFound),
                 )), // TODO rate limit this
                 Ok(Some(user)) => Either::B(
-                    req.state()
-                        .hash
+                    data.hash
                         .send(CheckHash {
                             password: details.0.password.clone(),
                             hash: user.hash.clone(),
                         })
-                        .from_err()
+                        .map_err(|e| actix_web::error::ErrorInternalServerError(e))
                         .and_then(move |res| match res {
                             Err(e) => {
                                 println!("[RUST] Error {:?} checking user's password", e);
@@ -196,7 +203,6 @@ fn login(
                 ),
             }
         })
-        .responder()
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -208,78 +214,87 @@ pub enum SignupResult {
 }
 
 fn signup(
-    (req, details): (HttpRequest<AppState>, Json<LoginDetails>),
-) -> Box<Future<Item = HttpResponse, Error = Error>> {
+    details: Json<LoginDetails>,
+    req: HttpRequest,
+) -> impl Future<Item = HttpResponse, Error = Error> {
     if details.username.len() > 100 {
-        return futures::future::ok(HttpResponse::Ok().json(SignupResult::UsernameTooLong))
-            .responder();
+        return Either::A(futures::future::ok(
+            HttpResponse::Ok().json(SignupResult::UsernameTooLong),
+        ));
     }
-    req.state()
-        .db
-        .send(GetUser(details.0.username.clone()))
-        .from_err()
-        .and_then(move |res| {
-            match res {
-                Err(e) => {
-                    println!(
-                        "[RUST] Error {:?} checking if username \"{}\" exists",
-                        e,
-                        details.0.username.clone()
-                    );
-                    Either::A(futures::future::ok(
-                        HttpResponse::InternalServerError().into(),
-                    ))
+    let data = req
+        .get_app_data::<AppState>()
+        .expect("App state not available");
+    Either::B(
+        data.db
+            .send(GetUser(details.0.username.clone()))
+            .map_err(|e| actix_web::error::ErrorInternalServerError(e))
+            .and_then(move |res| {
+                match res {
+                    Err(e) => {
+                        println!(
+                            "[RUST] Error {:?} checking if username \"{}\" exists",
+                            e,
+                            details.0.username.clone()
+                        );
+                        Either::A(futures::future::ok(
+                            HttpResponse::InternalServerError().into(),
+                        ))
+                    }
+                    Ok(Some(_)) => Either::A(futures::future::ok(
+                        HttpResponse::Ok().json(SignupResult::UsernameTaken),
+                    )), // TODO rate limit this
+                    Ok(None) => Either::B(
+                        data.hash
+                            .send(Hash(details.0.password.clone()))
+                            .map_err(|e| actix_web::error::ErrorInternalServerError(e))
+                            .and_then(move |res| match res {
+                                Err(e) => {
+                                    println!("[RUST] Error {:?} hashing new user's password", e);
+                                    Either::A(futures::future::ok(
+                                        HttpResponse::InternalServerError().into(),
+                                    ))
+                                }
+                                Ok(hash) => {
+                                    let userid = Uuid::new_v4();
+                                    Either::B(
+                                        data.db
+                                            .send(Signup(models::User {
+                                                userid,
+                                                username: details.0.username.clone(),
+                                                hash,
+                                                signup: Utc::now().naive_utc(),
+                                                todo_hash: Zero::zero(),
+                                            }))
+                                            .map_err(|e| {
+                                                actix_web::error::ErrorInternalServerError(e)
+                                            })
+                                            .and_then(move |res| match res {
+                                                Err(e) => {
+                                                    println!(
+                                                        "[RUST] Error {:?} signing up user",
+                                                        e
+                                                    );
+                                                    Ok(HttpResponse::InternalServerError().into())
+                                                }
+                                                Ok(_) => {
+                                                    println!(
+                                                        "[RUST] Signup \"{}\" ({})",
+                                                        details.0.username, userid
+                                                    );
+                                                    let jwt = auth::gen_jwt(userid)?;
+                                                    Ok(HttpResponse::Ok().json(
+                                                        SignupResult::Success { jwt, userid },
+                                                    ))
+                                                }
+                                            }),
+                                    )
+                                }
+                            }),
+                    ),
                 }
-                Ok(Some(_)) => Either::A(futures::future::ok(
-                    HttpResponse::Ok().json(SignupResult::UsernameTaken),
-                )), // TODO rate limit this
-                Ok(None) => Either::B(
-                    req.state()
-                        .hash
-                        .send(Hash(details.0.password.clone()))
-                        .from_err()
-                        .and_then(move |res| match res {
-                            Err(e) => {
-                                println!("[RUST] Error {:?} hashing new user's password", e);
-                                Either::A(futures::future::ok(
-                                    HttpResponse::InternalServerError().into(),
-                                ))
-                            }
-                            Ok(hash) => {
-                                let userid = Uuid::new_v4();
-                                Either::B(
-                                    req.state()
-                                        .db
-                                        .send(Signup(models::User {
-                                            userid,
-                                            username: details.0.username.clone(),
-                                            hash,
-                                            signup: Utc::now().naive_utc(),
-                                            todo_hash: Zero::zero(),
-                                        }))
-                                        .from_err()
-                                        .and_then(move |res| match res {
-                                            Err(e) => {
-                                                println!("[RUST] Error {:?} signing up user", e);
-                                                Ok(HttpResponse::InternalServerError().into())
-                                            }
-                                            Ok(_) => {
-                                                println!(
-                                                    "[RUST] Signup \"{}\" ({})",
-                                                    details.0.username, userid
-                                                );
-                                                let jwt = auth::gen_jwt(userid)?;
-                                                Ok(HttpResponse::Ok()
-                                                    .json(SignupResult::Success { jwt, userid }))
-                                            }
-                                        }),
-                                )
-                            }
-                        }),
-                ),
-            }
-        })
-        .responder()
+            }),
+    )
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -298,16 +313,17 @@ pub enum SubscribeResult {
 }
 
 fn subscribe(
-    (req, data): (HttpRequest<AppState>, Json<SubscribeRequest>),
-) -> Box<Future<Item = HttpResponse, Error = Error>> {
+    data: Json<SubscribeRequest>,
+    req: HttpRequest,
+) -> impl Future<Item = HttpResponse, Error = Error> {
     let jwt_result = auth::verify_jwt(&data.0.jwt);
     match jwt_result {
-        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
-            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN)).responder()
-        }
-        Err(JWTVerifyError::Expired { .. }) => {
-            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN)).responder()
-        }
+        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => Either::A(
+            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN)),
+        ),
+        Err(JWTVerifyError::Expired { .. }) => Either::A(futures::future::ok(
+            HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN),
+        )),
         Ok(userid) => {
             let info = data.0.info;
             let sub = models::Subscription {
@@ -316,59 +332,62 @@ fn subscribe(
                 auth: info.keys.auth,
                 p256dh: info.keys.p256dh,
             };
-            req.state()
-                .db
-                .send(Subscribe(sub))
-                .from_err()
-                .and_then(move |res| match res {
-                    Ok(_) => {
-                        println!("[RUST] Notification subscription from {}", userid);
-                        Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
-                    }
-                    Err(e) => {
-                        println!(
-                            "[RUST] Error {:?} registering push notification subscription",
-                            e
-                        );
-                        Ok(HttpResponse::InternalServerError().into())
-                    }
-                })
-                .responder()
+            let data = req.app_data::<AppState>().expect("App state not available");
+            Either::B(
+                data.db
+                    .send(Subscribe(sub))
+                    .map_err(|e| actix_web::error::ErrorInternalServerError(e))
+                    .and_then(move |res| match res {
+                        Ok(_) => {
+                            println!("[RUST] Notification subscription from {}", userid);
+                            Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
+                        }
+                        Err(e) => {
+                            println!(
+                                "[RUST] Error {:?} registering push notification subscription",
+                                e
+                            );
+                            Ok(HttpResponse::InternalServerError().into())
+                        }
+                    }),
+            )
         }
     }
 }
 
 fn unsubscribe(
-    (req, data): (HttpRequest<AppState>, Json<SubscribeRequest>),
-) -> Box<Future<Item = HttpResponse, Error = Error>> {
+    data: Json<SubscribeRequest>,
+    req: HttpRequest,
+) -> impl Future<Item = HttpResponse, Error = Error> {
     let jwt_result = auth::verify_jwt(&data.0.jwt);
     match jwt_result {
-        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
-            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN)).responder()
-        }
-        Err(JWTVerifyError::Expired { .. }) => {
-            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN)).responder()
-        }
+        Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => Either::A(
+            futures::future::ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN)),
+        ),
+        Err(JWTVerifyError::Expired { .. }) => Either::A(futures::future::ok(
+            HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN),
+        )),
         Ok(userid) => {
             let info = data.0.info;
-            req.state()
-                .db
-                .send(Unsubscribe {
-                    userid,
-                    endpoint: info.endpoint,
-                })
-                .from_err()
-                .and_then(move |res| match res {
-                    Ok(_) => {
-                        println!("[RUST] Notification unsubscription from {}", userid);
-                        Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
-                    }
-                    Err(e) => {
-                        println!("[RUST] Error {:?} while unsubscribing", e);
-                        Ok(HttpResponse::InternalServerError().into())
-                    }
-                })
-                .responder()
+            let data = req.app_data::<AppState>().expect("App state not available");
+            Either::B(
+                data.db
+                    .send(Unsubscribe {
+                        userid,
+                        endpoint: info.endpoint,
+                    })
+                    .map_err(|e| actix_web::error::ErrorInternalServerError(e))
+                    .and_then(move |res| match res {
+                        Ok(_) => {
+                            println!("[RUST] Notification unsubscription from {}", userid);
+                            Ok(HttpResponse::Ok().json(SubscribeResult::SUCCESS))
+                        }
+                        Err(e) => {
+                            println!("[RUST] Error {:?} while unsubscribing", e);
+                            Ok(HttpResponse::InternalServerError().into())
+                        }
+                    }),
+            )
         }
     }
 }
@@ -376,7 +395,7 @@ fn unsubscribe(
 embed_migrations!("./migrations/");
 
 fn main() {
-    std::env::set_var("RUST_LOG", "actix_web=WARN");
+    std::env::set_var("RUST_LOG", "actix_web=warn");
     env_logger::init();
 
     dotenv().ok();
@@ -398,7 +417,6 @@ fn main() {
         None => DEFAULT_PUSH_TTL,
     };
 
-    let mut listenfd = ListenFd::from_env();
     let sys = actix::System::new("reminders-server");
 
     let pool = database::establish_connection();
@@ -414,56 +432,32 @@ fn main() {
     };
     p.start();
 
-    let mut server = server::new(move || {
-        let app = App::with_state(AppState {
-            db: db_addr.clone(),
-            hash: hash_addr.clone(),
-        })
-        .middleware(Logger::new("%r %b %D"))
-        .prefix("/api");
-
-        if cfg!(debug_assertions) {
-            app.configure(|app| {
-                Cors::for_app(app)
-                    .allowed_origin("http://localhost:8000")
-                    .resource("/update", |r| {
-                        r.method(http::Method::PUT).with_async(update)
-                    })
-                    .resource("/login", |r| r.method(http::Method::POST).with_async(login))
-                    .resource("/signup", |r| {
-                        r.method(http::Method::POST).with_async(signup)
-                    })
-                    .resource("/subscribe", |r| {
-                        r.method(http::Method::POST).with_async(subscribe)
-                    })
-                    .resource("/unsubscribe", |r| {
-                        r.method(http::Method::DELETE).with_async(unsubscribe)
-                    })
-                    .register()
-            })
+    let server = HttpServer::new(move || {
+        let cors = if cfg!(debug_assertions) {
+            Cors::new().allowed_origin("http://localhost:8000")
         } else {
-            app.resource("/update", |r| {
-                r.method(http::Method::PUT).with_async(update)
-            })
-            .resource("/login", |r| r.method(http::Method::POST).with_async(login))
-            .resource("/signup", |r| {
-                r.method(http::Method::POST).with_async(signup)
-            })
-            .resource("/subscribe", |r| {
-                r.method(http::Method::POST).with_async(subscribe)
-            })
-            .resource("/unsubscribe", |r| {
-                r.method(http::Method::DELETE).with_async(unsubscribe)
-            })
-        }
-    });
-    server = if let Some(l) = listenfd.take_tcp_listener(0).unwrap() {
-        server.listen(l)
-    } else {
-        server.bind("0.0.0.0:3000").unwrap()
-    };
+            Cors::new()
+        };
 
-    server.start();
+        let app = App::new()
+            .data(AppState {
+                db: db_addr.clone(),
+                hash: hash_addr.clone(),
+            })
+            .wrap(Logger::new("%r %b %D"))
+            .wrap(Compress::default())
+            .wrap(cors);
+
+        app.service(
+            web::scope("/api")
+                .service(web::resource("/update").route(web::put().to_async(update)))
+                .service(web::resource("/login").route(web::post().to_async(login)))
+                .service(web::resource("/signup").route(web::post().to_async(signup)))
+                .service(web::resource("/subscribe").route(web::post().to_async(subscribe)))
+                .service(web::resource("/unsubscribe").route(web::delete().to_async(unsubscribe))),
+        )
+    });
+    server.bind("0.0.0.0:3000").unwrap().start();
 
     println!("Started server");
 
