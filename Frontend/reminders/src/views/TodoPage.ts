@@ -252,9 +252,9 @@ const TodoPage = (): m.Component<Attrs> => {
                             ["Upcoming", "upcoming", context === "upcoming"],
                             ["Completed", "completed", context === "completed"],
                         ].map(([title, path, selected]) => {
-                            return m("li", m(`a[href=/?c=${path}].main-nav-item`, {
-                                class: selected ? "selected" : undefined,
-                                oncreate: m.route.link,
+                            return m("li", m(m.route.Link, {
+                                class: "main-nav-item " + (selected ? "selected" : undefined),
+                                href: `/?c=${path}`,
                                 onclick: () => { doShowMenu(desktopLayout); },
                             }, title));
                         })),

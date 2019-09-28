@@ -60,7 +60,7 @@ export function pushSubscribe() {
                 return m.request({
                     method: "POST",
                     url: API_URI+"/subscribe",
-                    data: {
+                    body: {
                         jwt,
                         info: pushSubscription,
                     },
@@ -100,7 +100,7 @@ export function pushUnsubscribe() {
         return m.request({
             method: "DELETE",
             url: API_URI+"/unsubscribe",
-            data: {
+            body: {
                 jwt,
                 info: subscription,
             },
