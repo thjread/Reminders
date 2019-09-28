@@ -22,9 +22,10 @@ extern crate web_push;
 
 use actix::prelude::*;
 use actix_web::{
-    middleware::cors::Cors, middleware::Compress, middleware::Logger, web, web::Json, App, Error,
+    middleware::Compress, middleware::Logger, web, web::Json, App, Error,
     HttpRequest, HttpResponse, HttpServer,
 };
+use actix_cors::Cors;
 use bigdecimal::Zero;
 use chrono::prelude::*;
 use dotenv::dotenv;

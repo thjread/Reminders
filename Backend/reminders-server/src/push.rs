@@ -47,7 +47,7 @@ fn notify(
         todo: Todo,
         info: &SubscriptionInfo,
         ttl: u32,
-    ) -> Result<Box<Future<Item = (), Error = WebPushError>>, Error> {
+    ) -> Result<Box<dyn Future<Item = (), Error = WebPushError>>, Error> {
         let payload = PushPayload {
             id: todo.id,
             userid: todo.userid,
