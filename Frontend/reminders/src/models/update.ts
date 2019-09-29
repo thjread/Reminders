@@ -74,56 +74,44 @@ export function serverUpdate(actions: SyncActionDummy[]
     const state = store.getState();
     if (state.loginDetails) {
         if (navigator.onLine !== false) {
-            // @ts-ignore - TODO remove when @types/mithril is updated for v2.0
             return m.request({
                 method: "PUT",
                 url: API_URI+"/update",
                 timeout: 5000,
-                data: {
+                body: {
                     jwt: state.loginDetails.jwt,
                     batch: actions,
                     expected_hash: state.hash,
                 },
-                deserialize: (v) => v, // prevent default JSON deserialization
-            }).then((rawResponse: string) => {
-                let response;
-                try {
-                    response = JSON.parse(rawResponse);
-                } catch (e) {
-                    console.warn("Could not parse response from server");
-                    serverError(actions);
-                }
-
-                if (response) {
-                    switch (response.type) {
-                        case "SUCCESS": {
-                            actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
-                            store.dispatch(setOnlineAsOf(new Date()));
-                            break;
-                        }
-                        case "HASH_MISMATCH": {
-                            const serverHash = response.hash;
-                            const todos = response.todos;
-                            actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
-                            // tslint:disable-next-line:no-console
-                            console.log("Local hash " + state.hash + " does not match hash " +
-                                        serverHash + " from server - updating");
-                            updateWithServerTodos(todos as ServerTodoRow[], serverHash);
-                            store.dispatch(setOnlineAsOf(new Date()));
-                            break;
-                        }
-                        case "INVALID_TOKEN":
-                            showMessage("Authentication error");
-                            logout();
-                            break;
-                        case "EXPIRED_TOKEN":
-                            showMessage("Saved login details expired - please log in again");
-                            logout(false);
-                            break;
-                        default:
-                            console.warn("Unexpected response from server");
-                            serverError(actions);
+            }).then((response: any) => {
+                switch (response.type) {
+                    case "SUCCESS": {
+                        actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        store.dispatch(setOnlineAsOf(new Date()));
+                        break;
                     }
+                    case "HASH_MISMATCH": {
+                        const serverHash = response.hash;
+                        const todos = response.todos;
+                        actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
+                        // tslint:disable-next-line:no-console
+                        console.log("Local hash " + state.hash + " does not match hash " +
+                                    serverHash + " from server - updating");
+                        updateWithServerTodos(todos as ServerTodoRow[], serverHash);
+                        store.dispatch(setOnlineAsOf(new Date()));
+                        break;
+                    }
+                    case "INVALID_TOKEN":
+                        showMessage("Authentication error");
+                        logout();
+                        break;
+                    case "EXPIRED_TOKEN":
+                        showMessage("Saved login details expired - please log in again");
+                        logout(false);
+                        break;
+                    default:
+                        console.warn("Unexpected response from server");
+                        serverError(actions);
                 }
             }).catch((e: any) => {
                 if (e.code !== 0) {

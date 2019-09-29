@@ -155,7 +155,6 @@ fn login(
     details: Json<LoginDetails>,
     req: HttpRequest,
 ) -> impl Future<Item = HttpResponse, Error = Error> {
-    println!("hi");
     let data = req
         .get_app_data::<AppState>()
         .expect("App state not available");

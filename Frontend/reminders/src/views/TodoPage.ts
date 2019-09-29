@@ -207,12 +207,14 @@ const TodoPage = (): m.Component<Attrs> => {
                     const other = otherTodos();
                     let wrapper;
                     if (due.length + deadline.length > 0) {
+                        let wrappedSections = [
+                            section(due, "DUE", false, false),
+                            section(deadline, "DEADLINES", false, false),
+                        ];
+                        wrappedSections = wrappedSections.filter((s) => s !== undefined);
                         wrapper = m(TodoSectionWrapper, { key: "wrapper",
                                                           animate_enter: !contextChanged,
-                                                        }, [
-                                                            section(due, "DUE", false, false),
-                                                            section(deadline, "DEADLINES", false, false),
-                        ]);
+                                                        }, wrappedSections);
                     }
                     todoSections = [
                         wrapper,
@@ -221,6 +223,7 @@ const TodoPage = (): m.Component<Attrs> => {
                     break;
                 }
             }
+            todoSections = todoSections.filter((s) => s !== undefined);
 
             const modal = vnode.attrs.modal;
 
@@ -243,7 +246,7 @@ const TodoPage = (): m.Component<Attrs> => {
                 username = loginDetails.username;
             }
             const menu =
-                m("div.menu-container", { class: showMenu ? "menu-show" : undefined}, [
+                m("div.menu-container", { class: showMenu ? "menu-show" : undefined }, [
                     m("div.menu-shadow", { onclick: () => { doShowMenu(false); }}),
                     m("div.menu-spacer"),
                     m("nav.menu", [
