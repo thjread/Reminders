@@ -1,6 +1,9 @@
 // tslint:disable:variable-name
 
-import { createAction } from "typesafe-actions";
+// TODO update this
+import { deprecated } from "typesafe-actions"
+const { createAction, createStandardAction, createCustomAction } = deprecated;
+
 import uuidv4 from "uuid/v4";
 
 import { store, TodoMap, State, getTodo, ActionDummy, Message,

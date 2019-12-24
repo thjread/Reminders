@@ -7,7 +7,7 @@ export const renderMath = (elem: HTMLElement, contents: string) => {
         { left: "$$", right: "$$", display: false },
         { left: "\\[", right: "\\]", display: true },
     ],
-                                throwOnError: false,
-                                maxSize: 500,
-                                allowedProtocols: [] });
+    throwOnError: false,
+    maxSize: 500 });
+    // TODO: allowedProtocols: [] });
 };
