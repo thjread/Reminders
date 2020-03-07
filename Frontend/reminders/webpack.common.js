@@ -59,6 +59,7 @@ module.exports = {
             {from: "./src/robots.txt", to: "./robots.txt"},
             {from: "./src/404.html", to: "./404.html"},
             {from: "./src/50x.html", to: "./50x.html"},
+            {from: "./src/sitemap.xml", to: "./sitemap.xml"},
         ]),
         new HtmlWebpackPlugin({
             template: "./src/index.html",
