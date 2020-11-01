@@ -1,6 +1,5 @@
 use bcrypt::BcryptError;
 use frank_jwt;
-use frank_jwt::Algorithm::HS256;
 use uuid::Uuid;
 use serde_derive::{Serialize, Deserialize};
 use actix::prelude::*;
@@ -59,7 +58,7 @@ pub fn gen_jwt(userid: Uuid) -> Result<String, Error> {
         iat: chrono::Utc::now().timestamp(),
     }).expect("Failed to convert JWT payload to JSON");
     let header = json!({});
-    frank_jwt::encode(header, &SECRET.to_string(), &payload, HS256).map_err(|e| e.into())
+    frank_jwt::encode(header, &SECRET.to_string(), &payload, frank_jwt::Algorithm::HS256).map_err(|e| e.into())
 }
 
 #[derive(Debug, Fail)]
@@ -73,7 +72,7 @@ pub enum JWTVerifyError  {
 }
 
 pub fn verify_jwt(jwt: &String) -> Result<Uuid, JWTVerifyError> {
-    match frank_jwt::decode(jwt, &SECRET.to_string(), HS256) {
+    match frank_jwt::decode(jwt, &SECRET.to_string(), frank_jwt::Algorithm::HS256, &frank_jwt::ValidationOptions::dangerous()) {
         Err(_) => Err(JWTVerifyError::SignatureInvalid),
         Ok((_, p)) => {
             match serde_json::from_value::<JWTPayload>(p) {

@@ -13,7 +13,7 @@ diesel = { version = "1.4", features = ["postgres", "chrono", "uuid", "r2d2", "n
 uuid = { version = ">=0.2.0, <0.7.0", features = ["serde", "use_std", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 r2d2 = { version = ">= 0.8, < 0.9"}
-bigdecimal = { version = ">= 0.0.10, < 0.0.15" }
+bigdecimal = { version = "0.1.2" }
 actix = "^0.8"
 actix-cors = "^0.1"
 dotenv = "^0.14"
