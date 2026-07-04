@@ -60,7 +60,7 @@ async fn update(
         Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
             return Ok(HttpResponse::Ok().json(UpdateResult::INVALID_TOKEN));
         }
-        Err(JWTVerifyError::Expired { .. }) => {
+        Err(JWTVerifyError::Expired) => {
             return Ok(HttpResponse::Ok().json(UpdateResult::EXPIRED_TOKEN));
         }
         Ok(userid) => userid,
@@ -241,7 +241,7 @@ async fn subscribe(
         Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
             return Ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN));
         }
-        Err(JWTVerifyError::Expired { .. }) => {
+        Err(JWTVerifyError::Expired) => {
             return Ok(HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN));
         }
         Ok(userid) => userid,
@@ -278,7 +278,7 @@ async fn unsubscribe(
         Err(JWTVerifyError::SignatureInvalid) | Err(JWTVerifyError::PayloadInvalid) => {
             return Ok(HttpResponse::Ok().json(SubscribeResult::INVALID_TOKEN));
         }
-        Err(JWTVerifyError::Expired { .. }) => {
+        Err(JWTVerifyError::Expired) => {
             return Ok(HttpResponse::Ok().json(SubscribeResult::EXPIRED_TOKEN));
         }
         Ok(userid) => userid,

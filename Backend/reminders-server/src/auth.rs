@@ -16,18 +16,19 @@ pub fn check_password(password: &str, hash: &str) -> Result<bool, BcryptError> {
     bcrypt::verify(password, hash)
 }
 
-// Tokens deliberately carry only {userid, iat} with a custom expiry check,
-// for compatibility with tokens issued by previous versions of the server.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct JWTPayload {
     userid: Uuid,
     iat: i64,
+    exp: i64,
 }
 
 pub fn gen_jwt(userid: Uuid) -> anyhow::Result<String> {
+    let now = chrono::Utc::now().timestamp();
     let payload = JWTPayload {
         userid,
-        iat: chrono::Utc::now().timestamp(),
+        iat: now,
+        exp: now + JWT_VALID_TIME,
     };
     encode(
         &Header::default(),
@@ -43,31 +44,22 @@ pub enum JWTVerifyError {
     SignatureInvalid,
     #[error("invalid payload")]
     PayloadInvalid,
-    #[error("token issued at {time} has expired")]
-    Expired { time: i64 },
+    #[error("token has expired")]
+    Expired,
 }
 
 pub fn verify_jwt(jwt: &str) -> Result<Uuid, JWTVerifyError> {
-    let mut validation = Validation::new(Algorithm::HS256);
-    // there is no exp claim; expiry is checked manually against iat below
-    validation.validate_exp = false;
-    validation.required_spec_claims.clear();
+    let validation = Validation::new(Algorithm::HS256);
     match decode::<JWTPayload>(
         jwt,
         &DecodingKey::from_secret(SECRET.as_bytes()),
         &validation,
     ) {
         Err(e) => match e.kind() {
+            jsonwebtoken::errors::ErrorKind::ExpiredSignature => Err(JWTVerifyError::Expired),
             jsonwebtoken::errors::ErrorKind::Json(_) => Err(JWTVerifyError::PayloadInvalid),
             _ => Err(JWTVerifyError::SignatureInvalid),
         },
-        Ok(data) => {
-            let payload = data.claims;
-            if chrono::Utc::now().timestamp() - payload.iat < JWT_VALID_TIME {
-                Ok(payload.userid)
-            } else {
-                Err(JWTVerifyError::Expired { time: payload.iat })
-            }
-        }
+        Ok(data) => Ok(data.claims.userid),
     }
 }
