@@ -1,4 +1,4 @@
-FROM rust:1.47 as build
+FROM rust:1.96 as build
 
 RUN USER=root cargo new --bin reminders-server
 WORKDIR /reminders-server
@@ -17,9 +17,9 @@ RUN cargo build --release
 RUN mkdir -p /artefact
 RUN cp ./target/release/reminders-server /artefact/
 
-FROM ubuntu
+FROM debian:bookworm-slim
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get -y install libssl-dev libpq5 libpq-dev ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get -y install libssl3 libpq5 ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=build /artefact /
 COPY env .env
 CMD /reminders-server

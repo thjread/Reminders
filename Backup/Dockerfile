@@ -1,8 +1,5 @@
-FROM alpine
-RUN apk add --no-cache postgresql-client --repository=http://dl-cdn.alpinelinux.org/alpine/edge/main
-RUN apk add --no-cache python py-pip && \
-	pip install awscli && \
-	apk del py-pip
+FROM alpine:3.22
+RUN apk add --no-cache postgresql17-client aws-cli
 COPY secrets/credentials /root/.aws/credentials
 COPY backup /bin/backup
 COPY crontab /etc/crontabs/root
