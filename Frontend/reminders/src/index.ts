@@ -1,3 +1,4 @@
+import "./main.css";
 import m from "mithril";
 import { store } from "./models/store"; // initialise store
 import { storeState, serverUpdate } from "./models/update";
@@ -71,8 +72,8 @@ serverUpdate();
 handleVisibilityChange();
 document.addEventListener("visibilitychange", handleVisibilityChange, false);
 
-window.addEventListener("online", (_) => serverUpdate());
-window.addEventListener("offline", (_) => m.redraw()); // make sure sync indicator redraws
+window.addEventListener("online", () => serverUpdate());
+window.addEventListener("offline", () => m.redraw()); // make sure sync indicator redraws
 window.addEventListener("keydown", (e) => handleShortcuts(e));
 
 swInit();

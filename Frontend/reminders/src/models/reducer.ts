@@ -1,4 +1,3 @@
-// tslint:disable:variable-name
 
 import { ActionType, getType } from "typesafe-actions";
 import { hash } from "./serialize";
@@ -84,18 +83,21 @@ export default (state: State, action: Action) => {
             const s = state.set("todos", state.todos.without(id));
             return s.set("hash", hash(s.todos.asMutable({ deep: true })));
         }
-        case getType(actions.syncAction):
+        case getType(actions.syncAction): {
             const sync_action = action.payload.action;
             return state.set("syncActions", state.syncActions.concat(sync_action as ActionDummy));
-        case getType(actions.setUndoAction):
+        }
+        case getType(actions.setUndoAction): {
             const undo_info = action.payload.info;
             return state.set("undoAction", undo_info);
-        case getType(actions.syncActionSynced):
+        }
+        case getType(actions.syncActionSynced): {
             const action_id = action.payload.action_id;
             return state.set("syncActions",
                              state.syncActions.filter(
                                  (a) => a.payload.action_id !== action_id,
                              ));
+        }
         case getType(actions.setState):
             return action.payload.state;
         case getType(actions.setServerTodos): {
@@ -104,12 +106,14 @@ export default (state: State, action: Action) => {
             const s = state.set("todos", todos);
             return s.set("hash", serverHash);
         }
-        case getType(actions.setMessage):
+        case getType(actions.setMessage): {
             const message = action.payload.message;
             return state.set("message", message);
-        case getType(actions.setOnlineAsOf):
+        }
+        case getType(actions.setOnlineAsOf): {
             const time = action.payload.time;
             return state.set("onlineAsOf", time);
+        }
         case getType(actions.createShortcutContext): {
             return state.set("shortcutStack", Immutable([{ }]).concat(state.shortcutStack));
         }
@@ -125,6 +129,10 @@ export default (state: State, action: Action) => {
                     [code]: shortcut,
                 }));
             }
+            // previously fell through to the removeShortcut case here, which
+            // was surely unintended; adding a shortcut with no context open
+            // is now a no-op
+            return state;
         }
         case getType(actions.removeShortcut): {
             const code = action.payload.code;

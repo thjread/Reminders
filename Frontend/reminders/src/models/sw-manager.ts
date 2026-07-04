@@ -1,4 +1,4 @@
-// tslint:disable:no-console
+/* eslint-disable no-console */
 
 import m from "mithril";
 import { logout, loggedIn } from "./auth";
@@ -7,7 +7,7 @@ import { store } from "./store";
 import { toggleDone } from "./actions";
 import { showMessage } from "./ui";
 
-declare var API_URI: boolean; // provided by webpack
+declare const API_URI: string; // provided by Vite define
 
 let registration: null | ServiceWorkerRegistration = null;
 let subscription: null | PushSubscription = null;
@@ -33,13 +33,14 @@ export function swInit() {
         });
         navigator.serviceWorker.addEventListener("message", (event) => {
             switch (event.data.type) {
-                case "DONE":
+                case "DONE": {
                     const state = store.getState();
                     if (state.loginDetails && state.loginDetails.userid === event.data.userid) {
                         const id = event.data.id;
                         store.dispatch(toggleDone(id, true));
                     }
                     break;
+                }
             }
         });
     }

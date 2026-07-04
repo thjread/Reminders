@@ -37,7 +37,8 @@
 
   // The global context. Rhino uses a different "global" keyword so
   // do an extra check to be sure that it's actually the global context.
-  var globalContext = typeof global !== "undefined" && global.Object === Object ? global : this;
+  // patched for ESM: top-level `this` is undefined in module scope, so prefer globalThis
+  var globalContext = typeof globalThis !== "undefined" ? globalThis : (typeof global !== "undefined" && global.Object === Object ? global : this);
 
   // Is the environment node?
   var hasExports = typeof module !== "undefined" && module.exports;

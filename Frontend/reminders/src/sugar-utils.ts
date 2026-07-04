@@ -1,5 +1,10 @@
-// tslint:disable-next-line:no-var-requires
-const Sugar = require("./sugar");
+// vendored UMD build: imported for its side effect of attaching window.Sugar
+import "./sugar";
+
+declare global {
+    interface Window { Sugar: any; }
+}
+const Sugar = window.Sugar;
 
 export const sugarDateColorClass = (d: Date): string | undefined => {
     if (d.getTime() <= Date.now()) {
@@ -47,7 +52,7 @@ export const sugarParseDate = (s: string) => {
     const locale = navigator.language;
     try {
         Sugar.Date.setLocale(locale);
-    } catch (err) {
+    } catch {
         console.error("Locale " + locale + " not supported, reverting to 'en'");
     }
     const date = Sugar.Date.create(s, { future: true});

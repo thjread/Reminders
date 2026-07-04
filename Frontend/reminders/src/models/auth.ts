@@ -5,7 +5,7 @@ import { stateFromStorage, logoutClearStorage, serverUpdate } from "./update";
 import { showMessage, clearMessage } from "./ui";
 import { pushSubscribe, pushUnsubscribe } from "./sw-manager";
 
-declare var API_URI: boolean; // provided by webpack
+declare const API_URI: string; // provided by Vite define
 
 export interface LoginDetails {
     username: string;
@@ -33,13 +33,14 @@ export function login(username: string, password: string) {
         body: { username, password },
     }).then((response: any) => {
         switch (response.type) {
-            case "Success":
+            case "Success": {
                 const loginDetails: LoginDetails = {
                     username,
                     userid: response.userid,
                     jwt: response.jwt,
                 };
                 return loginDetails;
+            }
             case "UsernameNotFound":
                 showMessage("User \"" + username + "\" not found");
                 break;
@@ -77,13 +78,14 @@ export function signup(username: string, password: string) {
         body: { username, password },
     }).then((response: any) => {
         switch (response.type) {
-            case "Success":
+            case "Success": {
                 const loginDetails: LoginDetails = {
                     username,
                     userid: response.userid,
                     jwt: response.jwt,
                 };
                 return loginDetails;
+            }
             case "UsernameTooLong":
                 showMessage("Username \"" + username + "\" is too long (max 100 characters)");
                 break;

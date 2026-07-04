@@ -1,4 +1,3 @@
-// tslint:disable:max-line-length
 
 // from https://materialdesignicons.com/ cloud-outline
 // TODO refactor into mithril style?

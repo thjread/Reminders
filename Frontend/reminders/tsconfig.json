@@ -1,14 +1,19 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
-    "sourceMap": true,
-    "noImplicitAny": true,
-    "module": "esnext",
-    "esModuleInterop": true,
-    "target": "es5",
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
     "allowJs": true,
+    "esModuleInterop": true,
+    "noImplicitAny": true,
     "strictNullChecks": true,
-    "moduleResolution": "node",
-    "lib": ["es5", "es2015.promise", "dom"]
-  }
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "sourceMap": true
+  },
+  "include": ["src", "vite.config.ts"],
+  "exclude": ["src/sugar.js", "src/sw.js"]
 }

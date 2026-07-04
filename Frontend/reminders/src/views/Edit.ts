@@ -12,7 +12,6 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
     let deadline: Date | null = null;
     let invalidDeadline = false;
     let done = false;
-    // tslint:disable-next-line:variable-name
     let hide_until_done = true;
 
     if (editId) {
@@ -43,7 +42,6 @@ export default (context: string, dateParseFunction: (s: string) => Date | null, 
             store.dispatch(editTodo(editId, title, deadline, hide_until_done));
             serverUpdate();
         } else {
-            // tslint:disable-next-line:variable-name
             let done_time;
             if (done) { // this should always be false in this branch
                 done_time = new Date();

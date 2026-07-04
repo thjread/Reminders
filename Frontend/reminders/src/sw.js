@@ -1,7 +1,11 @@
-workbox.precaching.precacheAndRoute(self.__precacheManifest);
+import { precacheAndRoute } from "workbox-precaching";
+import { registerRoute } from "workbox-routing";
+import { CacheFirst, StaleWhileRevalidate } from "workbox-strategies";
 
-workbox.routing.registerRoute(/https:\/\/fonts.googleapis.com\//, new workbox.strategies.StaleWhileRevalidate(), "GET");
-workbox.routing.registerRoute(/https:\/\/fonts.gstatic.com\//, new workbox.strategies.CacheFirst(), "GET");
+precacheAndRoute(self.__WB_MANIFEST);
+
+registerRoute(/https:\/\/fonts.googleapis.com\//, new StaleWhileRevalidate(), "GET");
+registerRoute(/https:\/\/fonts.gstatic.com\//, new CacheFirst(), "GET");
 
 self.addEventListener("push", (event) => {
     const payload_json = event.data.text();
@@ -37,7 +41,7 @@ self.addEventListener("notificationclick", function(event) {
                     return self.clients.matchAll({type: "window"});
                 })
                 .then(function(clientList) {
-                    for (var i = 0; i < clientList.length; i++) {
+                    for (let i = 0; i < clientList.length; i++) {
                         const client = clientList[i];
                         return client.focus();
                     }

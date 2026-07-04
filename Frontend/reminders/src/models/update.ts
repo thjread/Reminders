@@ -7,7 +7,7 @@ import { logout, LoginDetails } from "./auth";
 import { showMessage } from "./ui";
 import { hash } from "./serialize";
 
-declare var API_URI: boolean; // provided by webpack
+declare const API_URI: string; // provided by Vite define
 
 interface SyncActionDummy {
     type: string;
@@ -94,7 +94,7 @@ export function serverUpdate(actions: SyncActionDummy[]
                         const serverHash = response.hash;
                         const todos = response.todos;
                         actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
-                        // tslint:disable-next-line:no-console
+                        // eslint-disable-next-line no-console
                         console.log("Local hash " + state.hash + " does not match hash " +
                                     serverHash + " from server - updating");
                         updateWithServerTodos(todos as ServerTodoRow[], serverHash);
