@@ -20,10 +20,25 @@ struct PushPayload {
 }
 
 /// Every `frequency` seconds, notify subscribers of todos whose deadline
-/// passed since the previous tick.
+/// passed since the previous tick. The watermark is persisted in the
+/// push_state table so deadlines passing while the server is down are
+/// still notified on restart.
 pub async fn push_loop(pool: DbPool, frequency: u64, ttl: u32) {
     let client = HyperWebPushClient::new();
-    let mut last_notify = Utc::now().naive_utc() - chrono::Duration::minutes(1);
+
+    let pool_ = pool.clone();
+    let mut last_notify =
+        match tokio::task::spawn_blocking(move || database::get_last_notify(&pool_)).await {
+            Ok(Ok(t)) => t,
+            other => {
+                println!(
+                    "[RUST] Error {:?} reading push watermark, starting from now",
+                    other
+                );
+                Utc::now().naive_utc() - chrono::Duration::minutes(1)
+            }
+        };
+
     let mut interval = tokio::time::interval(Duration::from_secs(frequency));
     interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
     loop {
@@ -31,16 +46,19 @@ pub async fn push_loop(pool: DbPool, frequency: u64, ttl: u32) {
 
         let since = last_notify;
         let now = Utc::now().naive_utc();
-        last_notify = now;
 
         let pool_ = pool.clone();
         let notifications = match tokio::task::spawn_blocking(move || {
-            database::get_notifications(&pool_, since, now)
+            database::take_notifications(&pool_, since, now)
         })
         .await
         {
-            Ok(Ok(ts)) => ts,
+            Ok(Ok(ts)) => {
+                last_notify = now;
+                ts
+            }
             Ok(Err(e)) => {
+                // watermark not advanced; this window is retried next tick
                 println!(
                     "[RUST] Error {:?} retrieving todos and subscriptions to notify",
                     e

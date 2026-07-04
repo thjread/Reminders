@@ -172,6 +172,18 @@ pub fn update_batch(pool: &DbPool, userid: Uuid, actions: Vec<UpdateAction>) -> 
     let conn = &mut pool.get()?;
 
     if !actions.is_empty() {
+        conn.transaction(|conn| apply_batch(conn, userid, actions))
+    } else {
+        get_todo_hash(conn, userid)
+    }
+}
+
+fn apply_batch(
+    conn: &mut PgConnection,
+    userid: Uuid,
+    actions: Vec<UpdateAction>,
+) -> Result<u64, Error> {
+    {
         for action in actions {
             let result = match action.clone() {
                 // note clone is only so we can print in error message
@@ -236,8 +248,6 @@ pub fn update_batch(pool: &DbPool, userid: Uuid, actions: Vec<UpdateAction>) -> 
         println!("[RUST] New hash {} for user {}", hash.0, userid);
         set_todo_hash(conn, userid, BigDecimal::from(hash.0))?;
         Ok(hash.0)
-    } else {
-        get_todo_hash(conn, userid)
     }
 }
 
@@ -287,21 +297,38 @@ pub fn unsubscribe(pool: &DbPool, userid: Uuid, endpoint: String) -> Result<(), 
     Ok(())
 }
 
-pub fn get_notifications(
+pub fn get_last_notify(pool: &DbPool) -> Result<chrono::NaiveDateTime, Error> {
+    let conn = &mut pool.get()?;
+    schema::push_state::dsl::push_state
+        .select(schema::push_state::dsl::last_notify)
+        .first(conn)
+        .map_err(|e| e.into())
+}
+
+/// Fetch the todos to notify for deadlines in (since, until] and advance the
+/// persisted watermark to `until` in the same transaction, so a crash between
+/// the two can't skip a window.
+pub fn take_notifications(
     pool: &DbPool,
     since: chrono::NaiveDateTime,
     until: chrono::NaiveDateTime,
 ) -> Result<Vec<(Todo, Subscription)>, Error> {
     let conn = &mut pool.get()?;
-    todos_dsl::todos
-        .filter(
-            todos_dsl::deadline
-                .between(since, until)
-                .and(todos_dsl::done.eq(false)),
-        )
-        .inner_join(
-            subscriptions_dsl::subscriptions.on(todos_dsl::userid.eq(subscriptions_dsl::userid)),
-        )
-        .load::<(Todo, Subscription)>(conn)
-        .map_err(|e| e.into())
+    conn.transaction(|conn| {
+        diesel::update(schema::push_state::dsl::push_state)
+            .set(schema::push_state::dsl::last_notify.eq(until))
+            .execute(conn)?;
+        todos_dsl::todos
+            .filter(
+                todos_dsl::deadline
+                    .between(since, until)
+                    .and(todos_dsl::done.eq(false)),
+            )
+            .inner_join(
+                subscriptions_dsl::subscriptions
+                    .on(todos_dsl::userid.eq(subscriptions_dsl::userid)),
+            )
+            .load::<(Todo, Subscription)>(conn)
+            .map_err(|e| e.into())
+    })
 }

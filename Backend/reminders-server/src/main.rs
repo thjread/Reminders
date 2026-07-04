@@ -1,8 +1,10 @@
 use actix_cors::Cors;
+use actix_governor::{Governor, GovernorConfigBuilder, KeyExtractor, SimpleKeyExtractionError};
 use actix_web::{
-    middleware::Compress, middleware::Logger, web, web::Json, App, HttpResponse, HttpServer,
+    dev::ServiceRequest, middleware::Compress, middleware::Logger, web, web::Json, App,
+    HttpResponse, HttpServer,
 };
-use bigdecimal::Zero;
+use bigdecimal::BigDecimal;
 use chrono::prelude::*;
 use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 use dotenvy::dotenv;
@@ -28,6 +30,26 @@ pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 
 struct AppState {
     pool: database::DbPool,
+}
+
+/// Rate-limit key: the client IP as reported by Cloudflare, falling back to
+/// the peer address (which behind the tunnel is always cloudflared's
+/// container IP, so the header matters in production).
+#[derive(Clone)]
+struct ClientIpKey;
+
+impl KeyExtractor for ClientIpKey {
+    type Key = String;
+    type KeyExtractionError = SimpleKeyExtractionError<&'static str>;
+
+    fn extract(&self, req: &ServiceRequest) -> Result<Self::Key, Self::KeyExtractionError> {
+        req.headers()
+            .get("cf-connecting-ip")
+            .and_then(|v| v.to_str().ok())
+            .map(str::to_owned)
+            .or_else(|| req.peer_addr().map(|a| a.ip().to_string()))
+            .ok_or_else(|| SimpleKeyExtractionError::new("could not determine client IP"))
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -201,7 +223,9 @@ async fn signup(
         username: username.clone(),
         hash,
         signup: Utc::now().naive_utc(),
-        todo_hash: Zero::zero(),
+        // hash of the empty todo list, so a new client's first sync
+        // (which sends exactly that hash) doesn't spuriously mismatch
+        todo_hash: BigDecimal::from(serialize::hash(&[]).0),
     };
     let pool = state.pool.clone();
     match web::block(move || database::signup(&pool, user)).await? {
@@ -246,6 +270,16 @@ async fn subscribe(
         }
         Ok(userid) => userid,
     };
+
+    // the server pushes to whatever endpoint is registered, so don't let
+    // users point it at arbitrary internal/plaintext targets
+    if !info.endpoint.starts_with("https://") {
+        println!(
+            "[RUST] Rejecting non-https subscription endpoint from {}",
+            userid
+        );
+        return Ok(HttpResponse::BadRequest().finish());
+    }
 
     let sub = models::Subscription {
         userid,
@@ -299,7 +333,9 @@ async fn unsubscribe(
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_web=warn");
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var("RUST_LOG", "actix_web=warn");
+    }
     env_logger::init();
 
     dotenv().ok();
@@ -321,6 +357,16 @@ async fn main() -> std::io::Result<()> {
 
     actix_web::rt::spawn(push::push_loop(pool.clone(), frequency, ttl));
 
+    // ~1 request per 3s sustained with a burst of 10: ample for humans,
+    // hostile to credential stuffing. Built outside the factory closure so
+    // all workers share one limiter.
+    let auth_limit = GovernorConfigBuilder::default()
+        .seconds_per_request(3)
+        .burst_size(10)
+        .key_extractor(ClientIpKey)
+        .finish()
+        .expect("invalid rate limit config");
+
     let server = HttpServer::new(move || {
         let cors = if cfg!(debug_assertions) {
             Cors::default()
@@ -333,6 +379,8 @@ async fn main() -> std::io::Result<()> {
             Cors::permissive()
         };
 
+        let auth_limit = auth_limit.clone();
+
         let app = App::new()
             .app_data(web::Data::new(AppState { pool: pool.clone() }))
             .wrap(Logger::new("%r %b %D"))
@@ -342,8 +390,16 @@ async fn main() -> std::io::Result<()> {
         app.service(
             web::scope("/api")
                 .service(web::resource("/update").route(web::put().to(update)))
-                .service(web::resource("/login").route(web::post().to(login)))
-                .service(web::resource("/signup").route(web::post().to(signup)))
+                .service(
+                    web::resource("/login")
+                        .wrap(Governor::new(&auth_limit))
+                        .route(web::post().to(login)),
+                )
+                .service(
+                    web::resource("/signup")
+                        .wrap(Governor::new(&auth_limit))
+                        .route(web::post().to(signup)),
+                )
                 .service(web::resource("/subscribe").route(web::post().to(subscribe)))
                 .service(web::resource("/unsubscribe").route(web::delete().to(unsubscribe))),
         )

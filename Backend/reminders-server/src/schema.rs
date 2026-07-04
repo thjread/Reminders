@@ -8,6 +8,13 @@ diesel::table! {
 }
 
 diesel::table! {
+    push_state (onerow) {
+        onerow -> Bool,
+        last_notify -> Timestamp,
+    }
+}
+
+diesel::table! {
     todos (id) {
         id -> Uuid,
         userid -> Uuid,
