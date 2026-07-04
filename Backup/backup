@@ -1,3 +1,11 @@
 #!/bin/sh
-pg_dump -U postgres -h db postgres > /root/$1
-aws s3 cp /root/$1 s3://reminders-backup
+# Dump to a temp file and only overwrite the S3 object once the dump is
+# verified complete, so a failed pg_dump can't clobber a good backup.
+set -e
+TMP=$(mktemp)
+trap 'rm -f "$TMP"' EXIT
+
+pg_dump -U postgres -h db postgres > "$TMP"
+grep -q "PostgreSQL database dump complete" "$TMP"
+
+aws s3 cp "$TMP" s3://reminders-backup/$1
