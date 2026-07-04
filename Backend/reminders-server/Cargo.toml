@@ -2,27 +2,27 @@
 name = "reminders-server"
 version = "0.1.0"
 authors = ["Thomas Read <thjread@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-actix-web = "^1.0"
-serde_derive = "^1.0"
-serde = "^1.0"
-env_logger = "^0.7"
-diesel = { version = "1.4", features = ["postgres", "chrono", "uuid", "r2d2", "numeric"] }
-uuid = { version = ">=0.2.0, <0.7.0", features = ["serde", "use_std", "v4"] }
+actix-web = "4"
+actix-cors = "0.7"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+env_logger = "0.11"
+diesel = { version = "2.2", features = ["postgres", "chrono", "uuid", "r2d2", "numeric"] }
+diesel_migrations = "2"
+uuid = { version = "1", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
-r2d2 = { version = ">= 0.8, < 0.9"}
-bigdecimal = { version = "0.1.2" }
-actix = "^0.8"
-actix-cors = "^0.1"
-dotenv = "^0.14"
-futures = "^0.1"
-frank_jwt = "^3.1"
-bcrypt = "^0.6"
-serde_json = "^1.0"
-failure = "^0.1"
-diesel_migrations = "^1.4"
-web-push = "^0.5"
-tokio = "^0.1"
-twox-hash = "^1.3"
+bigdecimal = "0.4"
+jsonwebtoken = "9"
+bcrypt = "0.17"
+dotenvy = "0.15"
+thiserror = "2"
+anyhow = "1"
+web-push = { version = "0.11", default-features = false, features = ["hyper-client"] }
+tokio = { version = "1", features = ["macros", "time", "rt"] }
+futures = "0.3"
+# twox-hash pinned to 1.x: the todo-list hash must stay byte-identical to what
+# deployed clients have stored, and 2.x changed the hasher API
+twox-hash = "1.6"

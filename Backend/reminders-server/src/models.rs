@@ -1,14 +1,15 @@
-use uuid::Uuid;
-use chrono::NaiveDateTime;
-use serde_derive::{Serialize, Deserialize};
 use bigdecimal::BigDecimal;
+use chrono::NaiveDateTime;
+use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
+use super::schema::subscriptions;
 use super::schema::todos;
 use super::schema::users;
-use super::schema::subscriptions;
 
 #[derive(Debug, Serialize, Insertable, Deserialize, Queryable)]
-#[table_name="todos"]
+#[diesel(table_name = todos)]
 pub struct Todo {
     pub id: Uuid,
     pub userid: Uuid,
@@ -22,7 +23,7 @@ pub struct Todo {
 }
 
 #[derive(Debug, Insertable, Queryable)]
-#[table_name="users"]
+#[diesel(table_name = users)]
 pub struct User {
     pub userid: Uuid,
     pub username: String,
@@ -32,7 +33,7 @@ pub struct User {
 }
 
 #[derive(Debug, Serialize, Insertable, Deserialize, Queryable, AsChangeset)]
-#[table_name="subscriptions"]
+#[diesel(table_name = subscriptions)]
 pub struct Subscription {
     pub endpoint: String,
     pub p256dh: String,

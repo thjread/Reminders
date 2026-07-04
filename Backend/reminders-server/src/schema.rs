@@ -1,4 +1,4 @@
-table! {
+diesel::table! {
     subscriptions (endpoint) {
         endpoint -> Varchar,
         p256dh -> Varchar,
@@ -7,7 +7,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     todos (id) {
         id -> Uuid,
         userid -> Uuid,
@@ -21,7 +21,7 @@ table! {
     }
 }
 
-table! {
+diesel::table! {
     users (userid) {
         userid -> Uuid,
         username -> Varchar,
@@ -31,11 +31,7 @@ table! {
     }
 }
 
-joinable!(subscriptions -> users (userid));
-joinable!(todos -> users (userid));
+diesel::joinable!(subscriptions -> users (userid));
+diesel::joinable!(todos -> users (userid));
 
-allow_tables_to_appear_in_same_query!(
-    subscriptions,
-    todos,
-    users,
-);
+diesel::allow_tables_to_appear_in_same_query!(subscriptions, todos, users,);
