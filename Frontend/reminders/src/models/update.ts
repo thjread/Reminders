@@ -65,8 +65,10 @@ function serverError(actions: SyncActionDummy[]) {
     } else {
         showMessage("Server error (you may need to close and reopen the webpage)");
     }
-    setOnlineAsOf(undefined);
+    store.dispatch(setOnlineAsOf(undefined));
 }
+
+let updateInFlight = false;
 
 // action must have an action_id field with a uuidv4 in it
 export function serverUpdate(actions: SyncActionDummy[]
@@ -74,6 +76,12 @@ export function serverUpdate(actions: SyncActionDummy[]
     const state = store.getState();
     if (state.loginDetails) {
         if (navigator.onLine !== false) {
+            if (updateInFlight) {
+                // a sync is already running; the polling loop will pick up
+                // any new actions within a couple of seconds
+                return;
+            }
+            updateInFlight = true;
             return m.request({
                 method: "PUT",
                 url: API_URI+"/update",
@@ -84,6 +92,7 @@ export function serverUpdate(actions: SyncActionDummy[]
                     expected_hash: state.hash,
                 },
             }).then((response: any) => {
+                updateInFlight = false;
                 switch (response.type) {
                     case "SUCCESS": {
                         actions.forEach((a) => store.dispatch(syncActionSynced(a.payload.action_id)));
@@ -114,6 +123,7 @@ export function serverUpdate(actions: SyncActionDummy[]
                         serverError(actions);
                 }
             }).catch((e: any) => {
+                updateInFlight = false;
                 if (e.code !== 0) {
                     console.warn("Server responded with error " + e.code);
                 }
@@ -122,7 +132,7 @@ export function serverUpdate(actions: SyncActionDummy[]
                     // 502, 503, 521, 525 all errors produced by Cloudflare when server is down
                     serverError(actions);
                 } else {
-                    setOnlineAsOf(undefined);
+                    store.dispatch(setOnlineAsOf(undefined));
                 }
             });
         } else {

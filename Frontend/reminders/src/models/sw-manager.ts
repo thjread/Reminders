@@ -1,11 +1,36 @@
 /* eslint-disable no-console */
 
+import { del, get } from "idb-keyval";
 import m from "mithril";
 import { logout, loggedIn } from "./auth";
 import { urlBase64ToUint8Array } from "../utils";
 import { store } from "./store";
 import { toggleDone } from "./actions";
 import { showMessage } from "./ui";
+import { serverUpdate } from "./update";
+
+// must match PENDING_DONE_KEY in sw.js
+const PENDING_DONE_KEY = "pending-done-actions";
+
+// apply "Done" notification actions that the service worker queued while
+// no app window was open
+async function drainPendingDone() {
+    const pending: Array<{ userid: string; id: string }> | undefined =
+        await get(PENDING_DONE_KEY);
+    if (!pending || pending.length === 0) {
+        return;
+    }
+    await del(PENDING_DONE_KEY);
+    const state = store.getState();
+    if (state.loginDetails) {
+        const userid = state.loginDetails.userid;
+        pending
+            .filter((p) => p.userid === userid)
+            .forEach((p) => store.dispatch(toggleDone(p.id, true)));
+        serverUpdate();
+        m.redraw();
+    }
+}
 
 declare const API_URI: string; // provided by Vite define
 
@@ -26,6 +51,8 @@ export function swInit() {
                 registration = reg;
                 if (loggedIn()) {
                     pushSubscribe();
+                    drainPendingDone().catch((e) =>
+                        console.warn("Error applying queued notification actions", e));
                 }
             }).catch((error) => {
                 console.log("Service worker registration failed with " + error);

@@ -1,6 +1,10 @@
+import { get, set } from "idb-keyval";
 import { precacheAndRoute } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
 import { CacheFirst, StaleWhileRevalidate } from "workbox-strategies";
+
+// must match PENDING_DONE_KEY in models/sw-manager.ts
+const PENDING_DONE_KEY = "pending-done-actions";
 
 precacheAndRoute(self.__WB_MANIFEST);
 
@@ -27,37 +31,44 @@ self.addEventListener("push", (event) => {
     event.waitUntil(self.registration.showNotification(title, options));
 });
 
-self.addEventListener("notificationclick", function(event) {
+self.addEventListener("notificationclick", (event) => {
     const notification = event.notification;
     const action = event.action;
 
     notification.close();
     if (action === "close") {
         return;
-    } else {
-        event.waitUntil(
-            self.clients.claim()
-                .then(function() {
-                    return self.clients.matchAll({type: "window"});
-                })
-                .then(function(clientList) {
-                    for (let i = 0; i < clientList.length; i++) {
-                        const client = clientList[i];
-                        return client.focus();
-                    }
-                    if (self.clients.openWindow) {
-                        return self.clients.openWindow("https://reminders.thjread.com");
-                    }
-                }).then(function(client) {
-                    if (action === "done") {
-                        return client.postMessage({
-                            type: "DONE",
-                            userid: notification.data.userid,
-                            id: notification.data.id,
-                        });
-                    }
-                    return null;
-                }),
-        );
     }
+    event.waitUntil((async () => {
+        const clientList = await self.clients.matchAll({ type: "window" });
+        const client =
+            clientList.find((c) => c.focused) ||
+            clientList.find((c) => c.visibilityState === "visible") ||
+            clientList[0];
+
+        if (action === "done") {
+            if (client) {
+                client.postMessage({
+                    type: "DONE",
+                    userid: notification.data.userid,
+                    id: notification.data.id,
+                });
+            } else {
+                // no window to receive the message; queue it in IndexedDB
+                // for the app to apply when it next loads
+                const pending = (await get(PENDING_DONE_KEY)) || [];
+                pending.push({
+                    userid: notification.data.userid,
+                    id: notification.data.id,
+                });
+                await set(PENDING_DONE_KEY, pending);
+            }
+        }
+
+        if (client) {
+            await client.focus();
+        } else if (self.clients.openWindow) {
+            await self.clients.openWindow("https://reminders.thjread.com");
+        }
+    })());
 });

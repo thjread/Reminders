@@ -45,6 +45,12 @@ export default (state: State, action: Action) => {
             const title = action.payload.title;
             const deadline = action.payload.deadline;
             const old_todo = state.todos[id];
+            if (!old_todo) {
+                // e.g. a queued edit replayed after the todo was deleted on
+                // another device
+                console.warn(`Cannot edit todo ${id}: does not exist`);
+                return state;
+            }
             const hide_until_done = action.payload.hide_until_done;
             const new_todo: Todo = {
                 title,
@@ -66,6 +72,10 @@ export default (state: State, action: Action) => {
         }
         case getType(actions.toggleDone): {
             const id = action.payload.id;
+            if (!state.todos[id]) {
+                console.warn(`Cannot toggle done on todo ${id}: does not exist`);
+                return state;
+            }
             const done = action.payload.done;
             const done_time = action.payload.done_time;
             const s = state.setIn(["todos", id, "done"], done)
@@ -74,6 +84,10 @@ export default (state: State, action: Action) => {
         }
         case getType(actions.toggleHighlight): {
             const id = action.payload.id;
+            if (!state.todos[id]) {
+                console.warn(`Cannot toggle highlight on todo ${id}: does not exist`);
+                return state;
+            }
             const highlight = action.payload.highlight;
             const s = state.setIn(["todos", id, "highlight"], highlight);
             return s.set("hash", hash(s.todos.asMutable({ deep: true })));
