@@ -349,6 +349,12 @@ const Item = (): m.Component<Attrs> => {
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
                         m.route.set("/", { c: m.route.param("c"), e: id});
                     } }, "Edit"),
+                    // mouse-accessible counterpart of the swipe-left gesture
+                    !item.done && item.deadline ?
+                        m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
+                            m.route.set("/", { c: m.route.param("c"), s: id});
+                        } }, "Snooze") :
+                        undefined,
                     m("button.pill-button.on-secondary.option-button", { tabindex: selected ? 0 : -1, onclick: () => {
                         store.dispatch(deleteTodo(id));
                         serverUpdate();
