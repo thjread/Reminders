@@ -690,6 +690,16 @@ body.noscroll {
     font-size: 1.6rem;
 }
 
+.show-more-button {
+    display: block;
+    margin: 1rem auto 1.6rem auto;
+    font-size: 1rem;
+}
+
+.completed .show-more-button {
+    color: var(--completed-dark);
+}
+
 /* Header */
 
 .header {

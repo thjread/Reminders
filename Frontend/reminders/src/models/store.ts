@@ -17,13 +17,11 @@ export interface Todo {
 }
 export interface TodoMap { [id: string]: Todo; }
 
-function itemCompare(idA: string, idB: string) {
-    const ta = getTodo(idA);
-    const tb = getTodo(idB);
-    if (!ta || !tb) {
-        console.warn(`Todo ${ta} or ${tb} does not exist`);
-        return 0;
-    }
+type ImmutableTodo = Immutable.Immutable<Todo>;
+
+// comparators take the todo objects directly rather than looking ids up via
+// getTodo: getTodo deep-clones, and a sort makes O(n log n) comparator calls
+function itemCompare(ta: ImmutableTodo, tb: ImmutableTodo, idA: string, idB: string) {
     const comp0 = highlightCompare(ta.highlight, tb.highlight);
     if (comp0 === 0) {
         const comp1 = dateCompare(ta.deadline, tb.deadline, true);
@@ -46,13 +44,7 @@ function itemCompare(idA: string, idB: string) {
     }
 }
 
-function completedCompare(idA: string, idB: string) {
-    const ta = getTodo(idA);
-    const tb = getTodo(idB);
-    if (!ta || !tb) {
-        console.warn(`Todo ${ta} or ${tb} does not exist`);
-        return 0;
-    }
+function completedCompare(ta: ImmutableTodo, tb: ImmutableTodo, idA: string, idB: string) {
     const comp1 = dateCompare(ta.done_time, tb.done_time, false);
     if (comp1 === 0) {
         if (idA < idB) { // stable tie break
@@ -75,12 +67,14 @@ function highlightCompare(a: boolean, b: boolean) {
     }
 }
 
-function dateCompare(a: Date | undefined, b: Date | undefined, undefinedLower: boolean) {
+function dateCompare(a: Date | Immutable.ImmutableDate | undefined,
+                     b: Date | Immutable.ImmutableDate | undefined,
+                     undefinedLower: boolean) {
     if (a) {
         if (b) {
-            if (a < b) {
+            if (a.getTime() < b.getTime()) {
                 return -1;
-            } else if (b < a) {
+            } else if (b.getTime() < a.getTime()) {
                 return 1;
             } else {
                 return 0;
@@ -154,77 +148,69 @@ export function getTodo(id: string) {
     }
 }
 
+// read-only view of a todo, without getTodo's deep clone
+export function getTodoImmutable(id: string): ImmutableTodo | undefined {
+    return store.getState().todos[id];
+}
+
 export function dueTodos() {
     const now = Date.now();
-    return Object.keys(store.getState().todos)
+    const todos = store.getState().todos;
+    return Object.keys(todos)
         .filter((id) => {
-            const t = getTodo(id);
-            if (t) {
-                return !t.done && t.deadline && t.deadline.getTime() <= now;
-            } else {
-                console.warn(`Todo ${id} does not exist`);
-                return false;
-            }
+            const t = todos[id];
+            return !t.done && t.deadline && t.deadline.getTime() <= now;
         })
-        .sort((a, b) => itemCompare(a, b));
+        .sort((a, b) => itemCompare(todos[a], todos[b], a, b));
 }
 
 export function deadlineTodos() {
     const now = Date.now();
-    return Object.keys(store.getState().todos)
+    const todos = store.getState().todos;
+    return Object.keys(todos)
         .filter((id) => {
-            const t = getTodo(id);
-            if (t) {
-                return !t.hide_until_done && !t.done && t.deadline && t.deadline.getTime() > now;
-            } else {
-                console.warn(`Todo ${id} does not exist`);
-                return false;
-            }
+            const t = todos[id];
+            return !t.hide_until_done && !t.done && t.deadline && t.deadline.getTime() > now;
         })
-        .sort((a, b) => itemCompare(a, b));
+        .sort((a, b) => itemCompare(todos[a], todos[b], a, b));
 }
 
 export function upcomingTodos() {
     const now = Date.now();
-    return Object.keys(store.getState().todos)
+    const todos = store.getState().todos;
+    return Object.keys(todos)
         .filter((id) => {
-            const t = getTodo(id);
-            if (t) {
-                return !t.done && t.deadline && t.deadline.getTime() > now;
-            } else {
-                console.warn(`Todo ${id} does not exist`);
-                return false;
-            }
+            const t = todos[id];
+            return !t.done && t.deadline && t.deadline.getTime() > now;
         })
-        .sort((a, b) => itemCompare(a, b));
+        .sort((a, b) => itemCompare(todos[a], todos[b], a, b));
 }
 
 export function otherTodos() {
-    return Object.keys(store.getState().todos)
+    const todos = store.getState().todos;
+    return Object.keys(todos)
         .filter((id) => {
-            const t = getTodo(id);
-            if (t) {
-                return !t.done && !t.deadline;
-            } else {
-                console.warn(`Todo ${id} does not exist`);
-                return false;
-            }
+            const t = todos[id];
+            return !t.done && !t.deadline;
         })
-        .sort((a, b) => itemCompare(a, b));
+        .sort((a, b) => itemCompare(todos[a], todos[b], a, b));
 }
 
+// the completed list is by far the largest, and doesn't depend on the current
+// time, so cache it on the todos map reference (seamless-immutable guarantees
+// a new reference whenever anything changes)
+let completedCache: { todos: unknown; result: string[] } | null = null;
+
 export function completedTodos() {
-    return Object.keys(store.getState().todos)
-        .filter((id) => {
-            const t = getTodo(id);
-            if (t) {
-                return t.done;
-            } else {
-                console.warn(`Todo ${id} does not exist`);
-                return false;
-            }
-        })
-        .sort((a, b) => completedCompare(a, b));
+    const todos = store.getState().todos;
+    if (completedCache && completedCache.todos === todos) {
+        return completedCache.result;
+    }
+    const result = Object.keys(todos)
+        .filter((id) => todos[id].done)
+        .sort((a, b) => completedCompare(todos[a], todos[b], a, b));
+    completedCache = { todos, result };
+    return result;
 }
 
 export function pendingUndo() {

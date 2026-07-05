@@ -1,6 +1,12 @@
 import m from "mithril";
+import Immutable from "seamless-immutable";
 
-export let formatDateTime = (d: Date) => {
+// accepts dates read straight out of the seamless-immutable store as well as
+// plain Dates (they're the same object at runtime; ImmutableDate just lacks
+// the mutating methods at the type level)
+type ReadonlyDate = Date | Immutable.ImmutableDate;
+
+export let formatDateTime = (d: ReadonlyDate) => {
     if (d.toLocaleTimeString() !== "00:00:00") {
         return d.toLocaleTimeString() + " " + d.toLocaleDateString();
     } else {
@@ -8,7 +14,7 @@ export let formatDateTime = (d: Date) => {
     }
 };
 
-export let dateColorClass = (d: Date): string | undefined => {
+export let dateColorClass = (d: ReadonlyDate): string | undefined => {
     if (d.getTime() <= Date.now()) {
         return "due";
     } else {

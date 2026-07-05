@@ -1,6 +1,6 @@
 import m from "mithril";
 import { MENU_SWIPE_OUT_MARGIN } from "./TodoPage";
-import { store, getTodo } from "../models/store";
+import { store, getTodoImmutable } from "../models/store";
 import { deleteTodo, toggleDone, toggleHighlight } from "../models/actions";
 import { formatDateTime, dateColorClass } from "../utils";
 import { serverUpdate } from "../models/update";
@@ -149,7 +149,7 @@ const Item = (): m.Component<Attrs> => {
 
             const highlightCallback = () => {
                 const id = vnode.attrs.id;
-                const todo = getTodo(id);
+                const todo = getTodoImmutable(id);
                 if (todo && !todo.done) {
                     if ("vibrate" in navigator) {
                         navigator.vibrate([LONG_PRESS_VIBRATE]);
@@ -163,7 +163,7 @@ const Item = (): m.Component<Attrs> => {
                                        { passive: true });
             vnode.dom.addEventListener("touchmove", (e: TouchEvent) => touchMove(e, vnode.dom, () => {
                 const id = vnode.attrs.id;
-                const todo = getTodo(id);
+                const todo = getTodoImmutable(id);
                 if (todo && !todo.done) {
                     store.dispatch(toggleDone(id, true));
                     m.redraw();
@@ -179,7 +179,7 @@ const Item = (): m.Component<Attrs> => {
         onupdate: katexUpdate,
 
         onbeforeremove(vnode: any) {
-            const todo = getTodo(vnode.attrs.id);
+            const todo = getTodoImmutable(vnode.attrs.id);
             if (todo && todo.done) {
                 vnode.dom.classList.add("done-item-exit");
             } else {
@@ -192,7 +192,7 @@ const Item = (): m.Component<Attrs> => {
 
         view(vnode) {
             const id = vnode.attrs.id;
-            const item = getTodo(id);
+            const item = getTodoImmutable(id);
             if (!item) {
                 console.warn(`Todo ${id} does not exist`);
                 return;

@@ -12,6 +12,7 @@ import { CLOUD_SVG, MENU_SVG } from "./Icons";
 
 const UNDO_SHOW_TIME = 10*1000; // 10 seconds
 const SYNC_DISPLAY_TIME = 10*1000; // 10 seconds
+const COMPLETED_PAGE_SIZE = 100;
 export const MENU_SWIPE_OUT_MARGIN = 50;
 const MENU_SWIPE_OUT_DISTANCE = 60;
 const MENU_SWIPE_IN_EXTRA_MARGIN = 50;
@@ -28,6 +29,7 @@ const TodoPage = (): m.Component<Attrs> => {
     // move this to global state if we want to use it anywhere else
 
     let oldContext: null | string = null;
+    let completedShown = COMPLETED_PAGE_SIZE;
 
     function contextClass(context: string) {
         switch (context) {
@@ -176,16 +178,18 @@ const TodoPage = (): m.Component<Attrs> => {
             const contextChanged = context !== oldContext;
             oldContext = context;
             let todoSections: Array<m.Vnode<any, any> | undefined> = [];
-            function section(ids: string[], title: string, desktopAnimateHorizontal: boolean, desktopPad: boolean) {
+            function section(ids: string[], title: string, desktopAnimateHorizontal: boolean,
+                             desktopPad: boolean, animateItems: boolean = true) {
                 return ids.length > 0 ?
                     m(TodoSection, { title,
                                      key: title,
                                      animateEnter: !contextChanged,
                                      desktopAnimateHorizontal,
                                      desktopPad,
-                                   }, m(TodoList, { todoIds: ids })) :
+                                   }, m(TodoList, { todoIds: ids, animateItems })) :
                     undefined;
             }
+            let completedRemaining = 0;
             switch (context) {
                 case "upcoming": {
                     const upcoming = upcomingTodos();
@@ -195,10 +199,16 @@ const TodoPage = (): m.Component<Attrs> => {
                     break;
                 }
                 case "completed": {
+                    if (contextChanged) {
+                        completedShown = COMPLETED_PAGE_SIZE;
+                    }
                     const completed = completedTodos();
+                    // only render the most recent completedShown todos: the
+                    // full list can be thousands of items
                     todoSections = [
-                        section(completed, "COMPLETED", false, true),
+                        section(completed.slice(0, completedShown), "COMPLETED", false, true, false),
                     ];
+                    completedRemaining = Math.max(0, completed.length - completedShown);
                     break;
                 }
                 default: {
@@ -224,6 +234,13 @@ const TodoPage = (): m.Component<Attrs> => {
                 }
             }
             todoSections = todoSections.filter((s) => s !== undefined);
+            if (completedRemaining > 0) {
+                todoSections.push(m("button.text-button.show-more-button", {
+                    key: "show-more",
+                    onclick: () => { completedShown += COMPLETED_PAGE_SIZE; },
+                }, `Show ${Math.min(COMPLETED_PAGE_SIZE, completedRemaining)} more ` +
+                   `(${completedRemaining} remaining)`));
+            }
 
             const modal = vnode.attrs.modal;
 

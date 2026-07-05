@@ -1,9 +1,11 @@
 import m from "mithril";
-import { getTodo } from "../models/store";
+import { getTodoImmutable } from "../models/store";
 import Item from "./Item";
 
 interface Attrs {
     todoIds: string[];
+    // set false to never animate items in (e.g. large "Show more" batches)
+    animateItems?: boolean;
 }
 
 export default function() {
@@ -25,7 +27,7 @@ export default function() {
         },
 
         view(vnode) {
-            const animateEnter = !firstPaint;
+            const animateEnter = !firstPaint && vnode.attrs.animateItems !== false;
             firstPaint = false;
 
             // deselect item if it's gone
@@ -33,7 +35,7 @@ export default function() {
                 selected = null;
             }
             return m("ul.todo-list", vnode.attrs.todoIds.map((id) => {
-                const todo = getTodo(id);
+                const todo = getTodoImmutable(id);
                 if (!todo) {
                     console.warn(`Todo ${id} does not exist`);
                     return;
