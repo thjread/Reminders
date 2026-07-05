@@ -189,7 +189,6 @@ const TodoPage = (): m.Component<Attrs> => {
                                    }, m(TodoList, { todoIds: ids, animateItems })) :
                     undefined;
             }
-            let completedRemaining = 0;
             switch (context) {
                 case "upcoming": {
                     const upcoming = upcomingTodos();
@@ -205,10 +204,28 @@ const TodoPage = (): m.Component<Attrs> => {
                     const completed = completedTodos();
                     // only render the most recent completedShown todos: the
                     // full list can be thousands of items
+                    const shownIds = completed.slice(0, completedShown);
+                    const completedRemaining = Math.max(0, completed.length - completedShown);
                     todoSections = [
-                        section(completed.slice(0, completedShown), "COMPLETED", false, true, false),
+                        shownIds.length > 0 ?
+                            m(TodoSection, { title: "COMPLETED",
+                                             key: "COMPLETED",
+                                             animateEnter: !contextChanged,
+                                             desktopAnimateHorizontal: false,
+                                             desktopPad: true,
+                                           }, [
+                                m(TodoList, { todoIds: shownIds, animateItems: false }),
+                                // inside the section so it sits below the
+                                // list on desktop (todo-container is a row)
+                                completedRemaining > 0 ?
+                                    m("button.text-button.show-more-button", {
+                                        onclick: () => { completedShown += COMPLETED_PAGE_SIZE; },
+                                    }, `Show ${Math.min(COMPLETED_PAGE_SIZE, completedRemaining)} more ` +
+                                       `(${completedRemaining} remaining)`) :
+                                    undefined,
+                            ]) :
+                            undefined,
                     ];
-                    completedRemaining = Math.max(0, completed.length - completedShown);
                     break;
                 }
                 default: {
@@ -234,13 +251,6 @@ const TodoPage = (): m.Component<Attrs> => {
                 }
             }
             todoSections = todoSections.filter((s) => s !== undefined);
-            if (completedRemaining > 0) {
-                todoSections.push(m("button.text-button.show-more-button", {
-                    key: "show-more",
-                    onclick: () => { completedShown += COMPLETED_PAGE_SIZE; },
-                }, `Show ${Math.min(COMPLETED_PAGE_SIZE, completedRemaining)} more ` +
-                   `(${completedRemaining} remaining)`));
-            }
 
             const modal = vnode.attrs.modal;
 

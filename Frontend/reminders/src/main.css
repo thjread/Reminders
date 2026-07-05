@@ -1506,6 +1506,11 @@ input[type=checkbox]:checked + .css-check::after {
 
     .menu-container {
         contain: content;
+        /* page-container has align-items: flex-start; stretch (which needs
+           height auto, not the mobile 100%) so the menu's height: 100%
+           covers the whole todo column, not just one viewport */
+        height: auto;
+        align-self: stretch;
     }
 
     .menu-shadow {
