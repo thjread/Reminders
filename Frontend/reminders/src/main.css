@@ -588,6 +588,30 @@ body.noscroll {
     font-size: 1.3rem;
 }
 
+/* Snooze modal */
+
+.snooze-todo-title {
+    color: var(--on-secondary);
+    font-size: 1.3rem;
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+    max-height: 3.9rem;
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
+.item-deadline.on-edit-form.snooze-old-time {
+    background-color: transparent;
+    color: var(--secondary-lightest);
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0.3rem;
+    font-size: 1.1rem;
+    height: auto;
+    line-height: 1.4;
+    text-align: left;
+}
+
 .show-in-deadlines {
     display: flex;
     align-items: center;

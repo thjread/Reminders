@@ -8,6 +8,9 @@ import { serverUpdate } from "../models/update";
 const MENU_SWIPE_OUT_EXTRA_MARGIN = 10;
 const SWIPE_DONE_DISTANCE = 95;
 const SWIPE_SELECTED_DONE_DISTANCE = 130;
+// leftward swipes starting near the right screen edge belong to the
+// browser back gesture (Android reserves both edges)
+const SNOOZE_SWIPE_RIGHT_MARGIN = 60;
 const SWIPE_DONE_Y_MARGIN = 0;
 const SWIPE_SELECTED_Y_GUTTER = 85;
 const LONG_PRESS_DELAY = 600;
@@ -24,6 +27,8 @@ interface Attrs {
 const Item = (): m.Component<Attrs> => {
     let swipingRight = false;
     let swipingRightTime = 0;
+    let swipingLeft = false;
+    let swipingLeftTime = 0;
     let holding = false;
     let holdingTimeout: undefined | number;
     let startX = 0;
@@ -63,6 +68,12 @@ const Item = (): m.Component<Attrs> => {
             } else {
                 swipingRight = false;
             }
+            if (startX < window.innerWidth - SNOOZE_SWIPE_RIGHT_MARGIN) {
+                swipingLeft = true;
+                swipingLeftTime = e.timeStamp;
+            } else {
+                swipingLeft = false;
+            }
         }
     }
 
@@ -87,9 +98,10 @@ const Item = (): m.Component<Attrs> => {
         }
     }
 
-    function touchMove(e: TouchEvent, elem: Element, doneCallback: () => void, highlightCallback: () => void) {
+    function touchMove(e: TouchEvent, elem: Element, doneCallback: () => void,
+                       snoozeCallback: () => void, highlightCallback: () => void) {
         touchHighlight(e, highlightCallback);
-        if (e.changedTouches.length === 1 && swipingRight) {
+        if (e.changedTouches.length === 1 && (swipingRight || swipingLeft)) {
             const touch = e.changedTouches[0];
             const diff = touch.pageX - startX;
 
@@ -97,19 +109,36 @@ const Item = (): m.Component<Attrs> => {
             if (touch.clientY > rect.top - SWIPE_DONE_Y_MARGIN &&
                 touch.clientY < rect.bottom + SWIPE_DONE_Y_MARGIN &&
                 !(selected && Math.abs(startY - touch.pageY) > SWIPE_SELECTED_Y_GUTTER)) {
-                const time = e.timeStamp - swipingRightTime;
-                const speed = diff / time;
-                const multiplier = 1 + speedBonus(speed) + slowPenalty(time);
-                const selectedMultiplier = 1 + slowPenalty(time);
-                // if selected, don't allow speed bonus, and have higher threshold,
-                // to prevent accidental marking as done while scrolling
-                if ((!selected && multiplier*diff > SWIPE_DONE_DISTANCE) ||
-                    (selected && selectedMultiplier*diff > SWIPE_SELECTED_DONE_DISTANCE)) {
-                    swipingRight = false;
-                    doneCallback();
+                if (swipingRight) {
+                    const time = e.timeStamp - swipingRightTime;
+                    const speed = diff / time;
+                    const multiplier = 1 + speedBonus(speed) + slowPenalty(time);
+                    const selectedMultiplier = 1 + slowPenalty(time);
+                    // if selected, don't allow speed bonus, and have higher threshold,
+                    // to prevent accidental marking as done while scrolling
+                    if ((!selected && multiplier*diff > SWIPE_DONE_DISTANCE) ||
+                        (selected && selectedMultiplier*diff > SWIPE_SELECTED_DONE_DISTANCE)) {
+                        swipingRight = false;
+                        swipingLeft = false;
+                        doneCallback();
+                    }
+                }
+                if (swipingLeft) {
+                    // mirror of the swipe-right-to-done thresholds
+                    const time = e.timeStamp - swipingLeftTime;
+                    const speed = -diff / time;
+                    const multiplier = 1 + speedBonus(speed) + slowPenalty(time);
+                    const selectedMultiplier = 1 + slowPenalty(time);
+                    if ((!selected && multiplier*-diff > SWIPE_DONE_DISTANCE) ||
+                        (selected && selectedMultiplier*-diff > SWIPE_SELECTED_DONE_DISTANCE)) {
+                        swipingRight = false;
+                        swipingLeft = false;
+                        snoozeCallback();
+                    }
                 }
             } else {
                 swipingRight = false;
+                swipingLeft = false;
             }
         }
     }
@@ -117,6 +146,7 @@ const Item = (): m.Component<Attrs> => {
     function touchEnd(e: TouchEvent, highlightCallback: () => void) {
         touchHighlight(e, highlightCallback);
         swipingRight = false;
+        swipingLeft = false;
         holding = false;
         if (holdingTimeout) {
             window.clearTimeout(holdingTimeout);
@@ -167,6 +197,13 @@ const Item = (): m.Component<Attrs> => {
                 if (todo && !todo.done) {
                     store.dispatch(toggleDone(id, true));
                     m.redraw();
+                }
+            }, () => {
+                const id = vnode.attrs.id;
+                const todo = getTodoImmutable(id);
+                // snooze only makes sense for open todos with a deadline
+                if (todo && !todo.done && todo.deadline) {
+                    m.route.set("/", { c: m.route.param("c"), s: id });
                 }
             }, highlightCallback), { passive: true });
             vnode.dom.addEventListener("touchend",

@@ -9,6 +9,7 @@ import App from "./views/App";
 import TodoPage from "./views/TodoPage";
 import Login from "./views/Login";
 import Edit from "./views/Edit";
+import Snooze from "./views/Snooze";
 import { loggedIn } from "./models/auth";
 
 const SERVER_SYNC_INTERVAL = 2000;
@@ -41,6 +42,12 @@ m.route(document.body, "/", {
                 return import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils")
                     .then(({ sugarParseDate}) => {
                     return Edit(params.c, sugarParseDate, editId);
+                });
+            }
+            if ("s" in params && store.getState().todos[params.s]) {
+                return import(/* webpackChunkName: "sugar", webpackPreload: true */ "./sugar-utils")
+                    .then(({ sugarParseDate}) => {
+                    return Snooze(params.c, sugarParseDate, params.s);
                 });
             }
         },
