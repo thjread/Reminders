@@ -13,8 +13,10 @@ import { CLOUD_SVG, MENU_SVG } from "./Icons";
 const UNDO_SHOW_TIME = 10*1000; // 10 seconds
 const SYNC_DISPLAY_TIME = 10*1000; // 10 seconds
 const COMPLETED_PAGE_SIZE = 100;
+// the browser owns edge swipes (back gesture), so item swipe-to-done must
+// not start there; the old swipe-from-edge-to-open-menu gesture is gone
+// for the same reason (mobile navigation is the bottom nav bar now)
 export const MENU_SWIPE_OUT_MARGIN = 50;
-const MENU_SWIPE_OUT_DISTANCE = 60;
 const MENU_SWIPE_IN_EXTRA_MARGIN = 50;
 const MENU_SWIPE_IN_DISTANCE = 60;
 
@@ -69,8 +71,6 @@ const TodoPage = (): m.Component<Attrs> => {
         return s ? parseFloat(s) : 16;
     }
 
-    let swipingMenuOut = false;
-    let swipingMenuOutTime = 0;
     let swipingMenuIn = false;
     let swipingMenuInTime = 0;
     let startX = 0;
@@ -87,11 +87,6 @@ const TodoPage = (): m.Component<Attrs> => {
         if (e.changedTouches.length === 1) {
             const touch = e.changedTouches[0];
             startX = touch.pageX;
-            /* Only allow swipes starting at the left margin to open the menu */
-            if (touch.pageX < MENU_SWIPE_OUT_MARGIN) {
-                swipingMenuOut = true;
-                swipingMenuOutTime = e.timeStamp;
-            }
             /* In mobile, happy with any swipes, but on desktop only want swipes starting
                on the menu to close it */
             if (!desktopLayout || touch.pageX < 14*getREM() + MENU_SWIPE_IN_EXTRA_MARGIN) {
@@ -106,15 +101,6 @@ const TodoPage = (): m.Component<Attrs> => {
             const touch = e.changedTouches[0];
             const diff = touch.pageX - startX;
 
-            const timeOut = e.timeStamp - swipingMenuOutTime;
-            const speedOut = diff / timeOut;
-            const multiplierOut = 1 + speedBonus(speedOut) + slowPenalty(timeOut);
-            if (swipingMenuOut && multiplierOut*diff > MENU_SWIPE_OUT_DISTANCE) {
-                swipingMenuOut = false;
-                doShowMenu(true);
-                m.redraw();
-            }
-
             const timeIn = e.timeStamp - swipingMenuInTime;
             const speedIn = -diff / timeIn;
             const multiplierIn = 1 + speedBonus(speedIn) + slowPenalty(timeIn);
@@ -126,7 +112,6 @@ const TodoPage = (): m.Component<Attrs> => {
     }
 
     function menuTouchEnd() {
-        swipingMenuOut = false;
         swipingMenuIn = false;
     }
 
@@ -272,16 +257,17 @@ const TodoPage = (): m.Component<Attrs> => {
             if (loginDetails) {
                 username = loginDetails.username;
             }
+            const navItems: Array<[string, string, boolean]> = [
+                ["Reminders", "", context !== "upcoming" && context !== "completed"],
+                ["Upcoming", "upcoming", context === "upcoming"],
+                ["Completed", "completed", context === "completed"],
+            ];
             const menu =
                 m("div.menu-container", { class: showMenu ? "menu-show" : undefined }, [
                     m("div.menu-shadow", { onclick: () => { doShowMenu(false); }}),
                     m("div.menu-spacer"),
                     m("nav.menu", [
-                        m("ul.menu-list", [
-                            ["Reminders", "", context !== "upcoming" && context !== "completed"],
-                            ["Upcoming", "upcoming", context === "upcoming"],
-                            ["Completed", "completed", context === "completed"],
-                        ].map(([title, path, selected]) => {
+                        m("ul.menu-list", navItems.map(([title, path, selected]) => {
                             return m("li", m(m.route.Link, {
                                 class: "main-nav-item " + (selected ? "selected" : undefined),
                                 href: `/?c=${path}`,
@@ -295,6 +281,17 @@ const TodoPage = (): m.Component<Attrs> => {
                           m("button.text-button.on-background", { onclick: logout}, "Log out")),
                     ]),
                 ]);
+
+            // mobile-only (hidden on desktop by CSS); replaces the old
+            // swipe-from-left-edge menu gesture, which conflicted with the
+            // browser back gesture
+            const bottomNav =
+                m("nav.bottom-nav", { class: contextClass(context) },
+                  navItems.map(([title, path, selected]) =>
+                      m(m.route.Link, {
+                          class: "bottom-nav-item" + (selected ? " selected" : ""),
+                          href: `/?c=${path}`,
+                      }, title)));
 
             return [
                 header,
@@ -320,6 +317,7 @@ const TodoPage = (): m.Component<Attrs> => {
                 modal ? undefined : m("button.fab", { onclick: () => {
                     m.route.set("/", { c: m.route.param("c"), e: ""});
                 }}, "+"),
+                bottomNav,
                 modal,
             ]; },
     };

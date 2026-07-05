@@ -1418,6 +1418,81 @@ input[type=checkbox]:checked + .css-check::after {
     pointer-events: none;
 }
 
+/* Bottom navigation (mobile only; hidden in the desktop media query) */
+
+.bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    background-color: var(--background-light);
+    border-top: 1px solid var(--outline-faint);
+    box-shadow: 0px -1px 5px 0px var(--shadow-faint);
+    /* keep clear of the iPhone home indicator in standalone mode */
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 9999;
+    contain: content;
+}
+
+.bottom-nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 0.9rem 0 0.8rem 0;
+    font-size: 1.05rem;
+    color: var(--background-darkish);
+    text-decoration: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    border-top: 3px solid transparent;
+    transition: background-color 0.1s;
+}
+
+.bottom-nav-item:active,
+.bottom-nav-item:focus {
+    background-color: var(--background);
+}
+
+.bottom-nav-item.selected {
+    font-weight: 500;
+}
+
+.normal.bottom-nav .bottom-nav-item.selected {
+    color: var(--primary-dark);
+    border-top-color: var(--primary-dark);
+}
+.upcoming.bottom-nav .bottom-nav-item.selected {
+    color: var(--upcoming-dark);
+    border-top-color: var(--upcoming-dark);
+}
+.completed.bottom-nav .bottom-nav-item.selected {
+    color: var(--completed-dark);
+    border-top-color: var(--completed-dark);
+}
+
+/* Mobile: lift the floating elements above the bottom nav, and anchor
+   modals near the top so the on-screen keyboard (which covers the bottom
+   half without shrinking the viewport on iOS) can't hide them */
+
+@media only screen and (max-width: 899px) {
+    .fab {
+        bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .undo {
+        bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .todo-container {
+        padding-bottom: calc(9.5rem + env(safe-area-inset-bottom, 0px));
+    }
+
+    .modal-container {
+        justify-content: flex-start;
+        padding-top: 3rem;
+    }
+}
+
 /* Short height e.g. mobile, keyboard open layout */
 
 @media only screen and (max-height: 400px) {
@@ -1425,10 +1500,16 @@ input[type=checkbox]:checked + .css-check::after {
         display: none;
     }
 
+    /* don't waste height when the on-screen keyboard is open */
+    .bottom-nav {
+        display: none;
+    }
+
     .modal-container {
         background-color: var(--secondary);
         pointer-events: auto;
         justify-content: flex-start;
+        padding-top: 0; /* override the mobile 3rem; every pixel counts here */
         animation: modal-container-background-enter var(--modal-animation-length);
         overflow: auto;
     }
@@ -1514,6 +1595,10 @@ input[type=checkbox]:checked + .css-check::after {
     }
 
     .menu-shadow {
+        display: none;
+    }
+
+    .bottom-nav {
         display: none;
     }
 
