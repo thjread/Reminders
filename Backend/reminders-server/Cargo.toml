@@ -16,7 +16,7 @@ diesel_migrations = "2"
 uuid = { version = "1", features = ["serde", "v4"] }
 chrono = { version = "0.4", features = ["serde"] }
 bigdecimal = "0.4"
-jsonwebtoken = "9"
+jsonwebtoken = "10"
 bcrypt = "0.17"
 dotenvy = "0.15"
 thiserror = "2"
